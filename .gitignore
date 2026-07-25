@@ -1,0 +1,21 @@
+# Python scriptleri (geliştirme araçları)
+*.py
+
+# PDF ve dökümanlar
+*.pdf
+
+# Şifre dosyaları (GÜVENLİK - KESİNLİKLE GİTMEMELİ)
+şifreler.txt
+passwords.txt
+*.txt
+
+# Görseller (büyükse CDN kullan, ama şimdilik dahil)
+# bg.png
+# yks_login_bg.png
+
+# OS dosyaları
+.DS_Store
+Thumbs.db
+
+# Editör dosyaları
+.vscode/

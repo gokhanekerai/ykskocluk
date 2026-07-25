@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YKS Koçum | Kişiselleştirilmiş Dijital Sınav Koçluğu Platformu</title>
+  <meta name="description" content="YKS 2027 sınav hazırlığında Kaan ve Çağan için özel olarak tasarlanmış, soru takibi, gelişim grafikleri, eksik analizleri ve puan hesaplama modülleri içeren öğretmen-veli koçluk paneli.">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Chart.js (Grafikler İçin) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Arka Plan Dekoratif Işıklar (Aurora Effects) -->
+  <div class="aurora-bg">
+    <div class="aurora-glow glow-1"></div>
+    <div class="aurora-glow glow-2"></div>
+  </div>
+
+  <!-- GİRİŞ EKRANI (LOGIN OVERLAY) -->
+  <div id="login-screen" class="login-overlay">
+    <div class="login-backdrop"></div>
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-brand-logo">🎓</div>
+        <h2 class="login-title">YKS Koçum Portal</h2>
+        <p class="login-subtitle">Kullanıcı Adı ve Şifre ile Güvenli Giriş</p>
+      </div>
+
+      <!-- Form -->
+      <form id="login-form" onsubmit="handleLoginSubmit(event)">
+        
+        <!-- Kullanıcı Adı Alanı -->
+        <div class="form-group">
+          <label class="form-label" for="login-username">👤 Kullanıcı Adı</label>
+          <input type="text" id="login-username" class="form-input" placeholder="Kullanıcı adınız (örn: gokhan, kaan, cagan)" required autocomplete="username">
+        </div>
+
+        <!-- Şifre Alanı -->
+        <div class="form-group" style="margin-top: 14px;">
+          <label class="form-label" for="login-password">🔒 Giriş Şifresi</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="login-password" class="form-input" placeholder="Şifrenizi girin..." required autocomplete="current-password">
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('login-password', this)" title="Şifreyi Göster/Gizle">👁️</button>
+          </div>
+        </div>
+
+        <!-- Hata Mesajı -->
+        <div id="login-error-msg" class="login-error-badge" style="display:none;"></div>
+
+        <!-- Giriş Yap Butonu -->
+        <button type="submit" class="login-submit-btn">
+          <span>Giriş Yap</span>
+          <span style="font-size: 16px;">➔</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Yan Menü (Sidebar) -->
+    <aside class="sidebar">
+      <div class="sidebar-nav-container">
+        <!-- Logo ve Başlık -->
+        <div class="brand">
+          <div class="brand-logo">🎓</div>
+          <span class="brand-name">YKS Koçum</span>
+        </div>
+
+        <!-- Öğrenci Seçici (Sadece Koç Oturumunda Görünür) -->
+        <div class="student-selector" id="sidebar-student-selector">
+          <div class="selector-title">Öğrenci Seçin</div>
+          <div class="student-options">
+            <button id="btn-select-kaan" class="student-btn active" data-student="kaan" onclick="switchStudent('kaan')">
+              <span class="student-avatar">K</span>
+              <span>Kaan</span>
+            </button>
+            <button id="btn-select-cagan" class="student-btn" data-student="cagan" onclick="switchStudent('cagan')">
+              <span class="student-avatar">Ç</span>
+              <span>Çağan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigasyon Menüsü -->
+        <nav>
+          <ul class="sidebar-menu">
+            <li class="menu-item active" data-tab="dashboard">
+              <a onclick="switchTab('dashboard')" id="nav-dashboard">
+                <span class="menu-icon">📊</span> Panel Anasayfa
+              </a>
+            </li>
+            <li class="menu-item" data-tab="soru-takip">
+              <a onclick="switchTab('soru-takip')" id="nav-soru-takip">
+                <span class="menu-icon">✏️</span> Soru Takip
+              </a>
+            </li>
+            <li class="menu-item" data-tab="deneme-takip">
+              <a onclick="switchTab('deneme-takip')" id="nav-deneme-takip">
+                <span class="menu-icon">📝</span> Deneme Sınavları
+              </a>
+            </li>
+            <li class="menu-item" data-tab="konu-takip">
+              <a onclick="switchTab('konu-takip')" id="nav-konu-takip">
+                <span class="menu-icon">🗺️</span> Müfredat & Konular
+              </a>
+            </li>
+            <li class="menu-item" data-tab="kaynak-takip">
+              <a onclick="switchTab('kaynak-takip')" id="nav-kaynak-takip">
+                <span class="menu-icon">📚</span> Kaynaklarım
+              </a>
+            </li>
+            <li class="menu-item" data-tab="puan-hesaplama">
+              <a onclick="switchTab('puan-hesaplama')" id="nav-puan-hesaplama">
+                <span class="menu-icon">🧮</span> Puan Hesapla
+              </a>
+            </li>
+            <li class="menu-item" data-tab="calisma-programi">
+              <a onclick="switchTab('calisma-programi')" id="nav-calisma-programi">
+                <span class="menu-icon">🗓️</span> Koçluk Programı
+              </a>
+            </li>
+            <li class="menu-item" data-tab="yanlis-defter">
+              <a onclick="switchTab('yanlis-defter')" id="nav-yanlis-defter">
+                <span class="menu-icon">📕</span> Yanlış Defteri
+              </a>
+            </li>
+          </ul>
+
+          <!-- Oturum & Ayarlar Menüsü (Yazılı Menü Elemanları) -->
+          <ul class="sidebar-menu sidebar-action-menu" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+            <!-- Öğrenci Yönetimi (Yalnızca Koç Oturumunda Görünür) -->
+            <li class="menu-item coach-only-item" id="nav-student-mgmt" style="display: none;">
+              <a onclick="openStudentMgmtModal()">
+                <span class="menu-icon">👥</span> Öğrenci Yönetimi
+              </a>
+            </li>
+            <!-- Şifre Değiştir (Yalnızca Koç Oturumunda Görünür) -->
+            <li class="menu-item coach-only-item" id="nav-password-change" style="display: none;">
+              <a onclick="openPasswordModal()">
+                <span class="menu-icon">🔑</span> Şifre Değiştir
+              </a>
+            </li>
+            <!-- Tema Değiştir (Koyu Mod / Açık Mod Yazılı) -->
+            <li class="menu-item">
+              <a onclick="toggleTheme()" id="nav-theme-toggle">
+                <span class="menu-icon" id="theme-menu-icon">🌙</span> <span id="theme-menu-text">Koyu Mod</span>
+              </a>
+            </li>
+            <!-- Çıkış Yap (Kırmızı / Vurgulu Yazılı Menü) -->
+            <li class="menu-item menu-item-logout">
+              <a onclick="logoutUser()">
+                <span class="menu-icon">🚪</span> Çıkış Yap
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Alt Kısım / Kullanıcı Bilgisi -->
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="sidebar-user-avatar">G</div>
+          <div class="user-details">
+            <span class="user-name" id="sidebar-user-name">Gökhan EKER</span>
+            <span class="user-role" id="sidebar-user-role">YKS Koçu</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Ana Panel İçeriği (Main Content) -->
+    <main class="main-content">
+      
+      <!-- 1. SEKME: DASHBOARD PANEL -->
+      <section id="dashboard-tab" class="tab-view active">
+        <div class="page-header">
+          <div class="page-title">
+            <h1 id="dashboard-student-name">Öğrenci Gelişim Paneli</h1>
+            <p>YKS 2027 Hazırlık Süreci İlerleme ve Analiz Raporları</p>
+          </div>
+          <div class="header-actions" style="flex: 1; display:flex; justify-content:flex-end;">
+            <div class="countdown-widget" style="display:flex; flex-direction:column; gap:8px; width: 350px; text-align:center; padding: 15px 25px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-lg); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+              <span class="countdown-label" style="margin-right:0; font-size:14px; color:var(--text-muted); font-weight: 500;">YKS 2027 Hedefi</span>
+              <span id="yks-countdown" class="countdown-value" style="font-size:18px; font-weight:800; color:var(--color-primary); letter-spacing:-0.5px;">-- Hafta Kaldı</span>
+              <div class="progress-bar-container" style="height:12px; margin:5px 0; width:100%; background: rgba(0,0,0,0.2); border-radius:6px; overflow:hidden;">
+                <div id="yks-progress-fill" class="progress-bar-fill" style="width:100%; height:12px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); border-radius:6px; transition: width 0.5s ease-in-out;"></div>
+              </div>
+              <div style="font-size:13px; color:var(--text-main); font-weight:600;" id="yks-countdown-detail">
+                Sınava -- gün kaldı
+              </div>
+              <div id="program-start-banner" style="font-size:11px; color:var(--text-muted); margin-top:2px; display:none;">
+                📅 Program Başlangıcı: <span id="program-start-display">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+        <!-- YKS Hedefim Kartı -->
+        <div id="personal-goal-card" class="panel-card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.15) 100%); display:flex; justify-content:space-between; align-items:center; border: 1px solid rgba(16, 185, 129, 0.2); transition: transform 0.2s, box-shadow 0.2s;" onclick="openPersonalGoalModal()" onmouseover="if(currentUserSession && currentUserSession.role==='student'){this.style.transform='scale(1.01)'; this.style.boxShadow='0 4px 15px rgba(16, 185, 129, 0.2)'}" onmouseout="if(currentUserSession && currentUserSession.role==='student'){this.style.transform='scale(1)'; this.style.boxShadow='none'}">
+          <div style="display:flex; align-items:center; gap: 20px;">
+            <div style="font-size: 48px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">🎯</div>
+            <div>
+              <h2 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0 0 5px 0; display:flex; align-items:center; gap: 8px;">Benim YKS Hedefim <span id="goal-edit-icon" style="font-size:12px; color:var(--text-muted); display:none; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">✏️ Düzenlemek için tıkla</span></h2>
+              <div id="goal-display-content" style="font-size: 14px; color: var(--text-muted);">
+                Hedefin henüz belirlenmedi. Hedefini belirle ve başarıya odaklan!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hızlı Kartlar -->
+        <div class="stats-grid">
+          <div class="stat-card" style="--card-accent: var(--color-primary);">
+            <div class="stat-header">
+              <span class="stat-title">Toplam Çözülen Soru</span>
+              <span class="stat-icon">📚</span>
+            </div>
+            <div id="stat-total-solved" class="stat-value">0</div>
+            <div id="solved-trend" class="stat-trend trend-neutral">● -- veri yükleniyor</div>
+          </div>
+          
+          <div class="stat-card" style="--card-accent: var(--color-correct);">
+            <div class="stat-header">
+              <span class="stat-title">Ortalama Soru Başarısı</span>
+              <span class="stat-icon">🎯</span>
+            </div>
+            <div id="stat-accuracy-rate" class="stat-value">%0</div>
+            <div class="stat-trend trend-neutral">Çözüm kalitesi (Doğru oranı)</div>
+          </div>
+          
+          <div class="stat-card" style="--card-accent: var(--color-secondary);">
+            <div class="stat-header">
+              <span class="stat-title">Ortalama TYT Neti</span>
+              <span class="stat-icon">📈</span>
+            </div>
+            <div id="stat-tyt-avg" class="stat-value">0.00</div>
+            <div class="stat-trend trend-neutral">Sınav başına genel net</div>
+          </div>
+          
+          <div class="stat-card" style="--card-accent: var(--color-warning);">
+            <div class="stat-header">
+              <span class="stat-title">Ortalama AYT Neti</span>
+              <span class="stat-icon">⚡</span>
+            </div>
+            <div id="stat-ayt-avg" class="stat-value">0.00</div>
+            <div class="stat-trend trend-neutral">Alan yeterlilik seviyesi</div>
+          </div>
+        </div>
+
+        <!-- Grafikler Grid -->
+        <div class="dashboard-grid">
+          
+          
+        <!-- Grafikler Grid -->
+        <div class="dashboard-grid">
+          
+          <!-- Öğrenci Seviye Kartı (V2: Sıfırdan Zirveye Ligi) -->
+          <div class="panel-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(37,99,235,0.15) 100%);">
+            
+            <!-- TOP AREA: Avatar, Streak, League -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+              <div style="display:flex; align-items:center; gap: 15px;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary); display:flex; align-items:center; justify-content:center; font-size:24px; color:white;">🧑‍🎓</div>
+                <div style="display:flex; flex-direction:column;">
+                  <span style="font-size: 14px; font-weight:600; color:var(--text-muted);">Öğrenci Profili</span>
+                  <span id="streak-counter" style="font-size: 18px; font-weight:800; color: #f97316; display:flex; align-items:center; gap:5px;">🔥 0 Günlük Seri</span>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div id="level-badge" style="font-size:48px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); line-height: 1;">🥉</div>
+              </div>
+            </div>
+
+            <!-- MIDDLE AREA: League Info & Quests -->
+            <div style="display:flex; flex-direction:column; gap: 15px;">
+              <div style="text-align: center;">
+                <div id="level-title" style="font-size:24px; font-weight:900; color:var(--text-main); letter-spacing: -0.5px;">Çırak Ligi</div>
+                <div id="level-xp" style="font-size:14px; color:var(--text-muted); font-weight: 500; margin-top: 5px;">Toplam XP: 0</div>
+              </div>
+              
+              <div style="width: 100%; margin-top: 5px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom: 8px;">
+                  <span id="level-progress-text">Sonraki Lige: 1000 XP</span>
+                  <span id="level-pct" style="color:var(--color-primary);">%0</span>
+                </div>
+                <div class="progress-bar-container" style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 6px;">
+                  <div id="level-progress-fill" class="progress-bar-fill" style="background: linear-gradient(90deg, #b87333, #d2b48c); width: 0%; border-radius: 6px;"></div>
+                </div>
+              </div>
+            </div>
+            
+            <hr style="border:none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
+
+            <!-- BOTTOM AREA: Quests and Reward Chest -->
+            <div style="display:flex; flex-direction:column; gap: 15px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="font-size:16px; font-weight:700; color:var(--text-main); margin:0;">Günlük Görevler (Quests)</h3>
+                <span id="quest-completion-text" style="font-size:12px; color:var(--text-muted);">0/0 Görev</span>
+              </div>
+              <div id="quest-list-container" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- Quests will be rendered here -->
+              </div>
+              
+              <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: var(--radius-md); border: 1px solid var(--border-color); display:flex; align-items:center; gap: 15px;">
+                <div style="font-size:42px;">🎁</div>
+                <div style="flex:1;">
+                  <div style="font-size:14px; font-weight:700; margin-bottom:5px;">Haftalık Ödül Sandığı</div>
+                  <div id="chest-progress-text" style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">Sandığın açılmasına son 1000 soru!</div>
+                  <div class="progress-bar-container" style="height: 8px; background: rgba(0,0,0,0.05);">
+                    <div id="chest-progress-fill" class="progress-bar-fill" style="background: var(--color-warning); width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Kazanılan Rozetler -->
+            <div style="margin-top: 20px;">
+               <h3 style="font-size:14px; font-weight:700; color:var(--text-main); margin:0 0 10px 0;">Kazanılan Rozetler</h3>
+               <div id="earned-badges-container" style="display:flex; gap:10px; flex-wrap:wrap;">
+                 <span style="font-size:12px; color:var(--text-muted);">Henüz rozet kazanılmadı.</span>
+               </div>
+            </div>
+            
+          </div>
+
+          <!-- Soru Grafiği -->
+          <div class="panel-card">
+
+            <div class="panel-header">
+              <h2 class="panel-title">Haftalık Soru Çözüm Analizi</h2>
+              <span style="font-size:12px; color:var(--text-muted);">Son 7 Günlük Çözülen Soru ve Doğru Sayısı</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-questions"></canvas>
+            </div>
+          </div>
+          
+
+          <!-- Canlı Seans Kartı -->
+          <div class="panel-card" id="live-session-card">
+            <div class="panel-header">
+              <h2 class="panel-title">⏱️ Canlı Çalışma Seansı</h2>
+              <span id="live-session-status" style="font-size:12px; color:var(--text-muted);">Durum: Bekliyor</span>
+            </div>
+            
+            <div id="student-live-controls" style="display:none; margin-top:15px; flex-direction:column; gap:10px;">
+              <select id="live-task-select" class="form-input">
+                <option value="">Çalışılacak Görevi Seçin...</option>
+              </select>
+              <div style="display:flex; gap:10px;">
+                <button id="btn-start-session" class="btn-primary" style="flex:1;" onclick="toggleLiveSession()">Çalışmayı Başlat</button>
+              </div>
+              <div id="live-timer-display" style="font-size:24px; font-weight:bold; text-align:center; color:var(--color-primary); margin: 10px 0;">00:00</div>
+            </div>
+
+            <div id="coach-live-view" style="display:none; margin-top:15px; padding:15px; background:var(--bg-main); border-radius:var(--radius-md); text-align:center;">
+              <div id="coach-live-pulse" style="width:12px; height:12px; border-radius:50%; background:var(--text-muted); display:inline-block; margin-right:8px; box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);"></div>
+              <span id="coach-live-text" style="font-weight:600; color:var(--text-main);">Öğrenci şu an çevrimdışı / çalışmıyor</span>
+              <div id="coach-live-timer" style="font-size:20px; font-weight:bold; color:var(--color-primary); margin-top:10px;">--:--</div>
+            </div>
+          </div>
+          
+          <!-- Hedef Kartı -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2 class="panel-title">Haftalık Hedef Takibi</h2>
+            </div>
+                        <div class="goal-progress-box" style="margin-bottom: 15px;">
+              <div class="goal-label-row">
+                <span>Hedef Soru: <strong id="goal-max-solved">1000</strong></span>
+                <span id="goal-progress-pct" style="color: var(--color-primary); font-weight:700;">%0</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="goal-progress-fill" class="progress-bar-fill"></div>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+                Bu hafta çözülen: <span id="goal-current-solved" style="font-weight:700; color:var(--text-main);">0</span> soru.
+              </div>
+            </div>
+
+            <div class="goal-progress-box">
+              <div class="goal-label-row">
+                <span>Hedef Süre: <strong id="goal-max-duration">0</strong> dk</span>
+                <span id="duration-progress-pct" style="color: var(--color-secondary); font-weight:700;">%0</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="duration-progress-fill" class="progress-bar-fill" style="background: var(--color-secondary); width: 0%;"></div>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+                Bu hafta çalışılan: <span id="goal-current-duration" style="font-weight:700; color:var(--text-main);">0</span> dk.
+              </div>
+            </div>
+            
+            <div class="panel-header" style="margin-top: 24px; margin-bottom: 12px;">
+              <h3 class="panel-title" style="font-size:14px;">Aktif Çalışma Görevleri</h3>
+            </div>
+            <div class="goals-list" id="dashboard-mini-tasks" style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+              <p>Çalışma Programı sekmesinden görevler oluşturup hedefleri takip edebilirsiniz.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deneme Net Grafiği -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2 class="panel-title">Deneme Netleri Gelişim Grafiği (Zaman Serisi)</h2>
+            <span style="font-size:12px; color:var(--text-muted);">Sırasıyla girilen TYT ve AYT denemelerinin net değişim hızı</span>
+          </div>
+          <div class="chart-container" style="height: 320px;">
+            <canvas id="chart-nets"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. SEKME: SORU TAKİP -->
+      <section id="soru-takip" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Soru Çözüm Takip Sistemi</h1>
+            <p>Öğrencinin günlük çözdüğü soru miktarlarını girin ve doğruluk oranlarını izleyin.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <!-- Veri Giriş Formu -->
+          <div class="panel-card card-form">
+            <h2 class="panel-title" style="margin-bottom: 20px;">Soru Çözüm Kaydı Ekle</h2>
+            <form id="add-solved-form">
+              <div class="form-group">
+                <label for="solved-date">Tarih</label>
+                <input type="date" id="solved-date" class="form-input" required>
+              </div>
+              <div class="form-row-double">
+                <div class="form-group">
+                  <label for="solved-exam-type">Sınav Türü</label>
+                  <select id="solved-exam-type" class="form-select">
+                    <option value="TYT">TYT (Temel Yetenek)</option>
+                    <option value="AYT">AYT (Alan Yetenek)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="solved-subject">Ders</label>
+                  <select id="solved-subject" class="form-select"></select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="solved-count">Çözülen Soru Sayısı</label>
+                <input type="number" id="solved-count" class="form-input" min="1" placeholder="Örn: 100" required>
+              </div>
+              <div class="form-row-double">
+                <div class="form-group">
+                  <label for="solved-correct">Doğru Sayısı</label>
+                  <input type="number" id="solved-correct" class="form-input" min="0" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                  <label for="solved-wrong">Yanlış Sayısı</label>
+                  <input type="number" id="solved-wrong" class="form-input" min="0" placeholder="0" required>
+                </div>
+              </div>
+              <button type="submit" class="btn-submit" id="btn-submit-solved">Kayıt Ekle</button>
+            </form>
+          </div>
+
+          <!-- Geçmiş Çözüm Listesi -->
+          <div class="panel-card">
+            <h2 class="panel-title" style="margin-bottom: 20px;">Geçmiş Soru Çözüm Kayıtları</h2>
+            <div class="table-wrapper">
+              <table class="data-table" id="solved-table">
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Tür</th>
+                    <th>Ders</th>
+                    <th>Çözülen</th>
+                    <th>Doğru</th>
+                    <th>Yanlış</th>
+                    <th>Net</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="solved-table-body">
+                  <!-- JS ile yüklenecek -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. SEKME: DENEME TAKİP -->
+      <section id="deneme-takip" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Deneme Sınavları İzleme Paneli</h1>
+            <p>TYT ve AYT deneme sınavı sonuçlarını detaylı olarak kaydedip net gelişimini takip edin.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <!-- Deneme Giriş Formu -->
+          <div class="panel-card card-form">
+            <h2 class="panel-title" style="margin-bottom: 20px;">Yeni Deneme Sınavı Gir</h2>
+            <form id="add-mock-form">
+              <div class="form-group">
+                <label for="mock-date">Sınav Tarihi</label>
+                <input type="date" id="mock-date" class="form-input" required>
+              </div>
+              <div class="form-row-double">
+                <div class="form-group">
+                  <label for="mock-type">Deneme Türü</label>
+                  <select id="mock-type" class="form-select">
+                    <option value="TYT">TYT Denemesi</option>
+                    <option value="AYT">AYT Denemesi</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="mock-name">Sınav Adı / Yayını</label>
+                  <input type="text" id="mock-name" class="form-input" placeholder="Örn: 3D Türkiye Geneli-1" required>
+                </div>
+              </div>
+              
+              <!-- Dinamik Olarak Değişecek Ders Net Girişleri -->
+              <div id="mock-subjects-inputs">
+                <!-- JS ile yüklenecek -->
+              </div>
+
+              <button type="submit" class="btn-submit" id="btn-submit-mock" style="margin-top: 15px;">Deneme Kaydet</button>
+            </form>
+          </div>
+
+          <!-- Geçmiş Deneme Sınavları Tablosu -->
+          <div class="panel-card">
+            <h2 class="panel-title" style="margin-bottom: 20px;">Deneme Sonuç Arşivi</h2>
+            <div class="table-wrapper">
+              <table class="data-table" id="mock-table">
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Tür</th>
+                    <th>Sınav Detayı</th>
+                    <th>Toplam Net</th>
+                    <th>Hesaplanan Puanlar (Tahmini)</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="mock-table-body">
+                  <!-- JS ile yüklenecek -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. SEKME: KONU TAKİP -->
+      <section id="konu-takip" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>YKS Müfredatı Konu Analizörü</h1>
+            <p>TYT ve AYT ders müfredatının tamamlanma oranlarını izleyip durumlarını güncelleyin.</p>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <!-- TYT/AYT Geçiş Düğmeleri -->
+          <div class="topic-tabs-header">
+            <button id="topic-tab-tyt" class="topic-tab-btn active" onclick="switchTopicType('TYT')">TYT Konuları</button>
+            <button id="topic-tab-ayt" class="topic-tab-btn" onclick="switchTopicType('AYT')">AYT Konuları</button>
+          </div>
+
+          <div class="topics-grid">
+            <!-- Sol Menü: Ders Listesi -->
+            <div class="subjects-list" id="subject-list">
+              <!-- JS ile yüklenecek -->
+            </div>
+
+            <!-- Sağ Liste: Konu Maddeleri -->
+            <div class="panel-card topic-items-card" style="background: rgba(255,255,255,0.02); padding: 0;">
+              <div class="table-wrapper" style="border: none;">
+                <div id="topic-items">
+                  <!-- JS ile yüklenecek -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. SEKME: PUAN HESAPLAMA -->
+      <section id="puan-hesaplama" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>İnteraktif YKS Puan Hesaplama Motoru</h1>
+            <p>Net girişlerini anlık değiştirerek Ham ve Yerleştirme (OBP dahil) puanlarını simüle edin.</p>
+          </div>
+        </div>
+
+        <div class="calculator-grid">
+          <!-- Sol Kısım: İnteraktif Net Girişleri -->
+          <div class="calculator-inputs">
+            
+            <!-- OBP Giriş Alanı -->
+            <div class="panel-card">
+              <h2 class="panel-title" style="margin-bottom: 12px; font-size:15px;">Okul Başarı Puanı ve OBP Katkısı</h2>
+              <div style="display:flex; align-items:center; gap: 15px;">
+                <div style="flex-grow: 1;">
+                  <label for="calc-obp" style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Lise Mezuniyet Notu (50 - 100 Arası)</label>
+                  <input type="number" id="calc-obp" min="50" max="100" value="85" class="form-input" style="width: 150px;">
+                </div>
+                <div style="font-size:12px; color:var(--text-muted);">
+                  * Yerleştirme puanına ek eklenecek OBP puanı: <strong>Diploma Notu * 5 * 0.12 (Diploma Notu * 0.6)</strong> olarak hesaplanır.
+                </div>
+              </div>
+            </div>
+
+            <!-- TYT Bölümü -->
+            <div class="panel-card">
+              <div class="section-box-title">
+                <span>TYT Sınavı Netleri</span>
+                <span id="calc-tyt-total-net" style="color:var(--color-secondary); font-size:16px;">0.00 Net</span>
+              </div>
+              
+              <div class="calc-field-row" style="border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:8px; font-weight:700; color:var(--text-muted);">
+                <div class="calc-field-label">Ders Adı</div>
+                <div style="text-align:center;">Doğru</div>
+                <div style="text-align:center;">Yanlış</div>
+                <div style="text-align:center;">Boş</div>
+                <div style="text-align:center;">Hesaplanan Net</div>
+              </div>
+
+              <!-- Türkçe -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Türkçe (40 Soru)</div>
+                <input type="number" id="calc-tyt-c-tr" min="0" max="40" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-w-tr" min="0" max="40" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-b-tr" min="0" max="40" placeholder="0" class="calc-input-box">
+                <div id="calc-tyt-n-tr" class="calc-net-display">0.00</div>
+              </div>
+              <!-- Sosyal -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Sosyal (20 Soru)</div>
+                <input type="number" id="calc-tyt-c-sos" min="0" max="20" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-w-sos" min="0" max="20" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-b-sos" min="0" max="20" placeholder="0" class="calc-input-box">
+                <div id="calc-tyt-n-sos" class="calc-net-display">0.00</div>
+              </div>
+              <!-- Matematik -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Temel Matematik (40 Soru)</div>
+                <input type="number" id="calc-tyt-c-mat" min="0" max="40" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-w-mat" min="0" max="40" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-b-mat" min="0" max="40" placeholder="0" class="calc-input-box">
+                <div id="calc-tyt-n-mat" class="calc-net-display">0.00</div>
+              </div>
+              <!-- Fen -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Fen Bilimleri (20 Soru)</div>
+                <input type="number" id="calc-tyt-c-fen" min="0" max="20" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-w-fen" min="0" max="20" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-tyt-b-fen" min="0" max="20" placeholder="0" class="calc-input-box">
+                <div id="calc-tyt-n-fen" class="calc-net-display">0.00</div>
+              </div>
+            </div>
+
+            <!-- AYT Bölümü -->
+            <div class="panel-card">
+              <div class="section-box-title">
+                <span>AYT Sınavı Netleri</span>
+                <span id="calc-ayt-total-net" style="color:var(--color-primary); font-size:16px;">0.00 Net</span>
+              </div>
+              
+              <div class="calc-field-row" style="border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:8px; font-weight:700; color:var(--text-muted);">
+                <div class="calc-field-label">Ders Adı</div>
+                <div style="text-align:center;">Doğru</div>
+                <div style="text-align:center;">Yanlış</div>
+                <div style="text-align:center;">Boş</div>
+                <div style="text-align:center;">Hesaplanan Net</div>
+              </div>
+
+              <!-- AYT Matematik -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">AYT Matematik (40)</div>
+                <input type="number" id="calc-ayt-c-mat" min="0" max="40" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-mat" min="0" max="40" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-mat" min="0" max="40" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-mat" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Fizik -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">AYT Fizik (14)</div>
+                <input type="number" id="calc-ayt-c-fiz" min="0" max="14" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-fiz" min="0" max="14" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-fiz" min="0" max="14" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-fiz" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Kimya -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">AYT Kimya (13)</div>
+                <input type="number" id="calc-ayt-c-kim" min="0" max="13" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-kim" min="0" max="13" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-kim" min="0" max="13" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-kim" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Biyoloji -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">AYT Biyoloji (13)</div>
+                <input type="number" id="calc-ayt-c-biy" min="0" max="13" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-biy" min="0" max="13" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-biy" min="0" max="13" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-biy" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Edebiyat -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">T. Dili ve Edebiyat (24)</div>
+                <input type="number" id="calc-ayt-c-edeb" min="0" max="24" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-edeb" min="0" max="24" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-edeb" min="0" max="24" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-edeb" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Tarih-1 -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Tarih-1 (10)</div>
+                <input type="number" id="calc-ayt-c-tar1" min="0" max="10" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-tar1" min="0" max="10" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-tar1" min="0" max="10" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-tar1" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Coğrafya-1 -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Coğrafya-1 (6)</div>
+                <input type="number" id="calc-ayt-c-cog1" min="0" max="6" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-cog1" min="0" max="6" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-cog1" min="0" max="6" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-cog1" class="calc-net-display">0.00</div>
+              </div>
+
+              <!-- Sözel Kapsamındaki Diğer İsteğe Bağlı Dersler -->
+              <div style="font-size:11px; font-weight:700; color:var(--text-dark); margin: 15px 0 10px 0; text-transform:uppercase; letter-spacing:0.5px;">Sözel Puan İçin Diğer Testler (AYT Sos-2)</div>
+              <!-- AYT Tarih-2 -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Tarih-2 (11)</div>
+                <input type="number" id="calc-ayt-c-tar2" min="0" max="11" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-tar2" min="0" max="11" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-tar2" min="0" max="11" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-tar2" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Coğrafya-2 -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Coğrafya-2 (11)</div>
+                <input type="number" id="calc-ayt-c-cog2" min="0" max="11" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-cog2" min="0" max="11" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-cog2" min="0" max="11" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-cog2" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Felsefe Grubu -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Felsefe Grubu (12)</div>
+                <input type="number" id="calc-ayt-c-fels" min="0" max="12" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-fels" min="0" max="12" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-fels" min="0" max="12" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-fels" class="calc-net-display">0.00</div>
+              </div>
+              <!-- AYT Din Kültürü -->
+              <div class="calc-field-row">
+                <div class="calc-field-label">Din Kültürü (6)</div>
+                <input type="number" id="calc-ayt-c-din" min="0" max="6" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-w-din" min="0" max="6" placeholder="0" class="calc-input-box">
+                <input type="number" id="calc-ayt-b-din" min="0" max="6" placeholder="0" class="calc-input-box">
+                <div id="calc-ayt-n-din" class="calc-net-display">0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sağ Kısım: Hesaplanan Puan Sonuçları -->
+          <div class="panel-card results-card">
+            <div>
+              <h2 class="panel-title" style="margin-bottom: 24px; text-align: center;">YKS Puan Simülasyon Sonuçları</h2>
+              
+              <!-- Puan Grupları -->
+              <div class="result-score-item">
+                <div class="result-score-label">
+                  <span class="score-type">TYT Puan Türü</span>
+                  <span class="score-desc">Ön lisans ve genel temel sınav puanı</span>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size:11px; color:var(--text-muted);">Ham: <span id="res-tyt-raw">100.000</span></div>
+                  <div class="result-score-val"><span id="res-tyt-place">130.000</span></div>
+                  <div style="font-size:11px; color:var(--color-secondary); margin-top:3px; font-weight:600;">Tahmini Sıralama: <span id="res-tyt-rank">Hesaplanmadı</span></div>
+                </div>
+              </div>
+              
+              <div class="result-score-item">
+                <div class="result-score-label">
+                  <span class="score-type">SAY (Sayısal Puan Türü)</span>
+                  <span class="score-desc">Mühendislik, Tıp, Mimarlık, Fen programları</span>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size:11px; color:var(--text-muted);">Ham: <span id="res-say-raw">100.000</span></div>
+                  <div class="result-score-val" style="color:var(--color-primary);"><span id="res-say-place">130.000</span></div>
+                  <div style="font-size:11px; color:var(--color-primary); margin-top:3px; font-weight:600;">Tahmini Sıralama: <span id="res-say-rank">Hesaplanmadı</span></div>
+                </div>
+              </div>
+
+              <div class="result-score-item">
+                <div class="result-score-label">
+                  <span class="score-type">EA (Eşit Ağırlık Puan Türü)</span>
+                  <span class="score-desc">Hukuk, İşletme, İktisat, Psikoloji programları</span>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size:11px; color:var(--text-muted);">Ham: <span id="res-ea-raw">100.000</span></div>
+                  <div class="result-score-val" style="color:var(--color-warning);"><span id="res-ea-place">130.000</span></div>
+                  <div style="font-size:11px; color:var(--color-warning); margin-top:3px; font-weight:600;">Tahmini Sıralama: <span id="res-ea-rank">Hesaplanmadı</span></div>
+                </div>
+              </div>
+
+              <div class="result-score-item">
+                <div class="result-score-label">
+                  <span class="score-type">SÖZ (Sözel Puan Türü)</span>
+                  <span class="score-desc">Öğretmenlikler, İletişim, Coğrafya, Tarih programları</span>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size:11px; color:var(--text-muted);">Ham: <span id="res-soz-raw">100.000</span></div>
+                  <div class="result-score-val" style="color:var(--color-correct);"><span id="res-soz-place">130.000</span></div>
+                  <div style="font-size:11px; color:var(--color-correct); margin-top:3px; font-weight:600;">Tahmini Sıralama: <span id="res-soz-rank">Hesaplanmadı</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bilgilendirme Notu -->
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md); font-size:11.5px; color:var(--text-muted); line-height: 1.5; margin-top:24px;">
+              ⚠️ <strong>Koçluk Bilgilendirmesi:</strong> Burada hesaplanan sıralamalar resmi ÖSYM verilerine dayanarak **2025 YKS (Görece Az Yığılmalı)** ve **2026 YKS (Yığılmanın Yüksek Olduğu)** kümülatif dağılımlarına göre enterpolasyon yöntemiyle aralık olarak verilmiştir. Her yıl standart sapmalar değişebildiğinden bu değerler tahmindir.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. SEKME: ÇALIŞMA PROGRAMI / KOÇLUK GÖREVLERİ -->
+      <section id="calisma-programi" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>Koçluk ve Çalışma Planlama Arayüzü</h1>
+            <p>Çocuklarınıza haftalık görevler atayın ve zayıf konulara göre sistemin otomatik önerilerini inceleyin.</p>
+          </div>
+        </div>
+
+        <!-- Tarih Ayarları Kartı (Sadece Koç) -->
+        <div id="program-start-date-card" class="panel-card" style="margin-bottom:16px; display:none; flex-direction:column; gap:12px; padding:16px 20px; background: linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(139,92,246,0.08) 100%); border: 1px solid rgba(59,130,246,0.15);">
+          <div style="font-size:13px; font-weight:700; color:var(--color-primary); display:flex; align-items:center; gap:6px;">
+            📅 Tarih Ayarları
+          </div>
+
+          <!-- Başlangıç Tarihi Satırı -->
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:13px; font-weight:600; color:var(--text-main);">Koçluk Programı Başlangıcı</div>
+              <div style="font-size:11px; color:var(--text-muted);">1. Gün = bu tarih. Banner'da ve zaman çizelgesinde görünür.</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+              <input type="date" id="program-start-input" class="form-input" style="width:160px; font-size:13px;">
+              <button type="button" class="btn-primary" onclick="saveProgramStartDate()" style="padding:6px 12px; font-size:12px;">Kaydet</button>
+              <button type="button" class="btn-secondary" onclick="clearProgramStartDate()" title="Tarihi Sil" style="padding:6px 10px; font-size:12px; color:var(--color-danger); border-color:var(--color-danger);">🗑️</button>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid var(--border-color); margin:0;"></div>
+
+          <!-- Sınav Tarihi Satırı -->
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:13px; font-weight:600; color:var(--text-main);">YKS Sınav Tarihi</div>
+              <div style="font-size:11px; color:var(--text-muted);">Geri sayım ve gün seçicisi bu tarihe göre hesaplanır. Şu an: <strong id="exam-date-display">19 Haziran 2027 (varsayılan)</strong></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+              <input type="date" id="exam-date-input" class="form-input" style="width:160px; font-size:13px;">
+              <button type="button" class="btn-primary" onclick="saveExamDate()" style="padding:6px 12px; font-size:12px;">Kaydet</button>
+              <button type="button" class="btn-secondary" onclick="clearExamDate()" title="Varsayılana Sıfırla" style="padding:6px 10px; font-size:12px; color:var(--color-warning); border-color:var(--color-warning);">↩️</button>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="weekly-planner-grid">
+          <!-- Sol Sütun: Haftalık Atanan Görevler -->
+          <div class="panel-card">
+            <h2 class="panel-title" style="margin-bottom: 20px;">Haftalık Çalışma Görevleri (Yapılacaklar)</h2>
+            
+            <!-- Görev Ekleme Formu (Akıllı) -->
+            <form id="add-task-form" style="display: flex; flex-direction: column; gap:12px; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <div style="font-size: 13px; font-weight: 600; color: var(--color-primary); margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <span>✨ Akıllı Görev Oluşturucu</span>
+                <div style="display:flex; gap:5px; align-items:center;">
+                  <select id="template-select" class="form-input" style="font-size:11px; padding:4px; max-width: 200px;">
+                    <option value="" disabled selected>Şablon Seçin...</option>
+                    <option value="lvl1">🥉 Seviye 1: Temel Atma (70-80k)</option>
+                    <option value="lvl2">🥈 Seviye 2: Hızlanma (50-60k)</option>
+                    <option value="lvl3">🥇 Seviye 3: Dereceye Geçiş (30-40k)</option>
+                  </select>
+                  <button type="button" class="btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="loadSelectedTemplate()">Uygula</button>
+                </div>
+              </div>
+              
+              <div style="display: flex; gap: 10px;">
+                <select id="smart-task-day" class="form-input" style="flex: 1;" required>
+                  <option value="" disabled selected>Gün Seçin</option>
+                </select>
+                <select id="smart-task-exam" class="form-input" style="flex: 1;" onchange="updateSmartTaskSubjects()" required>
+                  <option value="" disabled selected>Sınav</option>
+                  <option value="TYT">TYT</option>
+                  <option value="AYT">AYT</option>
+                </select>
+              </div>
+
+              <div style="display: flex; gap: 10px;">
+                <select id="smart-task-subject" class="form-input" style="flex: 1;" onchange="updateSmartTaskTopics()" required>
+                  <option value="" disabled selected>Ders Seçin</option>
+                </select>
+                <select id="smart-task-topic" class="form-input" style="flex: 2;" required>
+                  <option value="" disabled selected>Konu Seçin</option>
+                </select>
+              </div>
+
+              <div style="display: flex; gap: 10px;">
+                <select id="smart-task-book" class="form-input" style="flex: 2;">
+                  <option value="">(İsteğe Bağlı) Kaynak Seçin</option>
+                </select>
+                <input type="number" id="smart-task-question" class="form-input" style="flex: 1;" placeholder="Soru Hedefi" required>
+                <input type="number" id="smart-task-duration" class="form-input" style="flex: 1;" placeholder="Süre (dk)" required>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                <input type="checkbox" id="task-assign-both" style="accent-color: var(--color-primary); width: 14px; height: 14px;">
+                <label for="task-assign-both" style="font-size: 13px; color: var(--text-muted); cursor: pointer; user-select: none;">Görevi İki Öğrenciye de Ata (Kaan & Çağan)</label>
+              </div>
+              
+              <button type="submit" class="btn-submit" style="width: 100%; margin-top: 5px;">Görevi Ata</button>
+            </form>
+
+            <!-- Görev Listesi -->
+            <div class="goals-list" id="planner-tasks-list">
+              <!-- JS ile yüklenecek -->
+            </div>
+          </div>
+
+          <!-- Sağ Sütun: Zayıf Konular & Sistem Önerisi -->
+          <div class="panel-card">
+            <div class="panel-header" style="margin-bottom: 12px;">
+              <h2 class="panel-title">Hata Analizine Göre Eksik Konu Önerileri</h2>
+            </div>
+            <p style="font-size:12.5px; color:var(--text-muted); margin-bottom: 20px; line-height:1.5;">
+              Çözülen günlük soru kayıtlarında <strong>%22'den yüksek yanlış oranına sahip derslerin</strong> çalışılmamış konuları burada otomatik olarak listelenir. "Görev Ekle" butonuna basarak doğrudan çalışma listesine ekleyebilirsiniz.
+            </p>
+
+            <!-- Önerilen Eksik Konu Listesi -->
+            <div class="missing-topics-list" id="missing-topics-suggestions">
+              <!-- JS ile yüklenecek -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- YENI SEKME: KAYNAKLARIM (KİTAP TAKİBİ) -->
+      <section id="kaynak-takip" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>📚 Kaynaklarım & Kitap Takibi</h1>
+            <p>Sahip olduğunuz soru bankalarının ilerleme durumunu kaydedin ve takip edin.</p>
+          </div>
+        </div>
+
+        <div class="weekly-planner-grid">
+          <!-- Sol Sütun: Kaynak Ekleme Formu -->
+          <div class="panel-card">
+            <h2 class="panel-title" style="margin-bottom: 20px;">Yeni Kitap / Kaynak Ekle</h2>
+            <form id="add-book-form" onsubmit="handleAddBook(event)" style="display: flex; flex-direction: column; gap: 15px;">
+              <div class="form-group">
+                <label class="form-label">Kitap Adı / Yayınevi</label>
+                <input type="text" id="book-name" class="form-input" placeholder="Örn: 345 TYT Matematik" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ders</label>
+                <input type="text" id="book-subject" class="form-input" placeholder="Örn: Matematik" required>
+              </div>
+              <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                  <label class="form-label">Test Sayısı</label>
+                  <input type="number" id="book-total-test" class="form-input" min="0" placeholder="Örn: 80">
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label class="form-label">Sayfa Sayısı</label>
+                  <input type="number" id="book-total-page" class="form-input" min="0" placeholder="Örn: 240">
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:-5px; margin-bottom:5px;">(İkisinden birini veya ikisini de doldurabilirsiniz.)</div>
+              <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.03); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);">
+                <input type="checkbox" id="add-to-both" style="width: 16px; height: 16px; cursor: pointer;">
+                <label for="add-to-both" style="font-size: 13px; color: var(--text-main); font-weight: 500; cursor: pointer;">Kitabı her iki öğrenciye de ekle (Kaan & Çağan)</label>
+              </div>
+              <button type="submit" class="btn-submit">Kitabı Sisteme Ekle</button>
+            </form>
+          </div>
+
+          <!-- Sağ Sütun: Kitaplarım Listesi -->
+          <div class="panel-card">
+            <div class="panel-header" style="margin-bottom: 12px;">
+              <h2 class="panel-title">İlerleme Durumu</h2>
+            </div>
+            <div class="books-list" id="books-list-container" style="display: flex; flex-direction: column; gap: 15px;">
+              <!-- JS ile yüklenecek -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. SEKME: YANLIŞ DEFTERİ -->
+      <section id="yanlis-defter-tab" class="tab-view">
+        <div class="page-header">
+          <div class="page-title">
+            <h1>📕 Yanlış Defteri</h1>
+            <p>Yanlış veya boş bırakılan soruların kaydı, çözüm notları ve tekrar takibi</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn-submit" onclick="openAddWrongModal()" style="width:auto; padding: 0 20px; display:flex; align-items:center; gap:8px;">
+              <span>➕</span> Yanlış Soru Ekle
+            </button>
+          </div>
+        </div>
+
+        <!-- Özet Kartlar -->
+        <div class="stats-grid" id="wrong-stats-grid"></div>
+
+        <!-- Filtre Araçları -->
+        <div class="panel-card" style="margin-bottom:18px; padding: 14px 20px;">
+          <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <select id="filter-wrong-subject" class="form-input" style="max-width:180px;" onchange="renderWrongList()"></select>
+            <select id="filter-wrong-type" class="form-input" style="max-width:180px;" onchange="renderWrongList()">
+              <option value="all">Tüm Hatalar</option>
+              <option value="pending">Tekrar Bekleyenler</option>
+              <option value="reviewed">Tekrar Edilenler</option>
+            </select>
+            <select id="filter-wrong-reason" class="form-input" style="max-width:200px;" onchange="renderWrongList()">
+              <option value="all">Tüm Hata Nedenleri</option>
+              <option value="kavram">Kavram Yanılgısı</option>
+              <option value="dikkatsizlik">Dikkatsizlik</option>
+              <option value="bilgi">Bilgi Eksikliği</option>
+              <option value="zaman">Zaman Yetersizliği</option>
+            </select>
+            <button class="btn-submit" onclick="markAllPendingReviewed()" style="width:auto; padding: 0 16px; font-size:12px; background: var(--color-correct); box-shadow: 0 4px 16px rgba(16,185,129,0.3);">✅ Tüm Bekleyenleri Tekrar Edildi Say</button>
+          </div>
+        </div>
+
+        <!-- Yanlış Soru Listesi -->
+        <div id="wrong-list-container"></div>
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- YKS Hedefim Modalı -->
+  <div class="modal-overlay" id="modal-personal-goal" style="display:none;">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 class="modal-title">🎯 YKS Hedefini Belirle</h2>
+        <span class="close-modal" onclick="closePersonalGoalModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Hedeflediğin üniversite ve bölümü (isteğe bağlı) ve sıralamayı (zorunlu) gir. Bu hedefe ulaşmak için çalışacaksın!</p>
+        
+        <div class="form-group">
+          <label class="form-label">Üniversite (İsteğe Bağlı)</label>
+          <input type="text" id="goal-university" class="form-input" placeholder="Örn: Boğaziçi Üniversitesi">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Bölüm / Meslek (İsteğe Bağlı)</label>
+          <input type="text" id="goal-profession" class="form-input" placeholder="Örn: Bilgisayar Mühendisliği">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Hedef Sıralama <span style="color:var(--color-danger);">*</span></label>
+          <input type="text" id="goal-ranking" class="form-input" placeholder="Örn: İlk 5.000 veya Sayısal 10k">
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between;">
+        <button class="btn-secondary" onclick="deletePersonalGoal()" style="color:var(--color-danger); border-color:var(--color-danger);">Hedefi Sil</button>
+        <button class="btn-primary" onclick="savePersonalGoal()">Hedefi Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- YANLIŞ SORU EKLEME MODAL -->
+  <div id="wrong-modal" class="modal-overlay" style="display:none;" onclick="closeWrongModalOnOverlay(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">📕 Yanlış Soru Ekle</h2>
+        <button class="modal-close" onclick="closeAddWrongModal()">✕</button>
+      </div>
+      <form id="add-wrong-form" onsubmit="submitWrongEntry(event)">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="form-group">
+            <label class="form-label">Tarih</label>
+            <input type="date" id="wrong-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">TYT / AYT</label>
+            <select id="wrong-tytayt" class="form-input" onchange="updateWrongSubjectList()" required>
+              <option value="TYT">TYT</option>
+              <option value="AYT">AYT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ders</label>
+            <select id="wrong-subject" class="form-input" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konu</label>
+            <input type="text" id="wrong-topic" class="form-input" placeholder="Örn: Limit ve Süreklilik" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kaynak (Kitap/Deneme)</label>
+            <input type="text" id="wrong-source" class="form-input" placeholder="Örn: Benim Hocam TYT-5" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hata Nedeni</label>
+            <select id="wrong-reason" class="form-input" required>
+              <option value="kavram">Kavram Yanılgısı</option>
+              <option value="dikkatsizlik">Dikkatsizlik</option>
+              <option value="bilgi">Bilgi Eksikliği</option>
+              <option value="zaman">Zaman Yetersizliği</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <label class="form-label">Çözüm Notu (İpucu / Açıklama)</label>
+          <textarea id="wrong-note" class="form-input" rows="3" placeholder="Bu sorunun doğru çözüm yöntemi veya hatırlatma notu..."></textarea>
+        </div>
+        <!-- Fotoğraf Yükleme -->
+        <div class="form-group" style="margin-top:6px;">
+          <label class="form-label">📸 Soru Fotoğrafı (Seçimlik)</label>
+          <div class="photo-upload-area" id="photo-upload-area" onclick="document.getElementById('wrong-photo').click()">
+            <input type="file" id="wrong-photo" accept="image/*" style="display:none;" onchange="previewWrongPhoto(event)">
+            <div id="photo-upload-placeholder">
+              <div style="font-size:32px; margin-bottom:8px;">📷</div>
+              <div style="font-size:13px; color:var(--text-muted);">Tıklayın veya sürükleyip bırakın</div>
+              <div style="font-size:11px; color:var(--text-dark); margin-top:4px;">JPG, PNG, WEBP — Maks. 5 MB</div>
+            </div>
+            <img id="photo-preview-img" src="" alt="Önizleme" style="display:none; max-width:100%; max-height:200px; border-radius:8px; object-fit:contain;">
+          </div>
+          <button type="button" id="photo-remove-btn" style="display:none; margin-top:6px; background:none; border:1px solid var(--color-wrong); color:var(--color-wrong); padding:4px 12px; border-radius:8px; cursor:pointer; font-size:12px;" onclick="removeWrongPhoto()">❌ Fotoğrafı Kaldır</button>
+        </div>
+        <button type="submit" class="btn-submit" style="margin-top:10px;">💾 Deftere Ekle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOTOĞRAF LIGHTBOX -->
+  <div id="photo-lightbox" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:2000; align-items:center; justify-content:center; cursor:zoom-out;" onclick="document.getElementById('photo-lightbox').style.display='none';">
+    <img id="lightbox-img" src="" style="max-width:90vw; max-height:90vh; border-radius:12px; box-shadow:0 0 60px rgba(0,0,0,0.8); object-fit:contain;" alt="Soru Fotoğrafı">
+  </div>
+
+  <!-- ŞİFRE DEĞİŞTİRME MODALI (KOÇ İÇİN) -->
+  <div id="password-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">🔑 Koç Şifresi Değiştir</h3>
+        <button class="modal-close" onclick="closePasswordModal()">&times;</button>
+      </div>
+      <form id="password-change-form" onsubmit="handlePasswordChangeSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Mevcut Şifre</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="current-password" class="form-input" placeholder="Mevcut şifrenizi girin" required>
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('current-password', this)">👁️</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label">Yeni Şifre</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="new-password" class="form-input" placeholder="En az 3 karakter" required minlength="3">
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('new-password', this)">👁️</button>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label">Yeni Şifre (Tekrar)</label>
+          <div class="password-input-wrapper">
+            <input type="password" id="new-password-confirm" class="form-input" placeholder="Yeni şifrenizi tekrar girin" required>
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('new-password-confirm', this)">👁️</button>
+          </div>
+        </div>
+        <div id="password-change-error" class="login-error-badge" style="display:none; margin-top:12px;"></div>
+        <button type="submit" class="btn-submit" style="margin-top:16px;">💾 Şifreyi Kaydet</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ÖĞRENCİ YÖNETİMİ VE ÖĞRENCİ ŞİFRE DEĞİŞTİRME MODALI (SADECE KOÇ İÇİN) -->
+  <div id="student-mgmt-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title">👥 Öğrenci Yönetimi & Şifre İşlemleri</h3>
+        <button class="modal-close" onclick="closeStudentMgmtModal()">&times;</button>
+      </div>
+
+      <!-- Yeni Öğrenci Ekleme Formu -->
+      <div class="panel-card" style="margin-bottom: 20px; padding: 16px; background: var(--bg-card); border-color: rgba(245, 158, 11, 0.3);">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+          <span>➕</span> Yeni Öğrenci Kaydet
+        </h4>
+        <form id="add-student-form" onsubmit="handleAddStudentSubmit(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label class="form-label">Öğrenci Adı Soyadı</label>
+            <input type="text" id="new-student-name" class="form-input" placeholder="Örn: Ahmet Yılmaz" required>
+          </div>
+          <div>
+            <label class="form-label">Kullanıcı Adı</label>
+            <input type="text" id="new-student-username" class="form-input" placeholder="Örn: ahmet" required>
+          </div>
+          <div>
+            <label class="form-label">Giriş Şifresi</label>
+            <input type="password" id="new-student-password" class="form-input" placeholder="Örn: ahmet123" required minlength="3">
+          </div>
+          <div>
+            <label class="form-label">Alan (YKS Branş)</label>
+            <select id="new-student-branch" class="form-input" required>
+              <option value="Sayısal">Sayısal (SAY)</option>
+              <option value="Eşit Ağırlık">Eşit Ağırlık (EA)</option>
+              <option value="Sözel">Sözel (SÖZ)</option>
+              <option value="Yabancı Dil">Yabancı Dil (YD)</option>
+            </select>
+          </div>
+          <div style="grid-column: span 2; margin-top: 4px;">
+            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #f59e0b, #ea580c); margin: 0;">➕ Öğrenciyi Sisteme Kaydet</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Kayıtlı Öğrenciler Listesi -->
+      <h4 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">📋 Kayıtlı Öğrenciler ve Şifre Yönetimi</h4>
+      <div id="students-mgmt-list" class="students-mgmt-container" style="display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
+        <!-- JS dolduracak -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Bildirim Bildirgesi -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Javascript Kaynakları -->
+  <script src="topics.js"></script>
+  <script src="rankings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
