@@ -1400,6 +1400,7 @@ function renderSolvedTable(data) {
       <td>${log.solved}</td>
       <td><span class="badge badge-correct">${log.correct} D</span></td>
       <td><span class="badge badge-wrong">${log.wrong} Y</span></td>
+      <td><span class="badge" style="background: var(--bg-card-alt); color: var(--text-muted); border: 1px solid var(--border-color);">${log.blank || 0} B</span></td>
       <td style="font-weight: 700; color: var(--color-primary);">${net} Net</td>
       <td class="actions-cell">
         <button class="btn-delete-row" onclick="deleteSolved('${log.id}')" title="Sil">🗑️</button>
@@ -2197,7 +2198,7 @@ function handleTaskAccuracySubmit(e) {
     saveStudentData(currentStudent, data);
     
     renderWeeklyPlanner();
-    if (typeof renderSolvedTable === 'function') renderSolvedTable();
+    if (typeof renderSolvedTable === 'function') renderSolvedTable(data);
     if(typeof updateDashboardStats === 'function') updateDashboardStats(data);
     if(typeof populateLiveTasks === 'function') populateLiveTasks();
     if(typeof updateLiveSessionUI === 'function') updateLiveSessionUI();
