@@ -1168,6 +1168,8 @@ function renderDashboardCharts(data) {
   const labels = [];
   const questionCounts = [];
   const correctCounts = [];
+  const wrongCounts = [];
+  const blankCounts = [];
   
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
@@ -1181,14 +1183,20 @@ function renderDashboardCharts(data) {
     // O güne ait toplam soru ve doğruları bul
     let daySolved = 0;
     let dayCorrect = 0;
+    let dayWrong = 0;
+    let dayBlank = 0;
     data.dailyLog.forEach(log => {
       if (log.date === dateStr) {
         daySolved += parseInt(log.solved);
         dayCorrect += parseInt(log.correct);
+        dayWrong += parseInt(log.wrong || 0);
+        dayBlank += parseInt(log.blank || 0);
       }
     });
     questionCounts.push(daySolved);
     correctCounts.push(dayCorrect);
+    wrongCounts.push(dayWrong);
+    blankCounts.push(dayBlank);
   }
 
   if (charts.questions) {
@@ -1209,10 +1217,26 @@ function renderDashboardCharts(data) {
           borderRadius: 4
         },
         {
-          label: 'Doğru Cevap',
+          label: 'Doğru',
           data: correctCounts,
           backgroundColor: 'rgba(16, 185, 129, 0.65)',
           borderColor: '#10b981',
+          borderWidth: 1.5,
+          borderRadius: 4
+        },
+        {
+          label: 'Yanlış',
+          data: wrongCounts,
+          backgroundColor: 'rgba(239, 68, 68, 0.65)',
+          borderColor: '#ef4444',
+          borderWidth: 1.5,
+          borderRadius: 4
+        },
+        {
+          label: 'Boş',
+          data: blankCounts,
+          backgroundColor: 'rgba(148, 163, 184, 0.65)',
+          borderColor: '#94a3b8',
           borderWidth: 1.5,
           borderRadius: 4
         }
