@@ -26,6 +26,25 @@
   
   <!-- Chart.js (Grafikler İçin) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAcQEp7o4SpMvM1N8FfFWx9Oq8hvi5s4tE",
+      authDomain: "ykskocum-4df87.firebaseapp.com",
+      databaseURL: "https://ykskocum-4df87-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "ykskocum-4df87",
+      storageBucket: "ykskocum-4df87.firebasestorage.app",
+      messagingSenderId: "132968329105",
+      appId: "1:132968329105:web:30623e6f70998505167430",
+      measurementId: "G-69QLKCQ4H5"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.database();
+  </script>
 </head>
 <body>
 

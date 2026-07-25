@@ -8,6 +8,55 @@ let currentStudent = 'kaan';
 let activeTab = 'dashboard';
 let charts = {}; // Grafikleri saklamak için obje
 
+// ==================== FIREBASE SYNC ====================
+let isFirebaseSyncing = false;
+
+function saveToFirebase(key, data) {
+  if (window.db && !isFirebaseSyncing) {
+    window.db.ref('ykskocum_data/' + key).set(data).catch(e => console.error("Firebase error:", e));
+  }
+}
+
+function initFirebaseSync() {
+  if (window.db) {
+    window.db.ref('ykskocum_data').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        isFirebaseSyncing = true; // Prevent bounce-back saves
+        let needsRender = false;
+        
+        for (const [key, value] of Object.entries(data)) {
+          const localStr = localStorage.getItem(key);
+          const remoteStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
+          
+          if (localStr !== remoteStr) {
+            localStorage.setItem(key, remoteStr);
+            needsRender = true;
+          }
+        }
+        
+        isFirebaseSyncing = false;
+        
+        if (needsRender && typeof renderAll === 'function') {
+          // Re-auth if user data changed
+          if (currentUserSession) {
+             const users = getUsers();
+             if (users[currentUserSession.id]) {
+                applyUserSession(users[currentUserSession.id]);
+             }
+          }
+          renderAll();
+        }
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initFirebaseSync();
+});
+// ========================================================
+
 // Varsayılan Öğrenci Veri Yapısı
 const DEFAULT_STUDENT_DATA = {
   dailyLog: [], // { id, date, tytAyt, subject, solved, correct, wrong }
@@ -42,6 +91,7 @@ function getStudentData(student) {
 // Veriyi localStorage'a kaydet
 function saveStudentData(student, data) {
   localStorage.setItem(`yks_coach_${student}`, JSON.stringify(data));
+  if (typeof saveToFirebase === 'function') saveToFirebase(`yks_coach_${student}`, data);
 }
 
 // ==================== KULLANICI & KİMLİK DOĞRULAMA (AUTH) MANTIĞI ====================
@@ -98,6 +148,7 @@ function getUsers() {
 
 function saveUsers(users) {
   localStorage.setItem('yks_coach_users', JSON.stringify(users));
+  if (typeof saveToFirebase === 'function') saveToFirebase('yks_coach_users', users);
 }
 
 function initAuth() {
@@ -560,6 +611,7 @@ function saveProgramStartDate() {
     return;
   }
   localStorage.setItem('yks_coach_program_start', input.value);
+  if (typeof saveToFirebase === 'function') saveToFirebase('yks_coach_program_start', input.value);
   updateProgramStartBanner();
   populateDaySelector();
   showToast('Program başlangıç tarihi kaydedildi! 🎉', 'success');
@@ -603,6 +655,7 @@ function saveExamDate() {
     return;
   }
   localStorage.setItem('yks_coach_exam_date', input.value);
+  if (typeof saveToFirebase === 'function') saveToFirebase('yks_coach_exam_date', input.value);
   updateExamDateDisplay();
   populateDaySelector();
   startCountdown(); // Geri sayımı yenile
