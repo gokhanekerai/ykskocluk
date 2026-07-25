@@ -601,7 +601,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==================== PROGRAM BAŞLANGIÇ TARİHİ ====================
 
 function getProgramStartDate() {
-  return localStorage.getItem('yks_coach_program_start') || null;
+  const val = localStorage.getItem('yks_coach_program_start');
+  if (!val || val === 'undefined' || val === 'null') return null;
+  return val;
 }
 
 function saveProgramStartDate() {
@@ -645,7 +647,9 @@ function updateProgramStartBanner() {
 const DEFAULT_EXAM_DATE = '2027-06-19';
 
 function getExamDate() {
-  return localStorage.getItem('yks_coach_exam_date') || DEFAULT_EXAM_DATE;
+  const val = localStorage.getItem('yks_coach_exam_date');
+  if (!val || val === 'undefined' || val === 'null') return DEFAULT_EXAM_DATE;
+  return val;
 }
 
 function saveExamDate() {
@@ -676,12 +680,14 @@ function clearExamDate() {
 function updateExamDateDisplay() {
   const displayEl = document.getElementById('exam-date-display');
   if (!displayEl) return;
-  const saved = localStorage.getItem('yks_coach_exam_date');
-  if (saved) {
-    const d = new Date(saved);
-    displayEl.textContent = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-  } else {
-    displayEl.textContent = '19 Haziran 2027 (varsayılan)';
+  const examDate = getExamDate();
+  if (examDate) {
+    const d = new Date(examDate);
+    if (!isNaN(d.getTime())) {
+      displayEl.textContent = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    } else {
+      displayEl.textContent = 'Tarih Seçilmedi';
+    }
   }
 }
 
@@ -693,6 +699,9 @@ function populateDaySelector() {
   
   const examDate = new Date(getExamDate());
   const baseDate = startDate ? new Date(startDate) : new Date();
+  
+  if (isNaN(examDate.getTime()) || isNaN(baseDate.getTime())) return;
+  
   const totalDays = Math.max(1, Math.ceil((examDate - baseDate) / (1000 * 60 * 60 * 24)));
   
   for (let i = 1; i <= totalDays; i++) {
@@ -701,15 +710,15 @@ function populateDaySelector() {
     let label = `${i}. Gün`;
     if (startDate) {
       const d = new Date(startDate);
-      d.setDate(d.getDate() + (i - 1));
-      label += ` (${d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })})`;
+      if (!isNaN(d.getTime())) {
+        d.setDate(d.getDate() + (i - 1));
+        label += ` (${d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })})`;
+      }
     }
     opt.textContent = label;
     sel.appendChild(opt);
   }
 }
-
-
 
 function updateChartTheme(chart) {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -779,7 +788,7 @@ function switchTab(tabId) {
       // Sınav tarihi alanını doldur
       const examInput = document.getElementById('exam-date-input');
       if (examInput) {
-        const savedExam = localStorage.getItem('yks_coach_exam_date');
+        const savedExam = getExamDate();
         if (savedExam) examInput.value = savedExam;
       }
       updateExamDateDisplay();
