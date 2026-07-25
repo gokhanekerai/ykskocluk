@@ -1054,7 +1054,50 @@ function updateDashboardStats(data) {
     }
   }
 
+  // --- V2 GAMIFICATION UPDATE ---
+  const xp = calculateStudentXP(data);
+  const levelInfo = getStudentLevelInfo(xp);
+  
+  const badgeEl = document.getElementById('level-badge');
+  if (badgeEl) {
+    badgeEl.innerText = levelInfo.badge;
+    document.getElementById('level-title').innerText = levelInfo.title;
+    document.getElementById('level-title').style.color = levelInfo.colorStart;
+    document.getElementById('level-xp').innerText = `Toplam XP: ${xp}`;
+    
+    if (levelInfo.nextXP > xp) {
+      const remaining = levelInfo.nextXP - xp;
+      document.getElementById('level-progress-text').innerText = `Sonraki Lige: ${remaining} XP`;
+      const range = levelInfo.nextXP - levelInfo.minXP;
+      const currentProgress = xp - levelInfo.minXP;
+      const pct = Math.round((currentProgress / range) * 100);
+      document.getElementById('level-pct').innerText = `%${pct}`;
+      document.getElementById('level-progress-fill').style.width = `${pct}%`;
+      document.getElementById('level-progress-fill').style.background = `linear-gradient(90deg, ${levelInfo.colorStart}, ${levelInfo.colorEnd})`;
+    } else {
+      document.getElementById('level-progress-text').innerText = "Son Ligdesin!";
+      document.getElementById('level-pct').innerText = "%100";
+      document.getElementById('level-progress-fill').style.width = "100%";
+      document.getElementById('level-progress-fill').style.background = `linear-gradient(90deg, ${levelInfo.colorStart}, ${levelInfo.colorEnd})`;
+    }
+  }
 
+  // Streak Update
+  const streakEl = document.getElementById('streak-counter');
+  if (streakEl) {
+     streakEl.innerText = `🔥 ${data.streak || 0} Günlük Seri`;
+     streakEl.style.filter = ((data.streak || 0) > 0) ? 'none' : 'grayscale(100%) opacity(50%)';
+  }
+  
+  // Badges Update
+  const badgesContainer = document.getElementById('earned-badges-container');
+  if (badgesContainer) {
+    if (data.badges && data.badges.length > 0) {
+       badgesContainer.innerHTML = data.badges.map(b => `<div style="background:rgba(255,255,255,0.1); border:1px solid var(--border-color); padding:5px 10px; border-radius:15px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:5px;" title="${b.desc}">${b.icon} ${b.name}</div>`).join('');
+    } else {
+       badgesContainer.innerHTML = `<span style="font-size:12px; color:var(--text-muted);">Henüz rozet kazanılmadı. Görevleri tamamlayarak rozet kazan!</span>`;
+    }
+  }
 
   // Quests Update (Middle Area)
   const questsContainer = document.getElementById('quest-list-container');
@@ -3014,7 +3057,20 @@ function toggleLiveSession() {
             }
          }
 
-
+         // 2. Badges
+         const totalSolvedXP = calculateStudentXP(data);
+         if (totalSolvedXP >= 20) {
+            awardBadge(data, 'first_step', 'İlk Adım', '🌱', 'Sistemdeki ilk 20 sorunu çözdün!');
+         }
+         const currentHour = new Date().getHours();
+         if (currentHour >= 23 || currentHour < 4) {
+            awardBadge(data, 'night_owl', 'Gece Kuşu', '🦉', 'Gece 23:00 sonrasında ders çalıştın!');
+         }
+         let todayTotal = data.dailyLog.filter(l => l.date === today).reduce((sum, l) => sum + parseInt(l.solved), 0);
+         if (todayTotal > (data.maxDaily || 0) && todayTotal >= 40) {
+            data.maxDaily = todayTotal;
+            awardBadge(data, 'personal_best', 'Kendi Rekorum', '🚀', `Bir günde ${todayTotal} soru çözerek kendi rekorunu kırdın!`);
+         }
       }
       
       data.liveSession = null;
@@ -3132,7 +3188,37 @@ function editWeeklyGoals() {
   showToast('Hedefler başarıyla güncellendi.', 'success');
 }
 
+// --- GAMIFICATION LOGIC ---
+function calculateStudentXP(data) {
+  let xp = 0;
+  if (data.dailyLog) {
+    data.dailyLog.forEach(log => {
+      xp += parseInt(log.solved) || 0;
+    });
+  }
+  return xp;
+}
 
+function getStudentLevelInfo(xp) {
+  if (xp < 1000) {
+    return { badge: '🥉', title: 'Çırak Ligi', nextXP: 1000, minXP: 0, colorStart: '#b87333', colorEnd: '#d2b48c' };
+  } else if (xp < 3000) {
+    return { badge: '🥈', title: 'Savaşçı Ligi', nextXP: 3000, minXP: 1000, colorStart: '#9ca3af', colorEnd: '#f3f4f6' };
+  } else {
+    return { badge: '🥇', title: 'Efsane Ligi', nextXP: xp, minXP: 3000, colorStart: '#fbbf24', colorEnd: '#fef08a' };
+  }
+}
+
+
+// --- BADGE HELPER ---
+function awardBadge(data, badgeId, badgeName, badgeIcon, badgeDesc) {
+   if (!data.badges) data.badges = [];
+   const exists = data.badges.find(b => b.id === badgeId);
+   if (!exists) {
+      data.badges.push({ id: badgeId, name: badgeName, icon: badgeIcon, desc: badgeDesc, date: new Date().toISOString() });
+      showToast(`🏆 Yeni Rozet Kazandın: ${badgeName}!`, 'success');
+   }
+}
 
 
 // --- PERSONAL GOAL FUNCTIONS ---
