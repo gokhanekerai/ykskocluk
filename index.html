@@ -147,6 +147,11 @@
                 <span class="menu-icon">📚</span> Kaynaklarım
               </a>
             </li>
+            <li class="menu-item" data-tab="puan-hesaplama">
+              <a onclick="switchTab('puan-hesaplama')" id="nav-puan-hesaplama">
+                <span class="menu-icon">🧮</span> Puan Hesapla
+              </a>
+            </li>
 
             <li class="menu-item" data-tab="calisma-programi">
               <a onclick="switchTab('calisma-programi')" id="nav-calisma-programi">
@@ -289,41 +294,7 @@
         <!-- Grafikler Grid -->
         <div class="dashboard-grid">
           
-          <!-- Öğrenci Seviye Kartı (V2: Sıfırdan Zirveye Ligi) -->
-          <div class="panel-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(37,99,235,0.15) 100%);">
-            
-            <!-- TOP AREA: Avatar, Streak, League -->
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-              <div style="display:flex; align-items:center; gap: 15px;">
-                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary); display:flex; align-items:center; justify-content:center; font-size:24px; color:white;">🧑‍🎓</div>
-                <div style="display:flex; flex-direction:column;">
-                  <span style="font-size: 14px; font-weight:600; color:var(--text-muted);">Öğrenci Profili</span>
-                  <span id="streak-counter" style="font-size: 18px; font-weight:800; color: #f97316; display:flex; align-items:center; gap:5px;">🔥 0 Günlük Seri</span>
-                </div>
-              </div>
-              
-            </div>
 
-            <!-- MIDDLE AREA REMOVED -->
-<hr style="border:none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
-
-            <!-- BOTTOM AREA: Quests and Reward Chest -->
-            <div style="display:flex; flex-direction:column; gap: 15px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:700; color:var(--text-main); margin:0;">Günlük Görevler (Quests)</h3>
-                <span id="quest-completion-text" style="font-size:12px; color:var(--text-muted);">0/0 Görev</span>
-              </div>
-              <div id="quest-list-container" style="display:flex; flex-direction:column; gap:10px;">
-                <!-- Quests will be rendered here -->
-              </div>
-              
-              
-              </div>
-            </div>
-            
-            
-            
-          </div>
 
           <!-- Soru Grafiği -->
           <div class="panel-card">
