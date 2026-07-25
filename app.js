@@ -30,6 +30,23 @@ function initFirebaseSync() {
           const remoteStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
           
           if (localStr !== remoteStr) {
+            try {
+              const localObj = localStr ? JSON.parse(localStr) : null;
+              const remoteObj = typeof value === 'object' ? value : JSON.parse(remoteStr || "{}");
+              
+              // Heuristic: If local has tasks/books but remote is empty, PUSH LOCAL UP! (Data Recovery)
+              const localTasks = (localObj && localObj.tasks) ? localObj.tasks.length : 0;
+              const remoteTasks = (remoteObj && remoteObj.tasks) ? remoteObj.tasks.length : 0;
+              const localTopics = (localObj && localObj.topicStatus) ? Object.keys(localObj.topicStatus).length : 0;
+              const remoteTopics = (remoteObj && remoteObj.topicStatus) ? Object.keys(remoteObj.topicStatus).length : 0;
+              
+              if (localTasks > remoteTasks || localTopics > remoteTopics) {
+                 console.log(`Recovering ${key} from local to Firebase...`);
+                 window.db.ref('ykskocum_data/' + key).set(localObj).catch(e => console.error(e));
+                 continue;
+              }
+            } catch(e) {}
+            
             localStorage.setItem(key, remoteStr);
             needsRender = true;
           }
@@ -75,17 +92,27 @@ const DEFAULT_STUDENT_DATA = {
 
 // Veriyi localStorage'dan yükle veya oluştur
 function getStudentData(student) {
-  const data = localStorage.getItem(`yks_coach_${student}`);
-  if (!data) {
-    // İlkleme yaparken YKS_TOPICS'teki tüm konuları "not_started" olarak tanımlayalım
-    const initialData = JSON.parse(JSON.stringify(DEFAULT_STUDENT_DATA));
-    localStorage.setItem(`yks_coach_${student}`, JSON.stringify(initialData));
-    return initialData;
+  const dataStr = localStorage.getItem(`yks_coach_${student}`);
+  let data;
+  if (!dataStr) {
+    data = JSON.parse(JSON.stringify(DEFAULT_STUDENT_DATA));
+    localStorage.setItem(`yks_coach_${student}`, JSON.stringify(data));
+  } else {
+    data = JSON.parse(dataStr);
   }
-  const parsed = JSON.parse(data);
-  if (!parsed.books) parsed.books = [];
-  if (!parsed.liveSession) parsed.liveSession = null;
-  return parsed;
+  
+  // Firebase strips empty arrays and objects. Ensure they exist to prevent UI crashes.
+  if (!data.dailyLog) data.dailyLog = [];
+  if (!data.mockLog) data.mockLog = [];
+  if (!data.topicStatus) data.topicStatus = {};
+  if (!data.tasks) data.tasks = [];
+  if (!data.wrongLog) data.wrongLog = [];
+  if (!data.books) data.books = [];
+  if (!data.badges) data.badges = [];
+  if (!data.personalGoal) data.personalGoal = { university: "", profession: "", ranking: "" };
+  if (!data.liveSession) data.liveSession = null;
+  
+  return data;
 }
 
 // Veriyi localStorage'a kaydet
@@ -139,11 +166,16 @@ let currentUserSession = null; // User object or null
 
 function getUsers() {
   const data = localStorage.getItem('yks_coach_users');
-  if (!data) {
+  if (!data || data === 'undefined' || data === 'null') {
     localStorage.setItem('yks_coach_users', JSON.stringify(DEFAULT_USERS));
     return DEFAULT_USERS;
   }
-  return JSON.parse(data);
+  const parsed = JSON.parse(data);
+  if (!parsed.koc) parsed.koc = DEFAULT_USERS.koc;
+  if (!parsed.gokhan) parsed.gokhan = DEFAULT_USERS.gokhan;
+  if (!parsed.kaan) parsed.kaan = DEFAULT_USERS.kaan;
+  if (!parsed.cagan) parsed.cagan = DEFAULT_USERS.cagan;
+  return parsed;
 }
 
 function saveUsers(users) {
