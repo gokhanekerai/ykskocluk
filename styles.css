@@ -1131,13 +1131,24 @@ body {
 
 /* --- Tablet: 900px ve altı --- */
 @media (max-width: 900px) {
-  /* App Layout */
-  .app-container {
-    flex-direction: column;
-    height: auto;
+  /* === SCROLL DÜZELTMESİ: overflow:hidden kilidi kaldır === */
+  body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
     min-height: 100vh;
-    overflow-y: auto;
   }
+  .app-container {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible !important;
+    flex-direction: column;
+  }
+  .main-content {
+    height: auto !important;
+    overflow-y: visible !important;
+  }
+
 
   /* Sidebar → Top navbar */
   .sidebar {
