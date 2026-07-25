@@ -152,6 +152,7 @@
                 <span class="menu-icon">🧮</span> Puan Hesapla
               </a>
             </li>
+
             <li class="menu-item" data-tab="calisma-programi">
               <a onclick="switchTab('calisma-programi')" id="nav-calisma-programi">
                 <span class="menu-icon">🗓️</span> Koçluk Programı
@@ -293,74 +294,7 @@
         <!-- Grafikler Grid -->
         <div class="dashboard-grid">
           
-          <!-- Öğrenci Seviye Kartı (V2: Sıfırdan Zirveye Ligi) -->
-          <div class="panel-card" style="background: linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(37,99,235,0.15) 100%);">
-            
-            <!-- TOP AREA: Avatar, Streak, League -->
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-              <div style="display:flex; align-items:center; gap: 15px;">
-                <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--color-primary); display:flex; align-items:center; justify-content:center; font-size:24px; color:white;">🧑‍🎓</div>
-                <div style="display:flex; flex-direction:column;">
-                  <span style="font-size: 14px; font-weight:600; color:var(--text-muted);">Öğrenci Profili</span>
-                  <span id="streak-counter" style="font-size: 18px; font-weight:800; color: #f97316; display:flex; align-items:center; gap:5px;">🔥 0 Günlük Seri</span>
-                </div>
-              </div>
-              <div style="text-align:right;">
-                <div id="level-badge" style="font-size:48px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); line-height: 1;">🥉</div>
-              </div>
-            </div>
 
-            <!-- MIDDLE AREA: League Info & Quests -->
-            <div style="display:flex; flex-direction:column; gap: 15px;">
-              <div style="text-align: center;">
-                <div id="level-title" style="font-size:24px; font-weight:900; color:var(--text-main); letter-spacing: -0.5px;">Çırak Ligi</div>
-                <div id="level-xp" style="font-size:14px; color:var(--text-muted); font-weight: 500; margin-top: 5px;">Toplam XP: 0</div>
-              </div>
-              
-              <div style="width: 100%; margin-top: 5px;">
-                <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom: 8px;">
-                  <span id="level-progress-text">Sonraki Lige: 1000 XP</span>
-                  <span id="level-pct" style="color:var(--color-primary);">%0</span>
-                </div>
-                <div class="progress-bar-container" style="height: 12px; background: rgba(0,0,0,0.05); border-radius: 6px;">
-                  <div id="level-progress-fill" class="progress-bar-fill" style="background: linear-gradient(90deg, #b87333, #d2b48c); width: 0%; border-radius: 6px;"></div>
-                </div>
-              </div>
-            </div>
-            
-            <hr style="border:none; border-top: 1px dashed var(--border-color); margin: 20px 0;">
-
-            <!-- BOTTOM AREA: Quests and Reward Chest -->
-            <div style="display:flex; flex-direction:column; gap: 15px;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="font-size:16px; font-weight:700; color:var(--text-main); margin:0;">Günlük Görevler (Quests)</h3>
-                <span id="quest-completion-text" style="font-size:12px; color:var(--text-muted);">0/0 Görev</span>
-              </div>
-              <div id="quest-list-container" style="display:flex; flex-direction:column; gap:10px;">
-                <!-- Quests will be rendered here -->
-              </div>
-              
-              <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: var(--radius-md); border: 1px solid var(--border-color); display:flex; align-items:center; gap: 15px;">
-                <div style="font-size:42px;">🎁</div>
-                <div style="flex:1;">
-                  <div style="font-size:14px; font-weight:700; margin-bottom:5px;">Haftalık Ödül Sandığı</div>
-                  <div id="chest-progress-text" style="font-size:12px; color:var(--text-muted); margin-bottom:5px;">Sandığın açılmasına son 1000 soru!</div>
-                  <div class="progress-bar-container" style="height: 8px; background: rgba(0,0,0,0.05);">
-                    <div id="chest-progress-fill" class="progress-bar-fill" style="background: var(--color-warning); width: 0%;"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Kazanılan Rozetler -->
-            <div style="margin-top: 20px;">
-               <h3 style="font-size:14px; font-weight:700; color:var(--text-main); margin:0 0 10px 0;">Kazanılan Rozetler</h3>
-               <div id="earned-badges-container" style="display:flex; gap:10px; flex-wrap:wrap;">
-                 <span style="font-size:12px; color:var(--text-muted);">Henüz rozet kazanılmadı.</span>
-               </div>
-            </div>
-            
-          </div>
 
           <!-- Soru Grafiği -->
           <div class="panel-card">
@@ -375,29 +309,7 @@
           </div>
           
 
-          <!-- Canlı Seans Kartı -->
-          <div class="panel-card" id="live-session-card">
-            <div class="panel-header">
-              <h2 class="panel-title">⏱️ Canlı Çalışma Seansı</h2>
-              <span id="live-session-status" style="font-size:12px; color:var(--text-muted);">Durum: Bekliyor</span>
-            </div>
-            
-            <div id="student-live-controls" style="display:none; margin-top:15px; flex-direction:column; gap:10px;">
-              <select id="live-task-select" class="form-input">
-                <option value="">Çalışılacak Görevi Seçin...</option>
-              </select>
-              <div style="display:flex; gap:10px;">
-                <button id="btn-start-session" class="btn-primary" style="flex:1;" onclick="toggleLiveSession()">Çalışmayı Başlat</button>
-              </div>
-              <div id="live-timer-display" style="font-size:24px; font-weight:bold; text-align:center; color:var(--color-primary); margin: 10px 0;">00:00</div>
-            </div>
 
-            <div id="coach-live-view" style="display:none; margin-top:15px; padding:15px; background:var(--bg-main); border-radius:var(--radius-md); text-align:center;">
-              <div id="coach-live-pulse" style="width:12px; height:12px; border-radius:50%; background:var(--text-muted); display:inline-block; margin-right:8px; box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);"></div>
-              <span id="coach-live-text" style="font-weight:600; color:var(--text-main);">Öğrenci şu an çevrimdışı / çalışmıyor</span>
-              <div id="coach-live-timer" style="font-size:20px; font-weight:bold; color:var(--color-primary); margin-top:10px;">--:--</div>
-            </div>
-          </div>
           
           <!-- Hedef Kartı -->
           <div class="panel-card">
@@ -460,9 +372,9 @@
           </div>
         </div>
 
-        <div class="form-grid">
+        <div style="display: block;">
           <!-- Veri Giriş Formu -->
-          <div class="panel-card card-form">
+          <div class="panel-card card-form" style="display: none;">
             <h2 class="panel-title" style="margin-bottom: 20px;">Soru Çözüm Kaydı Ekle</h2>
             <form id="add-solved-form">
               <div class="form-group">
@@ -540,9 +452,9 @@
           </div>
         </div>
 
-        <div class="form-grid">
+        <div style="display: block;">
           <!-- Deneme Giriş Formu -->
-          <div class="panel-card card-form">
+          <div class="panel-card card-form" style="display: none;">
             <h2 class="panel-title" style="margin-bottom: 20px;">Yeni Deneme Sınavı Gir</h2>
             <form id="add-mock-form">
               <div class="form-group">
@@ -1335,12 +1247,6 @@
   <!-- Javascript Kaynakları -->
   <script src="topics.js"></script>
   <script src="rankings.js"></script>
-  <script src="app.js?v=8"></script>
-  <script>
-    if (!localStorage.getItem('update_v7')) {
-      alert('Sistem tamamen onarıldı! Lütfen bir görevi işaretleyip test edin.');
-      localStorage.setItem('update_v7', 'true');
-    }
-  </script>
+  <script src="app.js?v=99"></script>
 </body>
 </html>
