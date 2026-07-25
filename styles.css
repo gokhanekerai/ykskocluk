@@ -1173,23 +1173,63 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column; /* Mobilde her satırı alt alta düzgün dizelim */
     gap: 8px;
+    /* backdrop-filter: blur creates a new containing block breaking position:fixed, so remove it on mobile if we need fixed children, but we'll just use solid background */
+    background: var(--bg-panel);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
-  .sidebar-header {
-    margin-bottom: 0;
-    flex-shrink: 0;
-  }
-  .sidebar-footer {
-    display: none;
-  }
+  
+  /* Üst satır: Logo ve Öğrenci Seçici yan yana */
   .sidebar-nav-container {
-    overflow-y: visible;
-    overflow-x: auto;
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    overflow: visible;
   }
+  .brand {
+    margin-bottom: 0;
+  }
+  
+  /* Öğrenci seçiciyi mobilde kompakt, yatay yap */
+  .student-selector {
+    margin: 0;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+    flex-direction: row;
+  }
+  .selector-title {
+    margin-bottom: 0;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .student-options {
+    flex-direction: row;
+    gap: 6px;
+    flex: 1;
+    overflow-x: auto;
+  }
+  .student-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
+  .student-btn .student-avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  /* Navigasyon menüsü */
   .sidebar-menu {
     flex-direction: row;
     overflow-x: auto;
@@ -1213,6 +1253,18 @@ body {
     padding-left: 10px;
   }
   .sidebar-section-title { display: none; }
+  
+  /* Alt menü (Şifre değiştir, Çıkış vs) */
+  .sidebar-action-menu {
+    margin-top: 0 !important;
+    border-top: none !important;
+    padding-top: 0 !important;
+  }
+
+  /* Footer mobilde yer kaplamasın */
+  .sidebar-footer {
+    display: none !important;
+  }
 
   /* Main content */
   .main-content {
@@ -1377,24 +1429,14 @@ body {
   /* Charts: tam genişlik */
   canvas { max-width: 100%; }
 
-  /* Sidebar footer: alt bar gibi göster */
+  /* Footer was removed above, make sure it stays hidden */
   .sidebar-footer {
-    display: flex !important;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-panel);
-    border-top: 1px solid var(--border-color);
-    padding: 10px 16px;
-    z-index: 200;
-    justify-content: space-between;
-    align-items: center;
+    display: none !important;
   }
 
-  /* Main content: footer için boşluk */
+  /* Main content padding reset */
   .main-content {
-    padding-bottom: 70px;
+    padding-bottom: 20px;
   }
 }
 
