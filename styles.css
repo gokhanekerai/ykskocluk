@@ -1509,6 +1509,73 @@ body {
 }
 .modal-close:hover { background: rgba(255,255,255,0.08); }
 
+/* =========================================
+   DASHBOARD KARTLARI & İSTATİSTİKLER
+========================================= */
+.smart-suggestion-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+.banner-icon {
+  font-size: 28px;
+}
+.banner-content {
+  flex: 1;
+}
+.banner-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 4px;
+}
+.banner-desc {
+  font-size: 13px;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.banner-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn-banner-outline {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-main);
+  cursor: pointer;
+}
+.btn-banner-primary {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+}
+.btn-banner-magic {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+}
+
 /* =========================================================
    YANLIŞ DEFTERİ KARTLARI
    ========================================================= */

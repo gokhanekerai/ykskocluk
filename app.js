@@ -2121,16 +2121,89 @@ function toggleTask(id) {
   const data = getStudentData(currentStudent);
   const task = data.tasks.find(t => t.id === id);
   if (task) {
+    if (!task.checked) {
+      document.getElementById('accuracy-task-id').value = id;
+      document.getElementById('accuracy-correct').value = '';
+      document.getElementById('accuracy-wrong').value = '';
+      const blankInput = document.getElementById('accuracy-blank');
+      if(blankInput) blankInput.value = '';
+      const modal = document.getElementById('task-accuracy-modal');
+      if (modal) modal.style.display = 'flex';
+      return;
+    }
+    
     task.checked = !task.checked;
+    if (!task.checked) {
+      delete task.correctCount;
+      delete task.wrongCount;
+      delete task.blankCount;
+    }
     saveStudentData(currentStudent, data);
     renderWeeklyPlanner();
-      // Dashboard Kartları
-  updateDashboardStats(data);
-  
-  // Canlı Seans Güncellemesi
-  populateLiveTasks();
-  updateLiveSessionUI(); // Dashboard üzerindeki haftalık görevleri etkileyebilir
+    if(typeof updateDashboardStats === 'function') updateDashboardStats(data);
+    if(typeof populateLiveTasks === 'function') populateLiveTasks();
+    if(typeof updateLiveSessionUI === 'function') updateLiveSessionUI();
   }
+}
+
+function closeTaskAccuracyModal() {
+  const modal = document.getElementById('task-accuracy-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleTaskAccuracySubmit(e) {
+  e.preventDefault();
+  const id = document.getElementById('accuracy-task-id').value;
+  const correct = parseInt(document.getElementById('accuracy-correct').value) || 0;
+  const wrong = parseInt(document.getElementById('accuracy-wrong').value) || 0;
+  
+  let blank = 0;
+  const blankInput = document.getElementById('accuracy-blank');
+  if(blankInput && blankInput.value !== '') {
+    blank = parseInt(blankInput.value) || 0;
+  }
+  
+  const data = getStudentData(currentStudent);
+  const task = data.tasks.find(t => t.id === id);
+  if (task) {
+    if (task.questionTarget && (correct + wrong + blank > task.questionTarget)) {
+      showToast('Doğru, yanlış ve boş toplamı hedeflenen soru sayısından büyük olamaz!', 'error');
+      return;
+    }
+    task.checked = true;
+    task.correctCount = correct;
+    task.wrongCount = wrong;
+    task.blankCount = blank;
+    saveStudentData(currentStudent, data);
+    
+    // Soru Takip menüsüne otomatik ekle
+    const dateStr = task.day || new Date().toLocaleDateString('tr-TR', {weekday: 'long'});
+    const subject = task.subject || 'Genel';
+    const topic = task.topic || task.text;
+    
+    const entry = {
+      id: 'log_' + Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      tytAyt: task.exam || 'TYT',
+      subject: subject,
+      solved: (correct + wrong + blank).toString(),
+      correct: correct.toString(),
+      wrong: wrong.toString(),
+      blank: blank.toString()
+    };
+    
+    if (!data.dailyLog) data.dailyLog = [];
+    data.dailyLog.push(entry);
+    saveStudentData(currentStudent, data);
+    
+    renderWeeklyPlanner();
+    if (typeof renderSolvedTable === 'function') renderSolvedTable();
+    if(typeof updateDashboardStats === 'function') updateDashboardStats(data);
+    if(typeof populateLiveTasks === 'function') populateLiveTasks();
+    if(typeof updateLiveSessionUI === 'function') updateLiveSessionUI();
+    showToast('Görev tamamlandı ve Soru Takip menüsüne işlendi! 🎉', 'success');
+  }
+  closeTaskAccuracyModal();
 }
 
 // Görev Düzenleme
