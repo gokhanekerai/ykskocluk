@@ -933,7 +933,7 @@ function updateDashboardStats(data) {
   let totalWrong = 0;
   
   data.dailyLog.forEach(log => {
-    totalSolved += parseInt(log.solved);
+    totalSolved += parseInt(log.correct) + parseInt(log.wrong);
     totalCorrect += parseInt(log.correct);
     totalWrong += parseInt(log.wrong);
   });
