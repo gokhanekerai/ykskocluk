@@ -2187,7 +2187,7 @@ function handleTaskAccuracySubmit(e) {
       date: new Date().toISOString().split('T')[0],
       tytAyt: task.exam || 'TYT',
       subject: subject,
-      solved: (correct + wrong + blank).toString(),
+      solved: (correct + wrong).toString(),
       correct: correct.toString(),
       wrong: wrong.toString(),
       blank: blank.toString()
