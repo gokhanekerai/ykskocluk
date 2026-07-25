@@ -309,29 +309,7 @@
           </div>
           
 
-          <!-- Canlı Seans Kartı -->
-          <div class="panel-card" id="live-session-card">
-            <div class="panel-header">
-              <h2 class="panel-title">⏱️ Canlı Çalışma Seansı</h2>
-              <span id="live-session-status" style="font-size:12px; color:var(--text-muted);">Durum: Bekliyor</span>
-            </div>
-            
-            <div id="student-live-controls" style="display:none; margin-top:15px; flex-direction:column; gap:10px;">
-              <select id="live-task-select" class="form-input">
-                <option value="">Çalışılacak Görevi Seçin...</option>
-              </select>
-              <div style="display:flex; gap:10px;">
-                <button id="btn-start-session" class="btn-primary" style="flex:1;" onclick="toggleLiveSession()">Çalışmayı Başlat</button>
-              </div>
-              <div id="live-timer-display" style="font-size:24px; font-weight:bold; text-align:center; color:var(--color-primary); margin: 10px 0;">00:00</div>
-            </div>
 
-            <div id="coach-live-view" style="display:none; margin-top:15px; padding:15px; background:var(--bg-main); border-radius:var(--radius-md); text-align:center;">
-              <div id="coach-live-pulse" style="width:12px; height:12px; border-radius:50%; background:var(--text-muted); display:inline-block; margin-right:8px; box-shadow: 0 0 0 0 rgba(0, 0, 0, 1);"></div>
-              <span id="coach-live-text" style="font-weight:600; color:var(--text-main);">Öğrenci şu an çevrimdışı / çalışmıyor</span>
-              <div id="coach-live-timer" style="font-size:20px; font-weight:bold; color:var(--color-primary); margin-top:10px;">--:--</div>
-            </div>
-          </div>
           
           <!-- Hedef Kartı -->
           <div class="panel-card">
@@ -1269,12 +1247,6 @@
   <!-- Javascript Kaynakları -->
   <script src="topics.js"></script>
   <script src="rankings.js"></script>
-  <script src="app.js?v=7"></script>
-  <script>
-    if (!localStorage.getItem('update_v7')) {
-      alert('Sistem tamamen onarıldı! Lütfen bir görevi işaretleyip test edin.');
-      localStorage.setItem('update_v7', 'true');
-    }
-  </script>
+  <script src="app.js?v=99"></script>
 </body>
 </html>
