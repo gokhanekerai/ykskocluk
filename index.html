@@ -22,7 +22,7 @@
   <link rel="icon" type="image/png" href="icon-512.png">
 
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=100">
   
   <!-- Chart.js (Grafikler İçin) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -370,11 +370,16 @@
             <h1>Soru Çözüm Takip Sistemi</h1>
             <p>Öğrencinin günlük çözdüğü soru miktarlarını girin ve doğruluk oranlarını izleyin.</p>
           </div>
+          <div class="header-actions">
+            <button class="btn-submit" onclick="document.getElementById('soru-form-container').style.display = document.getElementById('soru-form-container').style.display === 'none' ? 'block' : 'none'" style="width:auto; padding: 0 20px; display:flex; align-items:center; gap:8px;">
+              <span>➕</span> Soru Kaydı Ekle
+            </button>
+          </div>
         </div>
 
         <div style="display: block;">
           <!-- Veri Giriş Formu -->
-          <div class="panel-card card-form" style="display: none;">
+          <div id="soru-form-container" class="panel-card card-form" style="display: block;">
             <h2 class="panel-title" style="margin-bottom: 20px;">Soru Çözüm Kaydı Ekle</h2>
             <form id="add-solved-form">
               <div class="form-group">
@@ -450,11 +455,16 @@
             <h1>Deneme Sınavları İzleme Paneli</h1>
             <p>TYT ve AYT deneme sınavı sonuçlarını detaylı olarak kaydedip net gelişimini takip edin.</p>
           </div>
+          <div class="header-actions">
+            <button class="btn-submit" onclick="document.getElementById('deneme-form-container').style.display = document.getElementById('deneme-form-container').style.display === 'none' ? 'block' : 'none'" style="width:auto; padding: 0 20px; display:flex; align-items:center; gap:8px;">
+              <span>➕</span> Yeni Deneme Ekle
+            </button>
+          </div>
         </div>
 
         <div style="display: block;">
           <!-- Deneme Giriş Formu -->
-          <div class="panel-card card-form" style="display: none;">
+          <div id="deneme-form-container" class="panel-card card-form" style="display: block;">
             <h2 class="panel-title" style="margin-bottom: 20px;">Yeni Deneme Sınavı Gir</h2>
             <form id="add-mock-form">
               <div class="form-group">
@@ -1245,8 +1255,8 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Javascript Kaynakları -->
-  <script src="topics.js"></script>
-  <script src="rankings.js"></script>
-  <script src="app.js?v=99"></script>
+  <script src="topics.js?v=100"></script>
+  <script src="rankings.js?v=100"></script>
+  <script src="app.js?v=100"></script>
 </body>
 </html>

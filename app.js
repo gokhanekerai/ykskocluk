@@ -826,6 +826,16 @@ function switchTab(tabId) {
       updateExamDateDisplay();
     }
 
+  } else if (tabId === 'soru-takip') {
+    // Soru giriş formunu garantili göster
+    const soruForm = document.getElementById('soru-form-container');
+    if (soruForm) soruForm.style.setProperty('display', 'block', 'important');
+  } else if (tabId === 'deneme-takip') {
+    // Deneme giriş formunu garantili göster
+    const deneForm = document.getElementById('deneme-form-container');
+    if (deneForm) deneForm.style.setProperty('display', 'block', 'important');
+    // Deneme alanlarını güncelle
+    if (typeof updateMockFormFields === 'function') updateMockFormFields();
   } else if (tabId === 'kaynak-takip') {
     renderBooks();
   } else if (tabId === 'puan-hesaplama') {
@@ -2421,6 +2431,17 @@ function setupEventListeners() {
   // Tarihleri bugüne ayarla
   setTodayDate('solved-date');
   setTodayDate('mock-date');
+
+  // Veri giriş formlarını her zaman görünür yap
+  ensureFormsVisible();
+}
+
+// Soru ve Deneme giriş formlarının her koşulda görünür olmasını sağla
+function ensureFormsVisible() {
+  const soruForm = document.getElementById('soru-form-container');
+  const deneForm = document.getElementById('deneme-form-container');
+  if (soruForm) soruForm.style.setProperty('display', 'block', 'important');
+  if (deneForm) deneForm.style.setProperty('display', 'block', 'important');
 }
 
 // Bildirim Gösterme (Toast)
