@@ -1342,10 +1342,19 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Konu</label>
-        <select id="sched-topic" class="form-input" required>
+        <div class="flex-between" style="margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0;">Konu</label>
+          <span style="font-size:12px; color:#00F0FF; cursor:pointer; font-weight:700;" onclick="toggleCustomTopicInput(true)">✏️ Manuel Konu Yaz</span>
+        </div>
+        <select id="sched-topic" class="form-input" required onchange="handleTopicSelectChange(this.value)">
           <option value="">Önce ders seçin...</option>
         </select>
+        <div id="sched-custom-topic-wrapper" style="display:none; margin-top:8px;">
+          <div style="display:flex; gap:6px;">
+            <input id="sched-custom-topic" type="text" class="form-input" placeholder="Özel görev veya konu adını yazın...">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCustomTopicInput(false)" title="Hazır Konu Listesine Dön">📋 Liste</button>
+          </div>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">

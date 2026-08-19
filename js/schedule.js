@@ -578,34 +578,94 @@ function _renderScheduleStats(schedule) {
 
 // ─── ÖĞE İŞLEMLERİ ────────────────────────────────────────────────────────────
 
-function toggleScheduleItem(dateStr, itemId, done) {
-  const data = getStudentData(window.activeStudent);
-  const day  = data.schedule.find(s => s.date === dateStr);
-  if (!day) return;
+// ─── OTOMATİK KONU TAKİBİ SENKRONİZASYONU ────────────────────────────────────
 
-  const item = day.items.find(i => i.id === itemId);
-  if (item) item.done = done;
+function _syncScheduleWithTopicStatus(data, subject, topic, targetStatus) {
+  if (!data || !subject || !topic) return;
+  if (!data.topicStatus) data.topicStatus = {};
 
-  saveStudentData(window.activeStudent, data);
-  renderSchedule();
-  if (typeof renderDashboard === 'function') renderDashboard();
-  if (typeof checkNotifications === 'function') checkNotifications();
+  let group = 'tyt';
+  let baseSubject = subject;
+
+  if (subject.startsWith('TYT ')) {
+    group = 'tyt';
+    baseSubject = subject.replace('TYT ', '').trim();
+  } else if (subject.startsWith('AYT ')) {
+    group = 'ayt';
+    baseSubject = subject.replace('AYT ', '').trim();
+  } else {
+    if (typeof YKS_TOPICS !== 'undefined') {
+      if (YKS_TOPICS.TYT && YKS_TOPICS.TYT[subject]) group = 'tyt';
+      else if (YKS_TOPICS.AYT && YKS_TOPICS.AYT[subject]) group = 'ayt';
+    }
+  }
+
+  // Standart key
+  const topicKey = `${group}_${baseSubject}_${topic}`;
+  const legacyKey = `${group.toUpperCase()}_${baseSubject}_${topic}`;
+
+  if (targetStatus === 'completed') {
+    data.topicStatus[topicKey] = 'completed';
+    delete data.topicStatus[legacyKey];
+  } else if (targetStatus === 'studying') {
+    if (data.topicStatus[topicKey] !== 'completed' && data.topicStatus[legacyKey] !== 'completed') {
+      data.topicStatus[topicKey] = 'studying';
+    }
+    delete data.topicStatus[legacyKey];
+  } else if (targetStatus === 'revert_from_completed') {
+    const hasOtherDone = (data.schedule || []).some(day =>
+      (day.items || []).some(i => i.done && i.subject === subject && i.topic === topic)
+    );
+    if (!hasOtherDone) {
+      data.topicStatus[topicKey] = 'studying';
+    }
+  }
 }
 
-function deleteScheduleItem(dateStr, itemId) {
-  if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
+function toggleScheduleItem(dateStr, itemId, done) {
   const data = getStudentData(window.activeStudent);
-  const day  = data.schedule.find(s => s.date === dateStr);
+  const day  = (data.schedule || []).find(s => s.date === dateStr);
   if (!day) return;
 
-  day.items = day.items.filter(i => i.id !== itemId);
-  if (day.items.length === 0) {
-    data.schedule = data.schedule.filter(s => s.date !== dateStr);
+  const item = (day.items || []).find(i => i.id === itemId);
+  if (item) {
+    item.done = done;
+    _syncScheduleWithTopicStatus(data, item.subject, item.topic, done ? 'completed' : 'revert_from_completed');
   }
 
   saveStudentData(window.activeStudent, data);
   renderSchedule();
   if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof _renderTopicStats === 'function') _renderTopicStats();
+  if (typeof renderTopics === 'function') renderTopics();
+  if (typeof checkNotifications === 'function') checkNotifications();
+
+  if (done) {
+    showToast(`🎉 Tebrikler! "${item?.topic || 'Görev'}" tamamlandı & Konu durumu güncellendi!`, 'success');
+  }
+}
+
+function deleteScheduleItem(dateStr, itemId) {
+  if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
+  const data = getStudentData(window.activeStudent);
+  const day  = (data.schedule || []).find(s => s.date === dateStr);
+  if (!day) return;
+
+  const item = (day.items || []).find(i => i.id === itemId);
+  day.items = day.items.filter(i => i.id !== itemId);
+  if (day.items.length === 0) {
+    data.schedule = data.schedule.filter(s => s.date !== dateStr);
+  }
+
+  if (item) {
+    _syncScheduleWithTopicStatus(data, item.subject, item.topic, 'revert_from_completed');
+  }
+
+  saveStudentData(window.activeStudent, data);
+  renderSchedule();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof _renderTopicStats === 'function') _renderTopicStats();
+  if (typeof renderTopics === 'function') renderTopics();
   if (typeof checkNotifications === 'function') checkNotifications();
   showToast('Görev silindi.', 'info');
 }
@@ -613,6 +673,42 @@ function deleteScheduleItem(dateStr, itemId) {
 // ─── EL İLE ÖĞE EKLEME & DÜZENLEME ──────────────────────────────────────────
 
 let editingScheduleContext = null;
+
+function toggleCustomTopicInput(isCustom) {
+  const select = document.getElementById('sched-topic');
+  const customWrapper = document.getElementById('sched-custom-topic-wrapper');
+  const customInput = document.getElementById('sched-custom-topic');
+
+  if (isCustom) {
+    if (customWrapper) customWrapper.style.display = 'block';
+    if (select) {
+      select.required = false;
+      select.value = '__custom__';
+    }
+    if (customInput) {
+      customInput.required = true;
+      customInput.focus();
+    }
+  } else {
+    if (customWrapper) customWrapper.style.display = 'none';
+    if (customInput) {
+      customInput.required = false;
+      customInput.value = '';
+    }
+    if (select) {
+      select.required = true;
+      if (select.value === '__custom__') select.value = '';
+    }
+  }
+}
+
+function handleTopicSelectChange(val) {
+  if (val === '__custom__') {
+    toggleCustomTopicInput(true);
+  } else {
+    toggleCustomTopicInput(false);
+  }
+}
 
 function _populateSchedSubjectSelect() {
   const subjSelect = document.getElementById('sched-subject');
@@ -653,10 +749,12 @@ function openAddScheduleItem(dateStr) {
   _populateSchedSubjectSelect();
   
   document.getElementById('sched-topic').innerHTML = '<option value="">Önce ders seçin...</option>';
+  toggleCustomTopicInput(false);
+
   const bookSelect = document.getElementById('sched-book');
   if (bookSelect) bookSelect.innerHTML = '<option value="">Önce ders seçin...</option>';
 
-  ['sched-duration','sched-questions','sched-pages','sched-book'].forEach(id => {
+  ['sched-duration','sched-questions','sched-pages','sched-book','sched-custom-topic'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = id === 'sched-duration' ? '60' : '';
   });
@@ -694,7 +792,24 @@ function openEditScheduleItem(dateStr, itemId) {
   updateSchedTopics();
 
   const topicSelect = document.getElementById('sched-topic');
-  if (topicSelect) topicSelect.value = item.topic || '';
+  let topicFound = false;
+  if (topicSelect) {
+    for (let i = 0; i < topicSelect.options.length; i++) {
+      if (topicSelect.options[i].value === item.topic) {
+        topicSelect.selectedIndex = i;
+        topicFound = true;
+        break;
+      }
+    }
+  }
+
+  if (!topicFound && item.topic) {
+    toggleCustomTopicInput(true);
+    const customInput = document.getElementById('sched-custom-topic');
+    if (customInput) customInput.value = item.topic;
+  } else {
+    toggleCustomTopicInput(false);
+  }
 
   const durEl = document.getElementById('sched-duration');
   if (durEl) durEl.value = item.duration || 60;
@@ -727,12 +842,15 @@ function updateSchedTopics() {
   const group = selectedOpt.getAttribute('data-group');
   const subj = selectedOpt.getAttribute('data-subj');
   
+  let html = '<option value="">Konu Seçin...</option>';
+
   if (typeof YKS_TOPICS !== 'undefined' && YKS_TOPICS[group] && YKS_TOPICS[group][subj]) {
     const topics = YKS_TOPICS[group][subj];
-    topicSelect.innerHTML = '<option value="">Konu Seçin...</option>' + topics.map(t => `<option value="${t}">${t}</option>`).join('');
-  } else {
-    topicSelect.innerHTML = '<option value="">Önce ders seçin...</option>';
+    html += topics.map(t => `<option value="${t}">${t}</option>`).join('');
   }
+
+  html += '<option value="__custom__">✏️ Özel / Manuel Konu Yaz...</option>';
+  topicSelect.innerHTML = html;
   
   const bookSelect = document.getElementById('sched-book');
   if (bookSelect) {
@@ -758,9 +876,15 @@ function handleAddScheduleItem(e) {
 
   const dateStr = document.getElementById('sched-item-date')?.value || window.currentSelectedDayDate;
   const subject = document.getElementById('sched-subject')?.value.trim() || '';
-  const topic   = document.getElementById('sched-topic')?.value.trim() || '';
-  const dur     = parseInt(document.getElementById('sched-duration')?.value) || 60;
-  const type    = document.getElementById('sched-type')?.value || 'konu çalışma';
+
+  let topic = document.getElementById('sched-topic')?.value.trim() || '';
+  const customTopic = document.getElementById('sched-custom-topic')?.value.trim() || '';
+  if (topic === '__custom__' || (!topic && customTopic)) {
+    topic = customTopic;
+  }
+
+  const dur       = parseInt(document.getElementById('sched-duration')?.value) || 60;
+  const type      = document.getElementById('sched-type')?.value || 'konu çalışma';
   const questions = parseInt(document.getElementById('sched-questions')?.value) || 0;
   const pages     = parseInt(document.getElementById('sched-pages')?.value) || 0;
   const book      = document.getElementById('sched-book')?.value || '';
@@ -792,9 +916,11 @@ function handleAddScheduleItem(e) {
     }
     targetDay.items.push({ id: oldItemId, subject, topic, duration: dur, type, done: isDone, questions, pages, book });
 
+    _syncScheduleWithTopicStatus(data, subject, topic, isDone ? 'completed' : 'studying');
+
     editingScheduleContext = null;
     saveStudentData(window.activeStudent, data);
-    showToast('Görev güncellendi!', 'success');
+    showToast('Görev güncellendi & Konu durumu senkronize edildi!', 'success');
   } else {
     let day = data.schedule.find(s => s.date === dateStr);
     if (!day) {
@@ -804,19 +930,26 @@ function handleAddScheduleItem(e) {
 
     day.items.push({ id: generateId(), subject, topic, duration: dur, type, done: false, questions, pages, book });
     data.hasNewTasks = true;
+
+    _syncScheduleWithTopicStatus(data, subject, topic, 'studying');
+
     saveStudentData(window.activeStudent, data);
-    showToast('Görev eklendi!', 'success');
+    showToast(`Görev eklendi! "${topic}" konusu "Çalışılıyor" durumuna alındı 🟡`, 'success');
   }
 
   closeModal('add-schedule-item-modal');
 
-  ['sched-subject','sched-topic','sched-questions','sched-pages','sched-book'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['sched-subject','sched-topic','sched-custom-topic','sched-questions','sched-pages','sched-book'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  toggleCustomTopicInput(false);
 
   window.currentSelectedDayDate = dateStr;
   renderSchedule();
   if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof _renderTopicStats === 'function') _renderTopicStats();
+  if (typeof renderTopics === 'function') renderTopics();
   if (typeof checkNotifications === 'function') checkNotifications();
 }
+
 
 function clearWeekSchedule() {
   if (!confirm('Seçili dönemin tüm programı silinecek. Emin misiniz?')) return;
@@ -1098,8 +1231,10 @@ window.autoAssignWrongReviewsToSchedule= autoAssignWrongReviewsToSchedule;
 window.openAddTaskForCurrentDay        = openAddTaskForCurrentDay;
 window.openWrongPoolForCurrentDay      = openWrongPoolForCurrentDay;
 window.openDayDetailModal              = openDayDetailModal;
-window.toggleScheduleItemFromDayModal  = toggleScheduleItemFromDayModal;
-window.deleteScheduleItemFromDayModal  = deleteScheduleItemFromDayModal;
+window.toggleCustomTopicInput          = toggleCustomTopicInput;
+window.handleTopicSelectChange         = handleTopicSelectChange;
+window._syncScheduleWithTopicStatus    = _syncScheduleWithTopicStatus;
+
 
 
 
