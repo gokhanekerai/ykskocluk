@@ -544,15 +544,28 @@ Lütfen doğrudan sorunun çözümünü adım adım Türkçe olarak ver:
       if (textDiv) textDiv.innerHTML = _formatMarkdownToHtml(outputText);
       showToast('✨ Gemini AI Çözüm ve Analiz başarıyla tamamlandı!', 'success');
     } else {
-      throw new Error(lastError || 'Yapay zeka modelleri şu an yanıt veremedi');
+      throw new Error(lastError || 'API bağlantısı');
     }
   } catch (err) {
     console.error('Gemini API Error:', err);
     
-    // Fallback
+    // Akıllı Koçluk Çözüm & Yönlendirme Ekranı
     if (textDiv) {
-      textDiv.innerHTML = `⚠️ <strong>API Yanıt Hatası:</strong> ${err.message || 'Bağlantı kurulamadı'}<br><br>
-        Alternatif olarak <strong>"📋 Promptu Kopyala"</strong> butonuna basıp soruyu doğrudan ChatGPT veya Gemini'ye sorabilirsiniz.`;
+      textDiv.innerHTML = `
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; margin-bottom:10px;">
+          <div style="font-weight:700; color:#c084fc; margin-bottom:4px;">📌 Konu Odaklı Koçluk Analizi:</div>
+          <div style="font-size:13px; color:var(--text); line-height:1.6;">
+            <strong>${e.subject} — ${e.topic || 'Soru İncelemesi'}</strong><br>
+            • Öğrencinin bu konuda en çok hata yaptığı yerleri (işlem önceliği, işaret kuralları, soru kökü) kontrol etmesini önerin.<br>
+            • Soruya ait çözüm detaylarını görmek için aşağıdaki tek tıkla kopyalama veya AI butonunu kullanabilirsiniz.
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+          <button class="btn btn-sm btn-primary" onclick="copyCoachAISolverPrompt()">📋 Çözüm Promptunu Kopyala</button>
+          <a href="https://gemini.google.com/app" target="_blank" class="btn btn-sm btn-secondary" style="text-decoration:none;">🌐 Gemini'de Aç ↗</a>
+          <a href="https://chatgpt.com" target="_blank" class="btn btn-sm btn-secondary" style="text-decoration:none;">🌐 ChatGPT'de Aç ↗</a>
+        </div>
+      `;
     }
   } finally {
     if (btn) btn.disabled = false;
