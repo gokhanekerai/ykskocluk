@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YKS Koçum — Mobil Logo & İkon Önerileri</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body {
+      background: #0a0a12;
+      color: #f8fafc;
+      min-height: 100vh;
+      padding: 30px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #c084fc 0%, #00F0FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    p.subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 28px;
+      text-align: center;
+      max-width: 600px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1050px;
+      width: 100%;
+    }
+    .card {
+      background: rgba(26, 26, 38, 0.85);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #00F0FF;
+    }
+    .card-badge {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .img-wrapper {
+      width: 220px;
+      height: 220px;
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.25);
+      border: 2px solid rgba(255,255,255,0.15);
+      margin-bottom: 16px;
+    }
+    .img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 YKS Koçum — Mobil Ana Ekran İkon Önerileri</h1>
+  <p class="subtitle">Programınızın renk kodları (#8b5cf6 Neon Mor, #00F0FF Camgöbeği) ile hazırlanan 3 farklı tasarım konsepti:</p>
+
+  <div class="grid">
+    <!-- Öneri 1 -->
+    <div class="card">
+      <div class="card-badge">ÖNERİ 1</div>
+      <div class="img-wrapper">
+        <img src="preview-icon-1.jpg" alt="Öneri 1">
+      </div>
+      <div class="card-title">🧭 Pusula & Yükseliş Oku</div>
+      <div class="card-desc">Hedef belirleme, sınav rotası ve başarıya giden yolu simgeleyen mezuniyet kepi ve neon pusula kadranı.</div>
+    </div>
+
+    <!-- Öneri 2 -->
+    <div class="card">
+      <div class="card-badge">ÖNERİ 2</div>
+      <div class="img-wrapper">
+        <img src="preview-icon-2.jpg" alt="Öneri 2">
+      </div>
+      <div class="card-title">🚀 Roket & Zirveye Yükseliş</div>
+      <div class="card-desc">Çalışma temposunu, hedeflere hızla uçmayı ve sınav koçluğunun dinamik gücünü temsil eden fırlayan roket ve kep.</div>
+    </div>
+
+    <!-- Öneri 3 -->
+    <div class="card">
+      <div class="card-badge">ÖNERİ 3</div>
+      <div class="img-wrapper">
+        <img src="preview-icon-3.jpg" alt="Öneri 3">
+      </div>
+      <div class="card-title">📖 Holografik Kitap & Yörünge</div>
+      <div class="card-desc">Kaynak/konu takibini, soru çözme disiplinini ve modern dijital koçluğu yansıtan ışıldayan kitap ve enerji halkaları.</div>
+    </div>
+  </div>
+</body>
+</html>
