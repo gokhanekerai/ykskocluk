@@ -64,11 +64,25 @@ function renderDashboard() {
   // Toplam deneme
   _el('dash-total-mock', e => e.textContent = data.mockLog.length);
 
-  // Konu tamamlama
-  const topicVals = Object.values(data.topicStatus);
-  const completed = topicVals.filter(v => v === 'completed').length;
-  const total     = topicVals.length;
-  _el('dash-topics-done', e => e.textContent = `${completed}/${total}`);
+  // Konu tamamlama — Sadece Sayısal Müfredat (TYT & AYT iki ayrı satır)
+  const topicStats = _getNumericalTopicStats(data);
+  _el('dash-topics-done', e => {
+    e.style.fontSize = '16px';
+    e.style.lineHeight = '1.3';
+    e.innerHTML = `
+      <div style="font-size:15px; font-weight:800; color:#00F0FF; display:flex; align-items:baseline; gap:5px;">
+        <span style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">TYT:</span>
+        <span style="font-size:18px; font-weight:800; color:#00F0FF;">${topicStats.tyt.done}</span>
+        <span style="font-size:11px; color:var(--text-muted); font-weight:600;">/${topicStats.tyt.total} Konu</span>
+      </div>
+      <div style="font-size:15px; font-weight:800; color:#c084fc; display:flex; align-items:baseline; gap:5px; margin-top:2px;">
+        <span style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">AYT:</span>
+        <span style="font-size:18px; font-weight:800; color:#c084fc;">${topicStats.ayt.done}</span>
+        <span style="font-size:11px; color:var(--text-muted); font-weight:600;">/${topicStats.ayt.total} Konu</span>
+      </div>
+    `;
+  });
+
 
   // Son 7 gün TYT neti (en son deneme)
   const lastMock = [...data.mockLog].sort((a,b) => b.date.localeCompare(a.date))[0];
@@ -589,12 +603,57 @@ function _el(id, fn) {
   if (el) fn(el);
 }
 
-window.renderDashboard       = renderDashboard;
-window.editWeeklyGoal        = editWeeklyGoal;
-window._getTodaySolved       = _getTodaySolved;
-window._getAllTimeSolved     = _getAllTimeSolved;
-window._getDailyQuestionGoal = _getDailyQuestionGoal;
+function _getNumericalTopicStats(data) {
+  const status = data.topicStatus || {};
+  const tytTopics = (window.TOPICS && window.TOPICS.tyt) || (window.YKS_TOPICS && window.YKS_TOPICS.TYT) || {};
+  const aytTopics = (window.TOPICS && window.TOPICS.ayt) || (window.YKS_TOPICS && window.YKS_TOPICS.AYT) || {};
+
+  // Sayısal TYT Dersleri (Türkçe, Matematik, Geometri, Fizik, Kimya, Biyoloji)
+  const tytSaySubjects = ['Türkçe', 'Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji'];
+  let tytTotal = 0;
+  let tytDone = 0;
+
+  tytSaySubjects.forEach(sub => {
+    const list = tytTopics[sub] || [];
+    list.forEach(t => {
+      tytTotal++;
+      const v = status[`tyt_${sub}_${t}`] || status[`TYT_${sub}_${t}`];
+      if (v === 'completed') tytDone++;
+    });
+  });
+
+  // Sayısal AYT Dersleri (Matematik, Geometri, Fizik, Kimya, Biyoloji)
+  const aytSaySubjects = ['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji'];
+  let aytTotal = 0;
+  let aytDone = 0;
+
+  aytSaySubjects.forEach(sub => {
+    const list = aytTopics[sub] || [];
+    list.forEach(t => {
+      aytTotal++;
+      const v = status[`ayt_${sub}_${t}`] || status[`AYT_${sub}_${t}`];
+      if (v === 'completed') aytDone++;
+    });
+  });
+
+  // Fallback if window.TOPICS was not loaded yet
+  if (tytTotal === 0) tytTotal = 85;
+  if (aytTotal === 0) aytTotal = 84;
+
+  return {
+    tyt: { done: tytDone, total: tytTotal },
+    ayt: { done: aytDone, total: aytTotal }
+  };
+}
+
+window.renderDashboard        = renderDashboard;
+window.editWeeklyGoal         = editWeeklyGoal;
+window._getTodaySolved        = _getTodaySolved;
+window._getAllTimeSolved      = _getAllTimeSolved;
+window._getDailyQuestionGoal  = _getDailyQuestionGoal;
 window._renderTargetGapWidget = _renderTargetGapWidget;
+window._getNumericalTopicStats = _getNumericalTopicStats;
+
 
 
 
