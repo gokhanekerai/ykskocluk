@@ -398,10 +398,24 @@ function openCoachAISolver(wrongId) {
 
     <!-- AI Çözüm & İpucu Çıktı Alanı -->
     <div id="coach-ai-solver-result" style="display:none; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:16px; margin-bottom:16px;">
-      <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; color:#c084fc; margin-bottom:10px;">
-        <span>✨</span> Google Gemini 2.5 Soru Çözümü & Analizi
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; color:#c084fc;">
+          <span>✨</span> Google Gemini Soru Çözümü & Analizi
+        </div>
       </div>
       <div id="coach-ai-solver-text" style="font-size:14px; line-height:1.7; color:var(--text); white-space:pre-wrap;"></div>
+    </div>
+
+    <!-- API Anahtarı Ayarı (Gerekirse güncellemek için) -->
+    <div id="coach-gemini-key-box" style="background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:10px; padding:12px; margin-bottom:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="font-size:12px; font-weight:700; color:var(--text-muted);">🔑 Google Gemini API Anahtarı (AIzaSy...):</label>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:11px; color:#00F0FF; text-decoration:none;">+ Ücretsiz Anahtar Al ↗</a>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <input id="coach-api-key-input" type="password" class="form-input" placeholder="AIzaSy... ile başlayan anahtarınızı yapıştırın" value="${localStorage.getItem('yks_gemini_api_key') || ''}">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="saveGeminiApiKeyFromModal()">Kaydet</button>
+      </div>
     </div>
 
     <!-- Koç Rehberlik Notu Ekleme -->
@@ -552,6 +566,18 @@ function saveCoachHintToWrong(wrongId) {
   showToast('Koç rehberlik notu öğrencinin kartına kaydedildi!', 'success');
 }
 
+function saveGeminiApiKeyFromModal() {
+  const input = document.getElementById('coach-api-key-input');
+  const key = input ? input.value.trim() : '';
+  if (!key) {
+    localStorage.removeItem('yks_gemini_api_key');
+    showToast('API anahtarı sıfırlandı.', 'info');
+    return;
+  }
+  localStorage.setItem('yks_gemini_api_key', key);
+  showToast('🔑 API Anahtarı başarıyla kaydedildi!', 'success');
+}
+
 function _el(id, fn) { const el = document.getElementById(id); if (el) fn(el); }
 
 window.renderWrongNotes          = renderWrongNotes;
@@ -568,6 +594,8 @@ window.openCoachAISolver         = openCoachAISolver;
 window.copyCoachAISolverPrompt   = copyCoachAISolverPrompt;
 window.runCoachAISolver          = runCoachAISolver;
 window.saveCoachHintToWrong      = saveCoachHintToWrong;
+window.saveGeminiApiKeyFromModal = saveGeminiApiKeyFromModal;
+
 
 
 
