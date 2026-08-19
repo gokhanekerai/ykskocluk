@@ -63,27 +63,72 @@ function _updateSubjectDropdown() {
 }
 
 function _renderTopicStats() {
-  const data    = getStudentData(window.activeStudent);
-  const status  = data.topicStatus || {};
-  const vals    = Object.values(status);
+  const data = getStudentData(window.activeStudent);
+  const status = data.topicStatus || {};
+  const tytTopics = (window.TOPICS && window.TOPICS.tyt) || (window.YKS_TOPICS && window.YKS_TOPICS.TYT) || {};
+  const aytTopics = (window.TOPICS && window.TOPICS.ayt) || (window.YKS_TOPICS && window.YKS_TOPICS.AYT) || {};
 
-  const counts  = {
-    not_started: vals.filter(v => v === 'not_started').length,
-    studying:    vals.filter(v => v === 'studying').length,
-    review:      vals.filter(v => v === 'review').length,
-    completed:   vals.filter(v => v === 'completed').length
-  };
-  const total = vals.length;
+  // Sayısal TYT Dersleri: Türkçe (18), Matematik (26), Geometri (13), Fizik (11), Kimya (9), Biyoloji (8) = 85
+  const tytSaySubjects = ['Türkçe', 'Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji'];
+  let tytTotal = 0;
+  let tytDone = 0;
+  let tytStudy = 0;
+  let tytReview = 0;
 
-  _el('topic-stat-done', e => e.textContent = counts.completed);
-  _el('topic-stat-study', e => e.textContent = counts.studying);
-  _el('topic-stat-review', e => e.textContent = counts.review);
-  _el('topic-stat-total', e => e.textContent = total);
+  tytSaySubjects.forEach(sub => {
+    const list = tytTopics[sub] || [];
+    list.forEach(t => {
+      tytTotal++;
+      const v = status[`tyt_${sub}_${t}`] || status[`TYT_${sub}_${t}`];
+      if (v === 'completed') tytDone++;
+      else if (v === 'studying') tytStudy++;
+      else if (v === 'review') tytReview++;
+    });
+  });
 
-  const pct = total > 0 ? Math.round(counts.completed/total*100) : 0;
-  _el('topic-overall-bar', e => e.style.width = pct+'%');
-  _el('topic-overall-pct', e => e.textContent = pct+'%');
+  // Sayısal AYT Dersleri: Matematik (18), Geometri (4), Fizik (24), Kimya (20), Biyoloji (18) = 84
+  const aytSaySubjects = ['Matematik', 'Geometri', 'Fizik', 'Kimya', 'Biyoloji'];
+  let aytTotal = 0;
+  let aytDone = 0;
+  let aytStudy = 0;
+  let aytReview = 0;
+
+  aytSaySubjects.forEach(sub => {
+    const list = aytTopics[sub] || [];
+    list.forEach(t => {
+      aytTotal++;
+      const v = status[`ayt_${sub}_${t}`] || status[`AYT_${sub}_${t}`];
+      if (v === 'completed') aytDone++;
+      else if (v === 'studying') aytStudy++;
+      else if (v === 'review') aytReview++;
+    });
+  });
+
+  if (tytTotal === 0) tytTotal = 85;
+  if (aytTotal === 0) aytTotal = 84;
+
+  const totalAll = tytTotal + aytTotal; // 169
+  const doneAll = tytDone + aytDone;
+  const studyAll = tytStudy + aytStudy;
+  const reviewAll = tytReview + aytReview;
+
+  // 4 Adet Stat Kartı
+  _el('topic-stat-done', e => e.textContent = doneAll);
+  _el('topic-stat-study', e => e.textContent = studyAll);
+  _el('topic-stat-review', e => e.textContent = reviewAll);
+  _el('topic-stat-total', e => e.textContent = totalAll);
+
+  // 📘 TYT Yatay İlerleme Barı
+  const tytPct = tytTotal > 0 ? Math.round((tytDone / tytTotal) * 100) : 0;
+  _el('topic-tyt-bar', e => e.style.width = `${tytPct}%`);
+  _el('topic-tyt-pct', e => e.textContent = `${tytDone}/${tytTotal} Konu (%${tytPct})`);
+
+  // 📙 AYT Yatay İlerleme Barı
+  const aytPct = aytTotal > 0 ? Math.round((aytDone / aytTotal) * 100) : 0;
+  _el('topic-ayt-bar', e => e.style.width = `${aytPct}%`);
+  _el('topic-ayt-pct', e => e.textContent = `${aytDone}/${aytTotal} Konu (%${aytPct})`);
 }
+
 
 function _renderTopicList() {
   const container = document.getElementById('topic-list');
