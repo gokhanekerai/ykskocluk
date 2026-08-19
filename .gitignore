@@ -19,3 +19,8 @@ Thumbs.db
 
 # Editör dosyaları
 .vscode/
+
+# Firebase önbellek
+.firebase/
+firebase_dump.json
+

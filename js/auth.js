@@ -44,6 +44,7 @@ function handleLogin(e) {
 function logout() {
   localStorage.removeItem('yks_coach_session');
   currentUser = null;
+  window.currentUser = null;
   showLoginScreen();
   // Formu temizle
   const u = document.getElementById('login-username');
@@ -55,11 +56,23 @@ function logout() {
 
 function _applySession(user) {
   currentUser = user;
+  window.currentUser = user;
+
+  if (user.role === 'student') {
+    document.body.classList.add('student-role');
+  } else {
+    document.body.classList.remove('student-role');
+  }
 
   // Sidebar kullanıcı bilgisi
   _el('sidebar-user-avatar', el => el.textContent = user.avatar);
   _el('sidebar-user-name',   el => el.textContent = user.name);
   _el('sidebar-user-role',   el => el.textContent = user.roleTitle);
+
+  // Dinamik menü ve başlık isimlendirmesi
+  const isCoachRole = user.role === 'coach';
+  _el('menu-schedule-text', el => el.textContent = isCoachRole ? 'Görevlendirme' : 'Verilen Görevler');
+  _el('tab-schedule-title', el => el.textContent = isCoachRole ? '📅 Görevlendirme' : '📅 Verilen Görevler');
 
   // Koç-only menü öğeleri
   document.querySelectorAll('.coach-only').forEach(el => {

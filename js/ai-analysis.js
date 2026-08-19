@@ -204,6 +204,7 @@ function processAIResponse() {
   // Çalışma programına aktar
   _importScheduleFromAnalysis(data, analysis);
 
+  data.hasNewTasks = true;
   saveStudentData(window.activeStudent, data);
   closeModal('ai-response-modal');
 

@@ -37,7 +37,18 @@ function _renderWrongList(wrongLog) {
   if (subject !== 'all')     list = list.filter(e => e.subject === subject);
 
   if (!list.length) {
-    container.innerHTML = '<div class="empty-state"><span>✅</span><p>Yanlış kaydı bulunamadı.</p></div>';
+    container.innerHTML = `
+      <div class="empty-state" style="background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.15); border-radius:12px; padding:30px 20px; text-align:center;">
+        <span style="font-size:36px;">❌</span>
+        <p style="margin:10px 0 6px; font-weight:700; font-size:15px; color:var(--text);">Henüz kayıtlı yanlış soru / not bulunmuyor.</p>
+        <p style="font-size:13px; color:var(--text-muted); max-width:420px; margin:0 auto 16px;">
+          Denemelerde ve soru bankalarında yapamadığın veya dikkatinden kaçan soruları buraya kaydedip haftalık programa tekrar görevi olarak aktarabilirsin.
+        </p>
+        <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="openModal('add-wrong-modal')">+ Yeni Yanlış Ekle</button>
+          <button class="btn btn-accent" onclick="loadSampleWrongNotes()">✨ Örnek Yanlışları Yükle (Demo)</button>
+        </div>
+      </div>`;
     return;
   }
 
@@ -47,20 +58,23 @@ function _renderWrongList(wrongLog) {
         <div class="wrong-meta">
           <span class="tag tag-subject">${e.subject}</span>
           <span class="tag tag-tytayt">${e.tytAyt || '—'}</span>
-          <span class="wrong-date">${formatDate(e.date)}</span>
+          <span class="wrong-date">📅 ${formatDate(e.date)}</span>
         </div>
-        <div class="wrong-actions">
-          <button class="btn-sm ${e.reviewed ? '' : 'btn-primary'}" onclick="toggleWrongReview('${e.id}')">
+        <div class="wrong-actions" style="display:flex; gap:6px; align-items:center;">
+          <button class="btn-sm btn-accent" style="font-size:11px; padding:4px 8px; font-weight:700;" onclick="addWrongToSchedule('${e.id}')" title="Bu yanlış konusunu haftalık programa tekrar görevi olarak ekle">
+            📅 Programa Ata
+          </button>
+          <button class="btn-sm ${e.reviewed ? '' : 'btn-primary'}" style="font-size:11px; padding:4px 8px;" onclick="toggleWrongReview('${e.id}')">
             ${e.reviewed ? '✅ Tekrar Edildi' : '🔁 Tekrar Et'}
           </button>
-          <button class="btn-sm btn-danger" onclick="deleteWrongEntry('${e.id}')">🗑️</button>
+          <button class="btn-sm btn-danger coach-only" style="padding:4px 6px;" onclick="deleteWrongEntry('${e.id}')" title="Sil">🗑️</button>
         </div>
       </div>
       <div class="wrong-body">
-        <div class="wrong-topic"><strong>Konu:</strong> ${e.topic || '—'}</div>
-        ${e.source ? `<div class="wrong-source"><strong>Kaynak:</strong> ${e.source}</div>` : ''}
-        ${e.reason ? `<div class="wrong-reason"><strong>Hata Sebebi:</strong> ${e.reason}</div>` : ''}
-        ${e.note   ? `<div class="wrong-note">📝 ${e.note}</div>` : ''}
+        <div class="wrong-topic" style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px;">${e.topic || '—'}</div>
+        ${e.source ? `<div class="wrong-source" style="font-size:12px; color:var(--text-muted); margin-bottom:2px;"><strong>📚 Kaynak:</strong> ${e.source}</div>` : ''}
+        ${e.reason ? `<div class="wrong-reason" style="font-size:12px; color:#f87171; margin-bottom:4px;"><strong>⚠️ Hata Sebebi:</strong> ${e.reason}</div>` : ''}
+        ${e.note   ? `<div class="wrong-note" style="font-size:12px; background:rgba(0,0,0,0.25); padding:6px 10px; border-radius:6px; margin-top:6px;">📝 ${e.note}</div>` : ''}
       </div>
     </div>`).join('');
 
@@ -94,6 +108,7 @@ function handleAddWrong(e) {
   }
 
   const data = getStudentData(window.activeStudent);
+  if (!data.wrongLog) data.wrongLog = [];
   data.wrongLog.push(entry);
   saveStudentData(window.activeStudent, data);
   closeModal('add-wrong-modal');
@@ -128,16 +143,137 @@ function markAllReviewed() {
 }
 
 function _clearWrongForm() {
-  ['wrong-date','wrong-subject-in','wrong-topic-in','wrong-source','wrong-reason','wrong-note-in'].forEach(id => {
+  ['wrong-date','wrong-source','wrong-reason','wrong-note-in'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  
+  const tytAyt = document.getElementById('wrong-tytayt');
+  if (tytAyt) {
+    tytAyt.value = 'TYT';
+    if (typeof updateWrongSubjects === 'function') updateWrongSubjects();
+  }
+}
+
+// --- Dynamic Subject/Topic Dropdowns ---
+
+function updateWrongSubjects() {
+  const tytAyt = document.getElementById('wrong-tytayt')?.value.toLowerCase() || 'tyt';
+  const subjectSelect = document.getElementById('wrong-subject-in');
+  const topicSelect = document.getElementById('wrong-topic-in');
+  
+  if (!subjectSelect || !topicSelect || !window.TOPICS) return;
+  
+  const subjectsObj = window.TOPICS[tytAyt] || {};
+  const subjects = Object.keys(subjectsObj);
+  
+  subjectSelect.innerHTML = '<option value="">Ders Seçiniz</option>';
+  topicSelect.innerHTML = '<option value="">Önce Ders Seçiniz</option>';
+  
+  subjects.forEach(sub => {
+    const opt = document.createElement('option');
+    opt.value = sub;
+    opt.textContent = sub;
+    subjectSelect.appendChild(opt);
+  });
+}
+
+function updateWrongTopics() {
+  const tytAyt = document.getElementById('wrong-tytayt')?.value.toLowerCase() || 'tyt';
+  const subject = document.getElementById('wrong-subject-in')?.value;
+  const topicSelect = document.getElementById('wrong-topic-in');
+  
+  if (!topicSelect || !window.TOPICS) return;
+  
+  topicSelect.innerHTML = '<option value="">Konu Seçiniz</option>';
+  
+  if (!subject || !window.TOPICS[tytAyt] || !window.TOPICS[tytAyt][subject]) return;
+  
+  const topics = window.TOPICS[tytAyt][subject];
+  topics.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    topicSelect.appendChild(opt);
+  });
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (document.getElementById('wrong-tytayt')) {
+      updateWrongSubjects();
+    }
+  }, 100);
+});
+
+function addWrongToSchedule(id) {
+  const data = getStudentData(window.activeStudent);
+  const entry = (data.wrongLog || []).find(e => e.id === id);
+  if (!entry) return;
+
+  if (typeof addTopicToScheduleAsReview === 'function') {
+    addTopicToScheduleAsReview(entry.subject, entry.topic || 'Yanlış Tekrarı');
+  } else {
+    showToast('Program modülü hazır değil.', 'warning');
+  }
+}
+
+function loadSampleWrongNotes() {
+  const data = getStudentData(window.activeStudent);
+  if (!Array.isArray(data.wrongLog)) data.wrongLog = [];
+
+  const sampleEntries = [
+    {
+      id: generateId(),
+      date: getTodayStr(),
+      tytAyt: 'AYT',
+      subject: 'AYT Matematik',
+      topic: 'Trigonometri',
+      source: 'Orijinal AYT Matematik SB (Test 4 / Soru 7)',
+      reason: 'Birim çemberde işaret karıştırma & dönüşüm formülü',
+      note: 'Dönüşüm formüllerini tekrar et, π/2 ve 3π/2 de isim değiştiğini unutma!',
+      reviewed: false
+    },
+    {
+      id: generateId(),
+      date: getTodayStr(),
+      tytAyt: 'AYT',
+      subject: 'Fizik',
+      topic: 'Elektrik ve Manyetizma',
+      source: '3D AYT Fizik (Bölüm 3 / Test 2)',
+      reason: 'Sağ el kuralında yön hatası',
+      note: 'Manyetik kuvvet F = q.v.B sin(a), başparmak hız, 4 parmak manyetik alan, avuç içi pozitif yük kuvveti!',
+      reviewed: false
+    },
+    {
+      id: generateId(),
+      date: getTodayStr(),
+      tytAyt: 'TYT',
+      subject: 'Türkçe',
+      topic: 'Paragrafta Anlam',
+      source: 'Limit Türkçe Soru Bankası',
+      reason: 'Hızlı okurken olumsuz kökü kaçırma',
+      note: '"Değinilmemiştir / Çıkarılamaz" sorularında önce şıklara göz at.',
+      reviewed: false
+    }
+  ];
+
+  data.wrongLog.push(...sampleEntries);
+  saveStudentData(window.activeStudent, data);
+  renderWrongNotes();
+  if (typeof renderSchedule === 'function') renderSchedule();
+  showToast('✨ 3 adet örnek yanlış notu yüklendi!', 'success');
 }
 
 function _el(id, fn) { const el = document.getElementById(id); if (el) fn(el); }
 
-window.renderWrongNotes   = renderWrongNotes;
-window.handleAddWrong     = handleAddWrong;
-window.toggleWrongReview  = toggleWrongReview;
-window.deleteWrongEntry   = deleteWrongEntry;
-window.markAllReviewed    = markAllReviewed;
+window.renderWrongNotes      = renderWrongNotes;
+window.handleAddWrong        = handleAddWrong;
+window.toggleWrongReview     = toggleWrongReview;
+window.deleteWrongEntry      = deleteWrongEntry;
+window.markAllReviewed       = markAllReviewed;
+window.addWrongToSchedule    = addWrongToSchedule;
+window.loadSampleWrongNotes  = loadSampleWrongNotes;
+
+

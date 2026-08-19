@@ -14,6 +14,7 @@ const DEFAULT_STUDENT_DATA = {
   streak: 0,
   lastActiveDate: null,
   weeklyGoal: 1000,
+  obp: 85,
   personalGoal: { university: '', profession: '', ranking: '' }
 };
 
@@ -35,6 +36,7 @@ function getStudentData(studentId) {
   required.forEach(k => { if (!Array.isArray(data[k])) data[k] = []; });
   if (!data.topicStatus || typeof data.topicStatus !== 'object') data.topicStatus = {};
   if (!data.personalGoal) data.personalGoal = { university: '', profession: '', ranking: '' };
+  if (data.obp === undefined || data.obp === null) data.obp = 85;
 
   return data;
 }

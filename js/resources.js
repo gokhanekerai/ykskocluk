@@ -23,6 +23,8 @@ function renderResources() {
   _populateResourceSubjectFilter(data.books);
 }
 
+let editingBookId = null;
+
 function _bookCard(book) {
   const pct = book.totalPages > 0
     ? Math.min(100, Math.round((book.solvedPages / book.totalPages) * 100))
@@ -56,8 +58,8 @@ function _bookCard(book) {
           <button class="btn-sm" onclick="addPages('${book.id}', -1)" title="−1 sayfa">−1</button>
           <button class="btn-sm btn-primary" onclick="addPages('${book.id}', 1)" title="+1 sayfa">+1</button>
           <button class="btn-sm btn-primary" onclick="addPages('${book.id}', 10)" title="+10 sayfa">+10</button>
-          <button class="btn-sm" onclick="setPages('${book.id}')" title="Manuel gir">✏️</button>
-          <button class="btn-sm btn-danger" onclick="deleteBook('${book.id}')" title="Sil">🗑️</button>
+          <button class="btn-sm btn-accent" onclick="editBook('${book.id}')" title="Kaynağı Düzenle" style="margin-left:4px;">✏️</button>
+          <button class="btn-sm btn-danger coach-only" onclick="deleteBook('${book.id}')" title="Sil">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -93,37 +95,132 @@ function _populateResourceSubjectFilter(books) {
     subjects.map(s => `<option value="${s}" ${s===current?'selected':''}>${s}</option>`).join('');
 }
 
+function openAddBookModal() {
+  editingBookId = null;
+  const title = document.getElementById('book-modal-title');
+  if (title) title.textContent = '📚 Kaynak Ekle';
+  const btn = document.getElementById('book-submit-btn');
+  if (btn) btn.textContent = 'Ekle';
+
+  const addAllGroup = document.getElementById('book-add-all-group');
+  if (addAllGroup) addAllGroup.style.display = 'flex';
+
+  ['book-name','book-total-pages','book-solved-pages'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  const cb = document.getElementById('book-add-all-students');
+  if (cb) cb.checked = false;
+
+  updateBookSubjects();
+  openModal('add-book-modal');
+}
+
+function editBook(bookId) {
+  const data = getStudentData(window.activeStudent);
+  const book = (data.books || []).find(b => b.id === bookId);
+  if (!book) return;
+
+  editingBookId = bookId;
+  const title = document.getElementById('book-modal-title');
+  if (title) title.textContent = '📚 Kaynağı Düzenle';
+  const btn = document.getElementById('book-submit-btn');
+  if (btn) btn.textContent = 'Güncelle';
+
+  const addAllGroup = document.getElementById('book-add-all-group');
+  if (addAllGroup) addAllGroup.style.display = 'none';
+
+  const nameEl = document.getElementById('book-name');
+  if (nameEl) nameEl.value = book.name || '';
+
+  const typeEl = document.getElementById('book-type');
+  if (typeEl) typeEl.value = book.type || 'Kitap';
+
+  const totalEl = document.getElementById('book-total-pages');
+  if (totalEl) totalEl.value = book.totalPages || '';
+
+  const solvedEl = document.getElementById('book-solved-pages');
+  if (solvedEl) solvedEl.value = book.solvedPages ?? 0;
+
+  updateBookSubjects();
+  const subjEl = document.getElementById('book-subject');
+  if (subjEl && book.subject) {
+    for (let i = 0; i < subjEl.options.length; i++) {
+      if (subjEl.options[i].value === book.subject || subjEl.options[i].text === book.subject) {
+        subjEl.selectedIndex = i;
+        break;
+      }
+    }
+  }
+
+  openModal('add-book-modal');
+}
+
 function handleAddBook(e) {
   if (e) e.preventDefault();
 
-  const name       = document.getElementById('book-name')?.value.trim() || '';
-  const subject    = document.getElementById('book-subject')?.value.trim() || '';
-  const totalPages = parseInt(document.getElementById('book-total-pages')?.value) || 0;
-  const type       = document.getElementById('book-type')?.value || 'Kitap';
+  const name        = document.getElementById('book-name')?.value.trim() || '';
+  const examType    = document.getElementById('book-exam-type')?.value || 'tyt';
+  const subject     = document.getElementById('book-subject')?.value.trim() || '';
+  const totalPages  = parseInt(document.getElementById('book-total-pages')?.value) || 0;
+  const solvedPages = parseInt(document.getElementById('book-solved-pages')?.value) || 0;
+  const type        = document.getElementById('book-type')?.value || 'Kitap';
+  const addAll      = document.getElementById('book-add-all-students')?.checked;
 
   if (!name) { showToast('Kaynak adı boş olamaz.', 'warning'); return; }
   if (totalPages <= 0) { showToast('Geçerli bir sayfa sayısı girin.', 'warning'); return; }
 
   const data = getStudentData(window.activeStudent);
-  data.books.push({
-    id: generateId(),
-    name, subject, type,
-    totalPages,
-    solvedPages: 0,
-    addedDate: getTodayStr()
-  });
+  if (!Array.isArray(data.books)) data.books = [];
 
-  saveStudentData(window.activeStudent, data);
+  if (editingBookId) {
+    const idx = data.books.findIndex(b => b.id === editingBookId);
+    if (idx !== -1) {
+      data.books[idx] = {
+        ...data.books[idx],
+        name,
+        subject,
+        type,
+        totalPages,
+        solvedPages: Math.min(totalPages, Math.max(0, solvedPages))
+      };
+      saveStudentData(window.activeStudent, data);
+      showToast(`"${name}" güncellendi!`, 'success');
+    }
+    editingBookId = null;
+  } else {
+    const targetStudents = addAll 
+      ? Object.keys(getUsers()).filter(k => getUsers()[k].role === 'student') 
+      : [window.activeStudent];
+
+    targetStudents.forEach(studentId => {
+      const sData = getStudentData(studentId);
+      if (!Array.isArray(sData.books)) sData.books = [];
+      sData.books.push({
+        id: generateId(),
+        name, subject, type,
+        totalPages,
+        solvedPages: Math.min(totalPages, Math.max(0, solvedPages)),
+        addedDate: getTodayStr()
+      });
+      saveStudentData(studentId, sData);
+    });
+    showToast(`"${name}" eklendi!`, 'success');
+  }
+
   closeModal('add-book-modal');
 
   // Formu sıfırla
-  ['book-name','book-subject','book-total-pages'].forEach(id => {
+  ['book-name','book-total-pages','book-solved-pages'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  
+  const cb = document.getElementById('book-add-all-students');
+  if (cb) cb.checked = false;
 
   renderResources();
-  showToast(`"${name}" eklendi!`, 'success');
 }
 
 function addPages(bookId, delta) {
@@ -141,19 +238,7 @@ function addPages(bookId, delta) {
 }
 
 function setPages(bookId) {
-  const data = getStudentData(window.activeStudent);
-  const book = data.books.find(b => b.id === bookId);
-  if (!book) return;
-
-  const val = prompt(`"${book.name}" — Çözülen sayfa sayısı (Max: ${book.totalPages}):`, book.solvedPages || 0);
-  if (val === null) return;
-  const n = parseInt(val);
-  if (isNaN(n) || n < 0) { showToast('Geçersiz değer.', 'warning'); return; }
-
-  book.solvedPages = Math.min(book.totalPages, n);
-  saveStudentData(window.activeStudent, data);
-  renderResources();
-  showToast('İlerleme güncellendi!', 'success');
+  editBook(bookId);
 }
 
 function deleteBook(bookId) {
@@ -170,8 +255,36 @@ function deleteBook(bookId) {
 
 function _el(id, fn) { const el = document.getElementById(id); if (el) fn(el); }
 
+function updateBookSubjects() {
+  const examType = document.getElementById('book-exam-type')?.value || 'tyt';
+  const select = document.getElementById('book-subject');
+  if (!select) return;
+
+  if (window.TOPICS) {
+    const topicsObj = window.TOPICS[examType.toLowerCase()] || {};
+    const subjects = Object.keys(topicsObj);
+    if (subjects.length > 0) {
+      select.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+      return;
+    }
+  }
+
+  if (typeof YKS_TOPICS !== 'undefined') {
+    const groupKey = examType.toUpperCase() === 'AYT' ? 'AYT' : 'TYT';
+    const subjs = Object.keys(YKS_TOPICS[groupKey] || {});
+    select.innerHTML = subjs.map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(updateBookSubjects, 500);
+});
+
 window.renderResources = renderResources;
-window.handleAddBook   = handleAddBook;
+window.openAddBookModal = openAddBookModal;
+window.editBook        = editBook;
 window.addPages        = addPages;
 window.setPages        = setPages;
 window.deleteBook      = deleteBook;
+window.handleAddBook   = handleAddBook;
+window.updateBookSubjects = updateBookSubjects;

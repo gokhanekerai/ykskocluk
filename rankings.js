@@ -3,7 +3,7 @@
  * Bu dosya, hesaplanan Yerleştirme puanlarına göre tahmini başarı sıralamalarını ve yüzdelik dilimlerini hesaplamak için kullanılır.
  * Veriler doğrudan resmi ÖSYM sınav değerlendirme raporları temel alınarak hazırlanmıştır.
  */
-const YKS_RANKINGS = {
+window.YKS_RANKINGS = {
   "2026": { // 2026 YKS (Gökhan Hocamızın incelediği en güncel sınav, yığılmanın görece yüksek olduğu yıl)
     TYT: [
       { score: 560, rank: 1, pct: 0.0001 },
@@ -192,4 +192,63 @@ const YKS_RANKINGS = {
       { score: 100, rank: 1262800, pct: 100.00 }
     ]
   }
+};
+
+window.rankToScore = function(targetRank, branch, year) {
+  const y = year || "2026";
+  const b = branch || "SAY";
+  const yearData = window.YKS_RANKINGS[y] || window.YKS_RANKINGS["2026"];
+  const list = yearData[b] || yearData["SAY"] || [];
+  if (!list.length) return 400;
+
+  const rank = Math.max(1, parseInt(targetRank) || 50000);
+
+  // If rank is top rank or better
+  if (rank <= list[0].rank) return list[0].score;
+  const last = list[list.length - 1];
+  if (rank >= last.rank) return last.score;
+
+  for (let i = 0; i < list.length - 1; i++) {
+    const higher = list[i];     // better rank, higher score
+    const lower  = list[i + 1];  // worse rank, lower score
+
+    if (rank >= higher.rank && rank <= lower.rank) {
+      const rankDiff = lower.rank - higher.rank;
+      if (rankDiff === 0) return higher.score;
+      const fraction = (rank - higher.rank) / rankDiff;
+      const score = higher.score - fraction * (higher.score - lower.score);
+      return parseFloat(score.toFixed(2));
+    }
+  }
+
+  return 350;
+};
+
+window.scoreToRank = function(score, branch, year) {
+  const y = year || "2026";
+  const b = branch || "SAY";
+  const yearData = window.YKS_RANKINGS[y] || window.YKS_RANKINGS["2026"];
+  const list = yearData[b] || yearData["SAY"] || [];
+  if (!list.length) return 50000;
+
+  const s = Math.max(100, Math.min(560, parseFloat(score) || 350));
+
+  if (s >= list[0].score) return list[0].rank;
+  const last = list[list.length - 1];
+  if (s <= last.score) return last.rank;
+
+  for (let i = 0; i < list.length - 1; i++) {
+    const higher = list[i];     // higher score, better rank
+    const lower  = list[i + 1];  // lower score, worse rank
+
+    if (s <= higher.score && s >= lower.score) {
+      const scoreDiff = higher.score - lower.score;
+      if (scoreDiff === 0) return higher.rank;
+      const ratio = (higher.score - s) / scoreDiff;
+      const rank = higher.rank + ratio * (lower.rank - higher.rank);
+      return Math.round(rank);
+    }
+  }
+
+  return 50000;
 };

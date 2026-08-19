@@ -304,3 +304,4 @@ const YKS_TOPICS = {
     ]
   }
 };
+window.TOPICS = { tyt: YKS_TOPICS.TYT, ayt: YKS_TOPICS.AYT };
