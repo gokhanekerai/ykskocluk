@@ -43,17 +43,21 @@ function renderDashboard() {
   const dailyGoalVal  = _getDailyQuestionGoal(data);
   _el('dash-week-solved', e => {
     e.style.fontSize = '18px';
-    e.style.lineHeight = '1.3';
+    e.style.lineHeight = '1.25';
     e.innerHTML = `
-      <div style="font-size:18px; font-weight:800; color:#00F0FF; display:flex; align-items:baseline; gap:6px;">
-        <span style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Hedef:</span>
-        <span style="font-size:24px; font-weight:800; color:#00F0FF;">${formatNumber(dailyGoalVal)}</span>
-        <span style="font-size:11px; font-weight:600; color:var(--text-muted);">Soru</span>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px;">
+        <span style="font-size:12px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Hedef:</span>
+        <div style="display:flex; align-items:baseline; gap:3px;">
+          <span style="font-size:26px; font-weight:900; color:#00F0FF; letter-spacing:-0.5px;">${formatNumber(dailyGoalVal)}</span>
+          <span style="font-size:11px; font-weight:700; color:var(--text-muted);">Soru</span>
+        </div>
       </div>
-      <div style="font-size:13px; font-weight:700; color:#f8fafc; margin-top:4px; display:flex; align-items:baseline; gap:5px;">
-        <span style="color:var(--text-muted); font-weight:600;">Toplam:</span>
-        <span style="color:#00F5A0; font-size:16px; font-weight:800;">${formatNumber(allTimeSolved)}</span>
-        <span style="font-size:11px; color:var(--text-muted);">Soru</span>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:4px;">
+        <span style="font-size:12px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Toplam:</span>
+        <div style="display:flex; align-items:baseline; gap:3px;">
+          <span style="font-size:26px; font-weight:900; color:#00F5A0; letter-spacing:-0.5px;">${formatNumber(allTimeSolved)}</span>
+          <span style="font-size:11px; font-weight:700; color:var(--text-muted);">Soru</span>
+        </div>
       </div>
     `;
   });
@@ -67,21 +71,26 @@ function renderDashboard() {
   // Konu tamamlama — Sadece Sayısal Müfredat (TYT & AYT iki ayrı satır)
   const topicStats = _getNumericalTopicStats(data);
   _el('dash-topics-done', e => {
-    e.style.fontSize = '16px';
-    e.style.lineHeight = '1.3';
+    e.style.fontSize = '18px';
+    e.style.lineHeight = '1.25';
     e.innerHTML = `
-      <div style="font-size:15px; font-weight:800; color:#00F0FF; display:flex; align-items:baseline; gap:5px;">
-        <span style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">TYT:</span>
-        <span style="font-size:18px; font-weight:800; color:#00F0FF;">${topicStats.tyt.done}</span>
-        <span style="font-size:11px; color:var(--text-muted); font-weight:600;">/${topicStats.tyt.total} Konu</span>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px;">
+        <span style="font-size:12px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">TYT:</span>
+        <div style="display:flex; align-items:baseline; gap:3px;">
+          <span style="font-size:26px; font-weight:900; color:#00F0FF; letter-spacing:-0.5px;">${topicStats.tyt.done}</span>
+          <span style="font-size:13px; font-weight:700; color:var(--text-muted);">/${topicStats.tyt.total}</span>
+        </div>
       </div>
-      <div style="font-size:15px; font-weight:800; color:#c084fc; display:flex; align-items:baseline; gap:5px; margin-top:2px;">
-        <span style="font-size:11px; color:var(--text-muted); font-weight:700; text-transform:uppercase;">AYT:</span>
-        <span style="font-size:18px; font-weight:800; color:#c084fc;">${topicStats.ayt.done}</span>
-        <span style="font-size:11px; color:var(--text-muted); font-weight:600;">/${topicStats.ayt.total} Konu</span>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:4px;">
+        <span style="font-size:12px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">AYT:</span>
+        <div style="display:flex; align-items:baseline; gap:3px;">
+          <span style="font-size:26px; font-weight:900; color:#c084fc; letter-spacing:-0.5px;">${topicStats.ayt.done}</span>
+          <span style="font-size:13px; font-weight:700; color:var(--text-muted);">/${topicStats.ayt.total}</span>
+        </div>
       </div>
     `;
   });
+
 
 
   // Son 7 gün TYT neti (en son deneme)
