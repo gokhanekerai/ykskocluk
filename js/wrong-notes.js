@@ -459,8 +459,7 @@ Lütfen bu soruyu adım adım çöz:
 
 function _getGeminiApiKey() {
   const customKey = localStorage.getItem('yks_gemini_api_key');
-  if (customKey) return customKey;
-  // Varsayılan entegre anahtar
+  if (customKey && customKey.trim()) return customKey.trim();
   try {
     return atob('QVEuQWI4Uk42TGZFVVhiLVZtNmlsZTdCeEh3ekNsZThCMmc1SFFEWThieGRjQnVVUjJOOWc=');
   } catch (e) {
@@ -517,7 +516,8 @@ Lütfen doğrudan sorunun çözümünü adım adım Türkçe olarak ver:
 
     for (const modelName of modelsToTry) {
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
