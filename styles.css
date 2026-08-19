@@ -1407,145 +1407,87 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
 }
 
 /* 
-   AYLIK TAKVİM & GÜN DETAY MODALI STİLLERİ
-    */
-.calendar-weekdays-header {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-top: 14px;
-  margin-bottom: 6px;
+/* ═══════════════════════════════════════════════════════════
+   GÖREVLENDİRME & ÇOKLU TAKVİM DÜZENİ (AYLIK, HAFTALIK, GÜNLÜK)
+   ═══════════════════════════════════════════════════════════ */
+
+.mobile-only {
+  display: none !important;
 }
-.calendar-weekday-title {
-  text-align: center;
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 6px 0;
-  background: rgba(255,255,255,0.02);
-  border-radius: 6px;
+.desktop-only {
+  display: initial;
 }
 
-.month-calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
 }
 
-.month-day-cell {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 8px;
-  height: 102px;
-  min-height: 102px;
-  max-height: 102px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.month-day-cell:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-  background: rgba(255,255,255,0.04);
-}
-
-.month-day-cell.today {
-  border-color: var(--primary);
-  background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, var(--bg-card) 100%);
-  box-shadow: 0 0 0 1px var(--primary);
-}
-
-.month-day-cell.other-month {
-  opacity: 0.35;
-  background: rgba(0,0,0,0.18);
-}
-
-.month-day-top {
+/* Üst Kontrol & Görünüm Seçici */
+.schedule-header-responsive {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.month-day-number {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.month-day-cell.today .month-day-number {
-  color: var(--primary);
-  background: rgba(139,92,246,0.2);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+.schedule-top-controls {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.month-day-badge {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 4px;
-}
-
-.month-day-tasks {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  overflow: hidden;
-}
-
-.month-task-chip {
-  font-size: 10px;
-  line-height: 1.3;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--text);
-  display: flex;
-  align-items: center;
+.schedule-view-switcher {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 3px;
+  display: inline-flex;
   gap: 4px;
 }
 
-.month-task-chip.done {
-  color: #34d399;
-  background: rgba(16,185,129,0.08);
-  border-color: rgba(16,185,129,0.2);
-  text-decoration: line-through;
-  opacity: 0.8;
-}
-
-.month-task-more {
-  font-size: 9px;
+.view-btn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted);
-  margin-top: 1px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* 
-   HER SATIRDA 1 HAFTA (7 GÜN) KART TAKVİM DÜZENİ
-    */
+.view-btn:hover {
+  color: var(--text, #f8fafc);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.view-btn.active {
+  background: var(--primary, #8b5cf6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.45);
+}
+
+/* ─── 1. AYLIK TAKVİM ─── */
+.calendar-month-wrapper {
+  width: 100%;
+}
+
 .calendar-weekdays-header {
   display: grid !important;
   grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  margin-top: 16px !important;
+  gap: 8px !important;
+  margin-top: 14px !important;
   margin-bottom: 8px !important;
   width: 100% !important;
 }
@@ -1554,30 +1496,30 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
   text-align: center;
   font-size: 11px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--text-muted, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 8px 0;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
 
 .month-calendar-grid {
   display: grid !important;
   grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+  gap: 8px !important;
   width: 100% !important;
 }
 
 .month-day-cell {
   background: var(--bg-card, #1e1e24);
-  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   padding: 8px 10px;
-  height: 115px;
-  min-height: 115px;
-  max-height: 115px;
+  height: 112px;
+  min-height: 112px;
+  max-height: 112px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1589,29 +1531,34 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
 
 .month-day-cell:hover {
   border-color: var(--primary, #8b5cf6);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  background: rgba(255,255,255,0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .month-day-cell.today {
   border-color: #8b5cf6 !important;
-  background: linear-gradient(135deg, rgba(139,92,246,0.15) 0%, var(--bg-card, #1e1e24) 100%) !important;
-  box-shadow: 0 0 0 1px #8b5cf6, 0 4px 12px rgba(139,92,246,0.2) !important;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18) 0%, var(--bg-card, #1e1e24) 100%) !important;
+  box-shadow: 0 0 0 1px #8b5cf6, 0 4px 12px rgba(139, 92, 246, 0.25) !important;
+}
+
+.month-day-cell.selected {
+  border-color: #a855f7 !important;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(30, 30, 42, 0.95) 100%) !important;
+  box-shadow: 0 0 0 2px #a855f7, 0 0 20px rgba(168, 85, 247, 0.4) !important;
 }
 
 .month-day-cell.other-month {
-  opacity: 0.35;
-  background: rgba(0,0,0,0.2);
+  opacity: 0.3;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .month-day-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: 4px;
+  padding-bottom: 2px;
 }
 
 .month-day-number {
@@ -1647,8 +1594,8 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
   line-height: 1.3;
   padding: 3px 6px;
   border-radius: 4px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1661,10 +1608,19 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
 
 .month-task-chip.done {
   color: #34d399;
-  background: rgba(16,185,129,0.1);
-  border-color: rgba(16,185,129,0.25);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.25);
   text-decoration: line-through;
   opacity: 0.85;
+}
+
+.month-task-empty {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 14px;
+  text-align: center;
+  font-weight: 600;
+  opacity: 0.65;
 }
 
 .month-task-more {
@@ -1674,6 +1630,494 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
   margin-top: 2px;
   padding-left: 2px;
 }
+
+/* Mobil Nokta Göstergeleri */
+.month-day-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.month-day-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  display: inline-block;
+}
+
+.month-day-dot-count {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* ─── 2. HAFTALIK GÖRÜNÜM STİLLERİ ─── */
+.calendar-week-container {
+  width: 100%;
+}
+
+.week-pills-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  margin-bottom: 12px;
+  scrollbar-width: none;
+}
+.week-pills-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.week-pill-btn {
+  flex: 1;
+  min-width: 44px;
+  padding: 8px 4px;
+  background: var(--bg-card, #1e1e24);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.week-pill-btn.today {
+  border-color: rgba(139, 92, 246, 0.6);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.week-pill-btn.selected {
+  border-color: #a855f7 !important;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.week-pill-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+}
+.week-pill-btn.selected .week-pill-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.week-pill-num {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text, #f8fafc);
+}
+.week-pill-btn.selected .week-pill-num {
+  color: #ffffff;
+}
+
+.week-pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.week-pill-dot.dot-active { background: #c084fc; }
+.week-pill-dot.dot-done { background: #34d399; }
+.week-pill-dot.empty { opacity: 0; }
+
+.week-columns-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.week-day-column {
+  background: var(--bg-card, #1e1e24);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.week-day-column.today {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.5), 0 4px 16px rgba(139, 92, 246, 0.15);
+}
+
+.week-day-header {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.week-day-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text, #f8fafc);
+}
+
+.week-day-date-str {
+  font-size: 11px;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 1px;
+}
+
+.week-day-tasks-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 420px;
+}
+
+.week-task-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 8px 10px;
+  transition: all 0.15s ease;
+}
+
+.week-task-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.week-task-card.done {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.25);
+  opacity: 0.85;
+}
+
+.week-task-subject {
+  font-size: 10px;
+  font-weight: 800;
+  color: #c084fc;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.week-task-topic {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text, #f8fafc);
+  line-height: 1.3;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.week-task-card.done .week-task-topic {
+  text-decoration: line-through;
+  color: #34d399;
+}
+
+.week-task-meta {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.week-task-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.btn-icon-xs {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 4px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.btn-icon-xs:hover { opacity: 1; }
+
+.week-empty-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-muted, #94a3b8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+.week-empty-day:hover {
+  border-color: var(--primary, #8b5cf6);
+  color: var(--primary, #8b5cf6);
+  background: rgba(139, 92, 246, 0.05);
+}
+.week-empty-day span { font-size: 20px; font-weight: 700; }
+.week-empty-day p { font-size: 11px; font-weight: 700; margin-top: 4px; }
+
+.week-day-footer {
+  padding: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.week-add-btn {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 0;
+  border-radius: 6px;
+}
+
+/* ─── 3. SEÇİLİ GÜNÜN DETAY KARTI (INLINE AKTİF GÜN PANELİ) ─── */
+.selected-day-panel {
+  border-radius: 12px !important;
+  padding: 16px !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.selected-day-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.selected-day-badge-today {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.selected-day-badge-today.is-today {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+.selected-day-panel-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text, #f8fafc);
+}
+
+.selected-day-panel-subtitle {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 2px;
+}
+
+.selected-day-panel-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.selected-day-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.selected-day-empty-box {
+  padding: 36px 16px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.selected-day-task-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+
+.selected-day-task-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.selected-day-task-card.done {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.selected-day-task-check-wrapper {
+  margin-top: 3px;
+}
+
+.task-checkbox-lg {
+  width: 18px;
+  height: 18px;
+  accent-color: #8b5cf6;
+  cursor: pointer;
+}
+
+.selected-day-task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.selected-day-task-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.selected-day-task-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text, #f8fafc);
+}
+
+.selected-day-task-title.done {
+  text-decoration: line-through;
+  color: #34d399;
+}
+
+.selected-day-task-meta {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.selected-day-task-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBİL ÖZEL UYUMLULUK VE MEDYA SORGULARI (MAX-WIDTH: 768PX)
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .section-header.schedule-header-responsive {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .schedule-top-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .schedule-view-switcher {
+    width: 100%;
+    display: flex;
+  }
+
+  .view-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  #schedule-coach-actions {
+    width: 100%;
+    display: flex;
+  }
+  #schedule-coach-actions .btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .schedule-nav-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .schedule-nav-bar > div:first-child {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Aylık Takvim Hücreleri Mobilde Kompakt & Kare */
+  .calendar-weekdays-header {
+    gap: 4px !important;
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .calendar-weekday-title {
+    font-size: 10px;
+    padding: 4px 0;
+    border-radius: 6px;
+  }
+
+  .month-calendar-grid {
+    gap: 4px !important;
+  }
+
+  .month-day-cell {
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 4px 2px !important;
+    border-radius: 8px !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .month-day-top {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    justify-content: center !important;
+  }
+
+  .month-day-number {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+  }
+
+  /* Haftalık Görünüm Mobilde Tek Tek/Seçici ile Çalışır */
+  .week-columns-grid {
+    display: none !important;
+  }
+
+  /* Modal ve Kartlar Mobilde Tam Genişlik & Rahat Dokunmatik */
+  .modal-box, .modal-box.wide {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 16px !important;
+    margin: 10px auto !important;
+  }
+
+  .form-input, select.form-input {
+    font-size: 15px !important; /* iOS zoom engelleme */
+    padding: 10px 12px !important;
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════════
    UZAY ÇAĞI SİDEBAR, TOPBAR, TABLO VE MODAL DOKULARI

@@ -800,25 +800,39 @@
         </div>
       </section>
 
-      <!-- ══ ÇALIŞMA PROGRAMI ══ -->
+      <!-- ══ ÇALIŞMA PROGRAMI & GÖREVLENDİRME ══ -->
       <section id="tab-schedule" class="tab-view">
-        <div class="section-header">
+        <div class="section-header schedule-header-responsive">
           <div>
-            <div class="section-title" id="tab-schedule-title">📅 Görevlendirme & Aylık Takvim</div>
-            <div class="section-subtitle">Aylık takvim görünümü. Güne tıklayarak görevleri yönetebilir, yeni görev veya yanlış tekrarı ekleyebilirsiniz.</div>
+            <div class="section-title" id="tab-schedule-title">📅 Görevlendirme & Çalışma Takvimi</div>
+            <div class="section-subtitle">Tüm cihazlarla uyumlu haftalık, aylık ve günlük görev planlama ve takip modülü</div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-            <div id="schedule-coach-actions" style="display:flex; gap:8px;">
-              <button class="btn btn-accent" onclick="openAIPromptModal()">🤖 AI ile Oluştur</button>
-              <button class="btn btn-sm btn-danger" onclick="clearWeekSchedule()">🗑️ Bu Ayı Temizle</button>
+          
+          <div class="schedule-top-controls">
+            <!-- Görünüm Seçici (Aylık / Haftalık / Günlük) -->
+            <div class="schedule-view-switcher">
+              <button class="view-btn active" id="sched-view-month" onclick="setScheduleViewMode('month')">📅 Aylık</button>
+              <button class="view-btn" id="sched-view-week" onclick="setScheduleViewMode('week')">🗓️ Haftalık</button>
+              <button class="view-btn" id="sched-view-day" onclick="setScheduleViewMode('day')">📋 Günlük</button>
             </div>
-            <div style="display:flex; gap:8px; align-items:center; margin-top:4px;">
-              <button class="btn btn-sm" onclick="changePeriodOffset(-1)">◀ Önceki Ay</button>
-              <div id="schedule-week-label" style="font-weight:700; font-size:14px; color:var(--text-primary); min-width:130px; text-align:center;">📅 Yükleniyor...</div>
-              <button class="btn btn-sm" onclick="changePeriodOffset(1)">Sonraki Ay ▶</button>
-              <button class="btn btn-sm btn-secondary" onclick="resetPeriodOffset()">Bu Ay</button>
+
+            <div id="schedule-coach-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="openAddScheduleItem()">+ Görev Ekle</button>
+              <button class="btn btn-accent btn-sm" onclick="openAIPromptModal()">🤖 AI ile Oluştur</button>
+              <button class="btn btn-sm btn-danger" onclick="clearWeekSchedule()">🗑️ Temizle</button>
             </div>
           </div>
+        </div>
+
+        <!-- Takvim Gezinme Çubuğu -->
+        <div class="card schedule-nav-bar" style="margin-bottom:16px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn btn-sm" onclick="changePeriodOffset(-1)">◀ Önceki</button>
+            <button class="btn btn-sm btn-secondary" onclick="resetPeriodOffset()">Bugün</button>
+            <button class="btn btn-sm" onclick="changePeriodOffset(1)">Sonraki ▶</button>
+          </div>
+          <div id="schedule-week-label" style="font-weight:800; font-size:15px; color:var(--text-primary); text-align:center; letter-spacing:0.02em;">📅 Yükleniyor...</div>
+          <div class="schedule-period-sublabel" id="schedule-period-sub" style="font-size:12px; color:var(--text-muted);"></div>
         </div>
 
         <div class="stats-grid" style="margin-bottom:16px;">
@@ -831,6 +845,7 @@
         <!-- Yanlış Defteri Entegrasyon Havuzu -->
         <div id="schedule-wrong-pool-bar" style="margin-bottom:16px;"></div>
 
+        <!-- Dinamik Takvim / Haftalık / Günlük Görünüm Alanı -->
         <div id="schedule-week" style="margin-top: 16px;">
           <div class="empty-state"><span>📅</span><p>Yükleniyor…</p></div>
         </div>

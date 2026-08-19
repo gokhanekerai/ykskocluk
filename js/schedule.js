@@ -1,6 +1,6 @@
 /**
- * schedule.js — Çalışma Programı Yönetimi
- * AI analizinden otomatik oluşturulur, koç de el ile düzenleyebilir.
+ * schedule.js — Çalışma Programı & Görevlendirme Yönetimi
+ * Masaüstü (PC) ve Mobil için tam uyumlu, Aylık / Haftalık / Günlük görünümler
  */
 
 function _escapeHtml(s) {
@@ -13,7 +13,22 @@ function _escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+window.currentScheduleViewMode = window.innerWidth < 768 ? 'week' : 'month'; // 'month' | 'week' | 'day'
 let currentPeriodOffset = 0;
+window.currentSelectedDayDate = new Date().toISOString().split('T')[0];
+
+function setScheduleViewMode(mode) {
+  window.currentScheduleViewMode = mode;
+  ['month', 'week', 'day'].forEach(m => {
+    const btn = document.getElementById(`sched-view-${m}`);
+    if (btn) {
+      if (m === mode) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+  currentPeriodOffset = 0;
+  renderSchedule();
+}
 
 function changePeriodOffset(delta) {
   currentPeriodOffset += delta;
@@ -22,20 +37,495 @@ function changePeriodOffset(delta) {
 
 function resetPeriodOffset() {
   currentPeriodOffset = 0;
+  window.currentSelectedDayDate = new Date().toISOString().split('T')[0];
+  renderSchedule();
+}
+
+function selectScheduleDay(dateStr) {
+  window.currentSelectedDayDate = dateStr;
   renderSchedule();
 }
 
 function renderSchedule() {
   const data = getStudentData(window.activeStudent);
-  _renderWrongPoolBanner(data.wrongLog || []);
-  _renderPeriodView(data.schedule || [], data.wrongLog || []);
-  _renderScheduleStats(data.schedule || []);
+  const schedule = data.schedule || [];
+  const wrongLog = data.wrongLog || [];
 
+  _renderWrongPoolBanner(wrongLog);
+  _renderScheduleStats(schedule);
+
+  const container = document.getElementById('schedule-week');
+  if (!container) return;
+
+  const mode = window.currentScheduleViewMode || 'month';
+
+  // Görünüm moduna göre render et
+  if (mode === 'month') {
+    _renderMonthView(container, schedule, wrongLog);
+  } else if (mode === 'week') {
+    _renderWeekView(container, schedule, wrongLog);
+  } else if (mode === 'day') {
+    _renderDayView(container, schedule, wrongLog);
+  }
+
+  // Koç butonları görünürlüğü
   const coachActions = document.getElementById('schedule-coach-actions');
   if (coachActions) {
     coachActions.style.display = (window.currentUser && window.currentUser.role === 'coach') ? 'flex' : 'none';
   }
 }
+
+// ─── 1. AYLIK GÖRÜNÜM (MONTH VIEW) ──────────────────────────────────────────
+
+function _renderMonthView(container, schedule, wrongLog) {
+  const now = new Date();
+  const viewDate = new Date(now.getFullYear(), now.getMonth() + currentPeriodOffset, 1);
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+
+  const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const monthName = MONTHS[month];
+
+  const lbl = document.getElementById('schedule-week-label');
+  if (lbl) lbl.textContent = `📅 ${monthName} ${year}`;
+  
+  const subLbl = document.getElementById('schedule-period-sub');
+  if (subLbl) subLbl.textContent = currentPeriodOffset === 0 ? 'Bu Ay' : `${Math.abs(currentPeriodOffset)} ay ${currentPeriodOffset > 0 ? 'sonra' : 'önce'}`;
+
+  const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+  const DAYS_SHORT = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+
+  let firstDayOfWeek = viewDate.getDay();
+  firstDayOfWeek = (firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1);
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+  const totalCells = Math.ceil((firstDayOfWeek + daysInMonth) / 7) * 7;
+
+  let html = '<div class="calendar-month-wrapper">';
+
+  // 1. Haftanın Günleri Başlıkları
+  html += '<div class="calendar-weekdays-header">';
+  for (let d = 0; d < 7; d++) {
+    html += `<div class="calendar-weekday-title"><span class="desktop-only">${DAYS[d]}</span><span class="mobile-only">${DAYS_SHORT[d]}</span></div>`;
+  }
+  html += '</div>';
+
+  // 2. Takvim Izgarası
+  html += '<div class="month-calendar-grid">';
+  const todayStr = now.toISOString().split('T')[0];
+
+  for (let i = 0; i < totalCells; i++) {
+    let cellYear = year;
+    let cellMonth = month;
+    let cellDayNum = 0;
+    let isOtherMonth = false;
+
+    if (i < firstDayOfWeek) {
+      isOtherMonth = true;
+      cellDayNum = daysInPrevMonth - (firstDayOfWeek - i - 1);
+      const prevDate = new Date(year, month - 1, cellDayNum);
+      cellYear = prevDate.getFullYear();
+      cellMonth = prevDate.getMonth();
+    } else if (i >= firstDayOfWeek + daysInMonth) {
+      isOtherMonth = true;
+      cellDayNum = i - (firstDayOfWeek + daysInMonth) + 1;
+      const nextDate = new Date(year, month + 1, cellDayNum);
+      cellYear = nextDate.getFullYear();
+      cellMonth = nextDate.getMonth();
+    } else {
+      cellDayNum = i - firstDayOfWeek + 1;
+    }
+
+    const dStr = `${cellYear}-${String(cellMonth + 1).padStart(2, '0')}-${String(cellDayNum).padStart(2, '0')}`;
+    const isToday = (dStr === todayStr);
+    const isSelected = (dStr === window.currentSelectedDayDate);
+
+    const dayData = schedule.find(s => s.date === dStr);
+    const items = dayData?.items || [];
+    const doneCount = items.filter(item => item.done).length;
+    const isAllDone = items.length > 0 && (doneCount === items.length);
+
+    // Nokta Göstergeleri (Mobil İçin)
+    let dotsHtml = '';
+    if (items.length > 0) {
+      const dotColor = isAllDone ? '#10b981' : '#a855f7';
+      dotsHtml = `
+        <div class="month-day-dots mobile-only">
+          <span class="month-day-dot" style="background:${dotColor};"></span>
+          ${items.length > 1 ? `<span class="month-day-dot-count" style="color:${dotColor};">${items.length}</span>` : ''}
+        </div>
+      `;
+    }
+
+    // Masaüstü için Görev Chip'leri
+    let chipsHtml = '';
+    if (items.length > 0) {
+      const visibleItems = items.slice(0, 2);
+      chipsHtml = visibleItems.map(it => `
+        <div class="month-task-chip ${it.done ? 'done' : ''}" title="${_escapeHtml(it.subject)}: ${_escapeHtml(it.topic)}">
+          <span>${it.done ? '✓' : '•'}</span>
+          <span>${_escapeHtml(it.subject)}</span>
+        </div>
+      `).join('');
+
+      if (items.length > 2) {
+        chipsHtml += `<div class="month-task-more">+${items.length - 2} daha</div>`;
+      }
+    } else {
+      chipsHtml = `<div class="month-task-empty desktop-only">+ Görev Ekle</div>`;
+    }
+
+    let badgeHtml = '';
+    if (items.length > 0) {
+      const badgeStyle = isAllDone ? 'background:rgba(16,185,129,0.2); color:#34d399;' : 'background:rgba(139,92,246,0.2); color:#c084fc;';
+      badgeHtml = `<span class="month-day-badge desktop-only" style="${badgeStyle}">${doneCount}/${items.length}</span>`;
+    }
+
+    const monthShortNames = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+    const monthShort = monthShortNames[cellMonth];
+
+    const cellClasses = [
+      'month-day-cell',
+      isToday ? 'today' : '',
+      isSelected ? 'selected' : '',
+      isOtherMonth ? 'other-month' : ''
+    ].filter(Boolean).join(' ');
+
+    html += `
+      <div class="${cellClasses}" onclick="selectScheduleDay('${dStr}')" title="${dStr} görevlerini görüntüle / yönet">
+        <div class="month-day-top">
+          <div class="month-day-number">
+            <span>${cellDayNum}</span>
+            <span class="month-short-name desktop-only">${monthShort}</span>
+          </div>
+          ${badgeHtml}
+        </div>
+        ${dotsHtml}
+        <div class="month-day-tasks desktop-only">
+          ${chipsHtml}
+        </div>
+      </div>
+    `;
+  }
+  html += '</div>'; // .month-calendar-grid
+
+  // 3. Seçili Günün Görevleri Paneli (Her cihazda, özellikle mobilde takvimin altında anında görünür)
+  html += _renderSelectedDayCardHtml(schedule, wrongLog, window.currentSelectedDayDate);
+  html += '</div>'; // .calendar-month-wrapper
+
+  container.innerHTML = html;
+}
+
+// ─── 2. HAFTALIK GÖRÜNÜM (WEEK VIEW - 7 GÜN GENİŞ) ──────────────────────────
+
+function _renderWeekView(container, schedule, wrongLog) {
+  const now = new Date();
+  const baseDate = new Date(now);
+  baseDate.setDate(now.getDate() + (currentPeriodOffset * 7));
+
+  // Haftanın Pazartesi gününü bul
+  const dayOfWk = baseDate.getDay();
+  const monday = new Date(baseDate);
+  monday.setDate(baseDate.getDate() - (dayOfWk === 0 ? 6 : dayOfWk - 1));
+
+  const weekDates = Array.from({length: 7}, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+
+  const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const startMonth = MONTHS[weekDates[0].getMonth()];
+  const endMonth = MONTHS[weekDates[6].getMonth()];
+  const yearStr = weekDates[0].getFullYear();
+
+  const rangeLabel = startMonth === endMonth 
+    ? `${weekDates[0].getDate()} - ${weekDates[6].getDate()} ${startMonth} ${yearStr}`
+    : `${weekDates[0].getDate()} ${startMonth} - ${weekDates[6].getDate()} ${endMonth} ${yearStr}`;
+
+  const lbl = document.getElementById('schedule-week-label');
+  if (lbl) lbl.textContent = `🗓️ ${rangeLabel}`;
+
+  const subLbl = document.getElementById('schedule-period-sub');
+  if (subLbl) subLbl.textContent = currentPeriodOffset === 0 ? 'Bu Hafta' : `${Math.abs(currentPeriodOffset)} hafta ${currentPeriodOffset > 0 ? 'sonra' : 'önce'}`;
+
+  const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+  const DAYS_SHORT = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  const todayStr = now.toISOString().split('T')[0];
+
+  let html = '<div class="calendar-week-container">';
+
+  // Mobil için Gün Seçici Şerit (Pills)
+  html += '<div class="week-pills-bar mobile-only">';
+  weekDates.forEach((dObj, idx) => {
+    const dStr = dObj.toISOString().split('T')[0];
+    const isToday = (dStr === todayStr);
+    const isSelected = (dStr === window.currentSelectedDayDate);
+    const dayData = schedule.find(s => s.date === dStr);
+    const items = dayData?.items || [];
+    const doneCount = items.filter(it => it.done).length;
+    const isAllDone = items.length > 0 && doneCount === items.length;
+
+    let dotClass = '';
+    if (items.length > 0) dotClass = isAllDone ? 'dot-done' : 'dot-active';
+
+    html += `
+      <button class="week-pill-btn ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}" onclick="selectScheduleDay('${dStr}')">
+        <div class="week-pill-name">${DAYS_SHORT[idx]}</div>
+        <div class="week-pill-num">${dObj.getDate()}</div>
+        ${dotClass ? `<div class="week-pill-dot ${dotClass}"></div>` : '<div class="week-pill-dot empty"></div>'}
+      </button>
+    `;
+  });
+  html += '</div>';
+
+  // 7 Günlük Kartlar Izgarası
+  html += '<div class="week-columns-grid">';
+  weekDates.forEach((dObj, idx) => {
+    const dStr = dObj.toISOString().split('T')[0];
+    const isToday = (dStr === todayStr);
+    const isSelected = (dStr === window.currentSelectedDayDate);
+    const dayData = schedule.find(s => s.date === dStr);
+    const items = dayData?.items || [];
+    const doneCount = items.filter(it => it.done).length;
+    const isAllDone = items.length > 0 && doneCount === items.length;
+
+    const isCoach = (window.currentUser && window.currentUser.role === 'coach');
+
+    html += `
+      <div class="week-day-column ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" id="wcol-${dStr}">
+        <!-- Gün Başlığı -->
+        <div class="week-day-header" onclick="selectScheduleDay('${dStr}')">
+          <div>
+            <div class="week-day-title">${DAYS[idx]}</div>
+            <div class="week-day-date-str">${dObj.getDate()} ${MONTHS[dObj.getMonth()]}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            ${items.length > 0 ? `
+              <span class="badge ${isAllDone ? 'badge-ayt' : 'badge-tyt'}" style="font-size:11px; padding:2px 6px;">
+                ${doneCount}/${items.length}
+              </span>
+            ` : ''}
+            <button class="btn-icon-sm" style="color:var(--primary); font-size:14px;" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')" title="Bu güne görev ekle">➕</button>
+          </div>
+        </div>
+
+        <!-- Görev Listesi -->
+        <div class="week-day-tasks-list">
+          ${items.length === 0 ? `
+            <div class="week-empty-day" onclick="openAddScheduleItem('${dStr}')">
+              <span>+</span>
+              <p>Görev Ata</p>
+            </div>
+          ` : items.map(item => {
+            const icon = {
+              'konu çalışma': '📖', 'soru çözme': '✏️', 'deneme': '📝', 'tekrar': '🔁', 'video': '🎬'
+            }[item.type] || '📌';
+
+            return `
+              <div class="week-task-card ${item.done ? 'done' : ''}" id="si-${item.id}">
+                <div style="display:flex; align-items:flex-start; gap:8px;">
+                  <input type="checkbox" class="task-check" ${item.done ? 'checked' : ''}
+                         onchange="toggleScheduleItem('${dStr}', '${item.id}', this.checked)">
+                  <div style="flex:1; min-width:0;">
+                    <div class="week-task-subject">${_escapeHtml(item.subject)}</div>
+                    <div class="week-task-topic" title="${_escapeHtml(item.topic)}">${_escapeHtml(item.topic)}</div>
+                    <div class="week-task-meta">
+                      <span>⏱️ ${item.duration || 60} dk</span>
+                      ${item.questions ? `<span>• ✏️ ${item.questions} S</span>` : ''}
+                      ${item.book ? `<span class="week-task-book">• 📚 ${_escapeHtml(item.book)}</span>` : ''}
+                    </div>
+                  </div>
+                  ${isCoach ? `
+                    <div class="week-task-actions">
+                      <button class="btn-icon-xs" onclick="openEditScheduleItem('${dStr}','${item.id}')" title="Düzenle">✏️</button>
+                      <button class="btn-icon-xs text-danger" onclick="deleteScheduleItem('${dStr}','${item.id}')" title="Sil">🗑️</button>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- Kolon Altı Buton -->
+        <div class="week-day-footer">
+          <button class="btn btn-sm btn-secondary week-add-btn" onclick="openAddScheduleItem('${dStr}')">
+            + Görev Ekle
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>'; // .week-columns-grid
+
+  // Mobilde seçili günün detay paneli
+  html += '<div class="mobile-only" style="margin-top:16px;">';
+  html += _renderSelectedDayCardHtml(schedule, wrongLog, window.currentSelectedDayDate);
+  html += '</div>';
+
+  html += '</div>'; // .calendar-week-container
+  container.innerHTML = html;
+}
+
+// ─── 3. GÜNLÜK GÖRÜNÜM (DAY / LIST VIEW) ────────────────────────────────────
+
+function _renderDayView(container, schedule, wrongLog) {
+  const targetDateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
+  const dateObj = new Date(targetDateStr + 'T00:00:00');
+  
+  const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+  const lbl = document.getElementById('schedule-week-label');
+  if (lbl) lbl.textContent = `📋 ${formattedDate}`;
+
+  const subLbl = document.getElementById('schedule-period-sub');
+  if (subLbl) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    subLbl.textContent = (targetDateStr === todayStr) ? 'Bugün' : targetDateStr;
+  }
+
+  let html = '<div class="calendar-day-view-container">';
+  html += _renderSelectedDayCardHtml(schedule, wrongLog, targetDateStr, true);
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+// ─── SEÇİLİ GÜNÜN DETAY KARTI (INLINE AKTİF GÜN GÖREV YÖNETİCİSİ) ────────────
+
+function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView = false) {
+  if (!dateStr) dateStr = new Date().toISOString().split('T')[0];
+  const dateObj = new Date(dateStr + 'T00:00:00');
+  const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isToday = (dateStr === todayStr);
+
+  const dayData = schedule.find(s => s.date === dateStr);
+  const items = dayData?.items || [];
+  const doneCount = items.filter(it => it.done).length;
+  const isCoach = (window.currentUser && window.currentUser.role === 'coach');
+
+  let html = `
+    <div class="card selected-day-panel" style="margin-top: 16px; border: 1px solid rgba(139,92,246,0.3); background: linear-gradient(145deg, rgba(26,26,38,0.95) 0%, rgba(18,18,28,0.98) 100%);">
+      <div class="selected-day-panel-header">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div class="selected-day-badge-today ${isToday ? 'is-today' : ''}">
+            ${isToday ? 'BUGÜN' : 'GÜN'}
+          </div>
+          <div>
+            <div class="selected-day-panel-title">
+              📅 ${formattedDate}
+            </div>
+            <div class="selected-day-panel-subtitle">
+              ${items.length > 0 ? `Toplam <strong>${items.length}</strong> görev • <strong>${doneCount}</strong> tamamlandı` : 'Planlanmış görev yok'}
+            </div>
+          </div>
+        </div>
+
+        <div class="selected-day-panel-actions">
+          <button class="btn btn-sm btn-accent" onclick="openWrongPoolForCurrentDay()" title="Yanlış havuzundan görev ekle">
+            📋 Yanlış Havuzu
+          </button>
+          <button class="btn btn-sm btn-primary" onclick="openAddScheduleItem('${dateStr}')">
+            + Görev Ekle
+          </button>
+        </div>
+      </div>
+
+      <!-- Görev Listesi -->
+      <div class="selected-day-items-list">
+  `;
+
+  if (!items.length) {
+    html += `
+      <div class="selected-day-empty-box">
+        <div style="font-size:32px; margin-bottom:8px;">🎯</div>
+        <div style="font-weight:700; font-size:15px; color:var(--text); margin-bottom:4px;">Bu gün için henüz bir görev eklenmemiş</div>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">Öğrenciye bu gün çalışacağı konuları veya soru hedeflerini atayabilirsiniz.</div>
+        <button class="btn btn-primary" onclick="openAddScheduleItem('${dateStr}')">
+          + Bu Güne Görev Ata
+        </button>
+      </div>
+    `;
+  } else {
+    html += items.map(item => {
+      const icon = {
+        'konu çalışma': '📖', 'soru çözme': '✏️', 'deneme': '📝', 'tekrar': '🔁', 'video': '🎬'
+      }[item.type] || '📌';
+
+      let metaParts = [`⏱️ ${item.duration || 60} dk`, item.type || 'konu çalışma'];
+      if (item.questions) metaParts.push(`✏️ ${item.questions} Soru`);
+      if (item.pages) metaParts.push(`📄 ${item.pages} Sayfa`);
+      if (item.book) metaParts.push(`📚 ${_escapeHtml(item.book)}`);
+
+      // Yanlış Notu Eşleşmesi
+      const matchingWrongs = _getMatchingWrongNotes(item.subject, item.topic, wrongLog);
+      const pendingWrongs = matchingWrongs.filter(w => !w.reviewed);
+
+      let wrongBtnHtml = '';
+      if (matchingWrongs.length > 0) {
+        const isPending = pendingWrongs.length > 0;
+        const badgeText = isPending ? `🔴 ${pendingWrongs.length} Yanlış Notu` : `✅ ${matchingWrongs.length} Tekrar Edildi`;
+        const badgeStyle = isPending 
+          ? 'background:rgba(239,68,68,0.18); color:#f87171; border:1px solid rgba(239,68,68,0.4);' 
+          : 'background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);';
+
+        const safeSubj = (item.subject || '').replace(/'/g, "\\'");
+        const safeTopic = (item.topic || '').replace(/'/g, "\\'");
+
+        wrongBtnHtml = `
+          <button type="button" 
+                  style="${badgeStyle} border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top:6px;"
+                  onclick="event.stopPropagation(); openScheduleWrongModal('${safeSubj}', '${safeTopic}')">
+            ${badgeText} →
+          </button>
+        `;
+      }
+
+      return `
+        <div class="selected-day-task-card ${item.done ? 'done' : ''}">
+          <div class="selected-day-task-check-wrapper">
+            <input type="checkbox" class="task-checkbox-lg" ${item.done ? 'checked' : ''}
+                   onchange="toggleScheduleItem('${dateStr}', '${item.id}', this.checked)">
+          </div>
+
+          <div class="selected-day-task-content">
+            <div class="selected-day-task-top">
+              <span style="font-size:16px;">${icon}</span>
+              <span class="tag tag-subject" style="font-size:11px;">${_escapeHtml(item.subject)}</span>
+              <span class="selected-day-task-title ${item.done ? 'done' : ''}">
+                ${_escapeHtml(item.topic)}
+              </span>
+            </div>
+            <div class="selected-day-task-meta">
+              ${metaParts.join(' • ')}
+            </div>
+            ${wrongBtnHtml}
+          </div>
+
+          ${isCoach ? `
+            <div class="selected-day-task-actions">
+              <button class="btn-icon-sm" style="color:var(--primary);" onclick="openEditScheduleItem('${dateStr}','${item.id}')" title="Düzenle">✏️</button>
+              <button class="btn-icon-sm text-danger" onclick="deleteScheduleItem('${dateStr}','${item.id}')" title="Sil">🗑️</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  return html;
+}
+
+// ─── BANNER & İSTATİSTİKLER ──────────────────────────────────────────────────
 
 function _renderWrongPoolBanner(wrongLog) {
   const bannerEl = document.getElementById('schedule-wrong-pool-bar');
@@ -47,7 +537,6 @@ function _renderWrongPoolBanner(wrongLog) {
     return;
   }
 
-  // Gruplanmış konu sayısı
   const topicsMap = {};
   pending.forEach(w => {
     const key = `${w.subject || ''} - ${w.topic || ''}`;
@@ -56,332 +545,22 @@ function _renderWrongPoolBanner(wrongLog) {
   const topicCount = Object.keys(topicsMap).length;
 
   bannerEl.innerHTML = `
-    <div class="card" style="background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(30,30,36,0.95) 100%); border: 1px solid rgba(239,68,68,0.3); padding: 12px 16px; border-radius: 10px;">
+    <div class="card" style="background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(30,30,36,0.95) 100%); border: 1px solid rgba(239,68,68,0.35); padding: 12px 16px; border-radius: 10px;">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:24px; background:rgba(239,68,68,0.15); width:42px; height:42px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(239,68,68,0.3);">🔥</div>
+          <div style="font-size:24px; background:rgba(239,68,68,0.18); width:42px; height:42px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(239,68,68,0.3);">🔥</div>
           <div>
             <div style="font-weight:800; font-size:14px; color:#f87171;">Yanlış Defterinde Tekrar Bekleyen ${pending.length} Soru / Not Var! (${topicCount} Farklı Konu)</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Öğrencinin eksik kaldığı bu konuları tek tıkla haftalık programa tekrar görevi olarak ekleyebilirsin.</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Öğrencinin eksik kaldığı bu konuları tek tıkla haftalık programa tekrar görevi olarak ekleyebilirsiniz.</div>
           </div>
         </div>
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <button class="btn btn-sm" style="border:1px solid rgba(239,68,68,0.4); color:#f87171; background:rgba(239,68,68,0.1); font-weight:700;" onclick="openWrongPoolModal()">📋 Havuzu İncele (${pending.length})</button>
           <button class="btn btn-sm btn-primary" style="background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border:none; font-weight:700;" onclick="autoAssignWrongReviewsToSchedule()">🔁 Tek Tıkla Programa Dağıt</button>
         </div>
       </div>
     </div>
   `;
-}
-
-function _renderPeriodView(schedule, wrongLog = []) {
-  const container = document.getElementById('schedule-week');
-  if (!container) return;
-
-  // Gerçek Aylık Takvim Hesabı
-  const now = new Date();
-  const viewDate = new Date(now.getFullYear(), now.getMonth() + currentPeriodOffset, 1);
-  const year = viewDate.getFullYear();
-  const month = viewDate.getMonth(); // 0-11
-
-  const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-  const monthName = MONTHS[month];
-
-  // Etiketi güncelle
-  const lbl = document.getElementById('schedule-week-label');
-  if (lbl) {
-    lbl.textContent = `📅 ${monthName} ${year}`;
-  }
-
-  const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
-
-  // Ayın ilk gününün haftanın hangi günü olduğu (Pzt=0..Paz=6)
-  let firstDayOfWeek = viewDate.getDay();
-  firstDayOfWeek = (firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1);
-
-  // Bu aydaki gün sayısı
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  // Önceki aydaki gün sayısı
-  const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-  // Toplam hücre sayısı (7'nin tam katı)
-  const totalCells = Math.ceil((firstDayOfWeek + daysInMonth) / 7) * 7;
-
-  let gridHtml = '';
-
-  // 1. Haftanın günleri başlıkları (7 sütun)
-  gridHtml += '<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin-top: 14px; margin-bottom: 8px; width: 100%;">';
-  for (let d = 0; d < 7; d++) {
-    gridHtml += `<div style="text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted, #94a3b8); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 0; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px;">${DAYS[d]}</div>`;
-  }
-  gridHtml += '</div>';
-
-  // 2. Takvim Hücreleri Izgarası (Her satırda tam 7 gün = 1 hafta)
-  gridHtml += '<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; width: 100%;">';
-
-  const todayStr = now.toISOString().split('T')[0];
-
-  for (let i = 0; i < totalCells; i++) {
-    let cellYear = year;
-    let cellMonth = month;
-    let cellDayNum = 0;
-    let isOtherMonth = false;
-
-    if (i < firstDayOfWeek) {
-      // Önceki aydan taşan günler
-      isOtherMonth = true;
-      cellDayNum = daysInPrevMonth - (firstDayOfWeek - i - 1);
-      const prevDate = new Date(year, month - 1, cellDayNum);
-      cellYear = prevDate.getFullYear();
-      cellMonth = prevDate.getMonth();
-    } else if (i >= firstDayOfWeek + daysInMonth) {
-      // Sonraki aydan taşan günler
-      isOtherMonth = true;
-      cellDayNum = i - (firstDayOfWeek + daysInMonth) + 1;
-      const nextDate = new Date(year, month + 1, cellDayNum);
-      cellYear = nextDate.getFullYear();
-      cellMonth = nextDate.getMonth();
-    } else {
-      // Bu ayın günleri
-      cellDayNum = i - firstDayOfWeek + 1;
-    }
-
-    const dStr = `${cellYear}-${String(cellMonth + 1).padStart(2, '0')}-${String(cellDayNum).padStart(2, '0')}`;
-    const isToday = (dStr === todayStr);
-
-    const dayData = schedule.find(s => s.date === dStr);
-    const items = dayData?.items || [];
-    const doneCount = items.filter(item => item.done).length;
-
-    let badgeHtml = '';
-    if (items.length > 0) {
-      const isAllDone = (doneCount === items.length);
-      const badgeStyle = isAllDone ? 'background:rgba(16,185,129,0.2); color:#34d399;' : 'background:rgba(139,92,246,0.2); color:#c084fc;';
-      badgeHtml = `<span style="${badgeStyle} font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;">${doneCount}/${items.length}</span>`;
-    }
-
-    // Görev chip'leri (maksimum 2 adet, fazlası +X daha)
-    let chipsHtml = '';
-    if (items.length > 0) {
-      const visibleItems = items.slice(0, 2);
-      chipsHtml = visibleItems.map(it => `
-        <div style="font-size:11px; line-height:1.3; padding:3px 6px; border-radius:4px; background:${it.done ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)'}; border:1px solid ${it.done ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:${it.done ? '#34d399' : 'var(--text, #f1f5f9)'}; ${it.done ? 'text-decoration:line-through; opacity:0.85;' : ''} display:flex; align-items:center; gap:5px; font-weight:600;" title="${_escapeHtml(it.subject)}: ${_escapeHtml(it.topic)}">
-          <span>${it.done ? '✓' : '•'}</span>
-          <span>${_escapeHtml(it.subject)}</span>
-        </div>
-      `).join('');
-
-      if (items.length > 2) {
-        chipsHtml += `<div style="font-size:10px; font-weight:700; color:var(--text-muted, #94a3b8); margin-top:2px; padding-left:2px;">+${items.length - 2} görev daha</div>`;
-      }
-    } else {
-      chipsHtml = `<div style="font-size:11px; color:var(--text-muted, #94a3b8); margin-top:16px; text-align:center; font-weight:600; opacity:0.75; display:flex; align-items:center; justify-content:center; gap:4px;"><span>+</span> <span>Görev Ekle</span></div>`;
-    }
-
-    const monthShortNames = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-    const monthShort = monthShortNames[cellMonth];
-
-    const cardBg = isToday 
-      ? 'background: linear-gradient(135deg, rgba(139,92,246,0.18) 0%, rgba(30,30,36,0.95) 100%); border: 1px solid #8b5cf6; box-shadow: 0 0 0 1px #8b5cf6, 0 4px 14px rgba(139,92,246,0.25);'
-      : 'background: var(--bg-card, #1e1e24); border: 1px solid rgba(255,255,255,0.08);';
-
-    gridHtml += `
-      <div style="${cardBg} border-radius: 10px; padding: 8px 10px; height: 115px; min-height: 115px; max-height: 115px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; cursor: pointer; opacity: ${isOtherMonth ? '0.35' : '1'}; transition: all 0.2s ease; box-sizing: border-box;" onclick="openDayDetailModal('${dStr}')" title="${dStr} görevlerini yönetmek için tıkla">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.04);">
-          <div style="font-size:13px; font-weight:800; color:${isToday ? '#c084fc' : 'var(--text, #f8fafc)'}; display:flex; align-items:center; gap:4px;">
-            <span>${cellDayNum}</span>
-            <span style="font-size:10px; font-weight:600; color:var(--text-muted, #94a3b8);">${monthShort}</span>
-          </div>
-          ${badgeHtml}
-        </div>
-        <div style="display:flex; flex-direction:column; gap:3px; flex:1; overflow:hidden;">
-          ${chipsHtml}
-        </div>
-      </div>
-    `;
-  }
-
-  gridHtml += '</div>';
-  container.innerHTML = gridHtml;
-}
-
-window.currentSelectedDayDate = null;
-
-function openDayDetailModal(dateStr) {
-  window.currentSelectedDayDate = dateStr;
-  const data = getStudentData(window.activeStudent);
-  const dayData = (data.schedule || []).find(s => s.date === dateStr);
-  const items = dayData?.items || [];
-  const wrongLog = data.wrongLog || [];
-
-  const dateObj = new Date(dateStr + 'T00:00:00');
-  const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
-
-  const titleEl = document.getElementById('schedule-day-modal-title');
-  if (titleEl) {
-    const doneCount = items.filter(i => i.done).length;
-    const progStr = items.length ? ` (${doneCount}/${items.length} Tamamlandı)` : '';
-    titleEl.textContent = `📅 ${formattedDate}${progStr}`;
-  }
-
-  const bodyEl = document.getElementById('schedule-day-modal-body');
-  if (!bodyEl) return;
-
-  if (!items.length) {
-    bodyEl.innerHTML = `
-      <div class="empty-state" style="padding: 30px 10px; text-align:center;">
-        <span style="font-size:32px;">📌</span>
-        <p style="margin:8px 0 14px; font-weight:700; color:var(--text);">Bu gün için planlanmış bir görev bulunmuyor.</p>
-        <button class="btn btn-primary" onclick="openAddTaskForCurrentDay()">+ Görev Ekle</button>
-      </div>
-    `;
-    openModal('schedule-day-modal');
-    return;
-  }
-
-  bodyEl.innerHTML = `
-    <div style="display:flex; flex-direction:column; gap:10px;">
-      ${items.map(item => {
-        const icon = {
-          'konu çalışma': '📖', 'soru çözme': '✏️', 'deneme': '📝', 'tekrar': '🔁', 'video': '🎬'
-        }[item.type] || '📌';
-
-        let metaParts = [`${item.duration || 60} dk`, item.type || 'konu çalışma'];
-        if (item.questions) metaParts.push(`${item.questions} Soru`);
-        if (item.pages) metaParts.push(`${item.pages} Sayfa`);
-        if (item.book) metaParts.push(`📚 ${item.book}`);
-
-        // Yanlış Notu Eşleşmesi
-        const matchingWrongs = _getMatchingWrongNotes(item.subject, item.topic, wrongLog);
-        const pendingWrongs = matchingWrongs.filter(w => !w.reviewed);
-
-        let wrongBtnHtml = '';
-        if (matchingWrongs.length > 0) {
-          const isPending = pendingWrongs.length > 0;
-          const badgeText = isPending ? `🔴 ${pendingWrongs.length} Yanlış Notu` : `✅ ${matchingWrongs.length} Tekrar Edildi`;
-          const badgeStyle = isPending 
-            ? 'background:rgba(239,68,68,0.18); color:#f87171; border:1px solid rgba(239,68,68,0.4);' 
-            : 'background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);';
-
-          const safeSubj = (item.subject || '').replace(/'/g, "\\'");
-          const safeTopic = (item.topic || '').replace(/'/g, "\\'");
-
-          wrongBtnHtml = `
-            <button type="button" 
-                    style="${badgeStyle} border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top:6px;"
-                    onclick="event.stopPropagation(); openScheduleWrongModal('${safeSubj}', '${safeTopic}')">
-              ${badgeText} →
-            </button>
-          `;
-        }
-
-        const isCoach = (window.currentUser && window.currentUser.role === 'coach');
-
-        return `
-          <div class="card" style="background:${item.done ? 'rgba(16,185,129,0.04)' : 'rgba(255,255,255,0.03)'}; border:1px solid ${item.done ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}; padding:12px 16px; border-radius:8px; display:flex; align-items:flex-start; gap:12px;">
-            <input type="checkbox" class="item-check" style="margin-top:4px; transform:scale(1.2); cursor:pointer;" ${item.done ? 'checked' : ''}
-                   onchange="toggleScheduleItemFromDayModal('${dateStr}', '${item.id}', this.checked)">
-            
-            <div style="flex:1;">
-              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
-                <span style="font-size:15px;">${icon}</span>
-                <span class="tag tag-subject" style="font-size:11px;">${item.subject}</span>
-                <span style="font-size:14px; font-weight:700; color:${item.done ? '#34d399' : 'var(--text)'}; ${item.done ? 'text-decoration:line-through;' : ''}">${item.topic}</span>
-              </div>
-              <div style="font-size:12px; color:var(--text-muted);">${metaParts.join(' • ')}</div>
-              ${wrongBtnHtml}
-            </div>
-
-            ${isCoach ? `
-              <div style="display:flex; gap:6px; align-items:center;">
-                <button class="btn-icon-sm" style="color:var(--primary); font-size:14px; padding:4px 6px;" onclick="openEditScheduleItem('${dateStr}','${item.id}')" title="Düzenle">✏️</button>
-                <button class="btn-icon-sm" style="color:var(--danger); font-size:16px; padding:4px 6px;" onclick="deleteScheduleItemFromDayModal('${dateStr}','${item.id}')" title="Sil">🗑️</button>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
-
-  openModal('schedule-day-modal');
-}
-
-function toggleScheduleItemFromDayModal(dateStr, itemId, isDone) {
-  toggleScheduleItem(dateStr, itemId, isDone);
-  setTimeout(() => {
-    openDayDetailModal(dateStr);
-  }, 50);
-}
-
-function deleteScheduleItemFromDayModal(dateStr, itemId) {
-  deleteScheduleItem(dateStr, itemId);
-  setTimeout(() => {
-    openDayDetailModal(dateStr);
-  }, 50);
-}
-
-function openAddTaskForCurrentDay() {
-  const dateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
-  closeModal('schedule-day-modal');
-  openAddScheduleItem(dateStr);
-}
-
-function openWrongPoolForCurrentDay() {
-  closeModal('schedule-day-modal');
-  openWrongPoolModal();
-}
-
-function viewScheduleItem(e, dateStr, itemId) {
-  const data = getStudentData(window.activeStudent);
-  const day  = data.schedule.find(s => s.date === dateStr);
-  if (!day) return;
-  const item = day.items.find(i => i.id === itemId);
-  if (!item) return;
-
-  const matchingWrongs = _getMatchingWrongNotes(item.subject, item.topic, data.wrongLog || []);
-
-  let wrongNotesSection = '';
-  if (matchingWrongs.length > 0) {
-    wrongNotesSection = `
-      <div style="margin-top:16px; padding:12px; background:rgba(239,68,68,0.06); border-radius:8px; border:1px solid rgba(239,68,68,0.2);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <strong style="color:#f87171; font-size:13px;">❌ Bu Konuya Ait Yanlış Defteri Kayıtları (${matchingWrongs.length})</strong>
-          <button class="btn btn-sm" style="font-size:11px; padding:2px 8px;" onclick="closeModal('view-schedule-item-modal'); openScheduleWrongModal('${(item.subject||'').replace(/'/g,"\\'")}','${(item.topic||'').replace(/'/g,"\\'")}')">Tümünü İncele →</button>
-        </div>
-        <div style="font-size:12px; color:var(--text-muted);">
-          ${matchingWrongs.slice(0, 3).map(w => `
-            <div style="padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
-              <span>${w.reviewed ? '✅' : '🔴'}</span> 
-              <strong>${w.source ? w.source + ': ' : ''}</strong>
-              <span>${w.reason || w.note || 'Hata kaydı'}</span>
-            </div>
-          `).join('')}
-          ${matchingWrongs.length > 3 ? `<div style="margin-top:4px; font-style:italic;">+ ${matchingWrongs.length - 3} kayıt daha...</div>` : ''}
-        </div>
-      </div>
-    `;
-  }
-
-  const c = document.getElementById('view-schedule-content');
-  if (c) {
-    c.innerHTML = `
-      <div style="margin-bottom:8px;"><strong>Tarih:</strong> ${dateStr}</div>
-      <div style="margin-bottom:8px;"><strong>Ders:</strong> ${item.subject}</div>
-      <div style="margin-bottom:8px;"><strong>Konu:</strong> ${item.topic}</div>
-      <div style="margin-bottom:8px;"><strong>Tür:</strong> ${item.type || '—'}</div>
-      <div style="margin-bottom:8px;"><strong>Süre:</strong> ${item.duration} dk</div>
-      ${item.questions ? `<div style="margin-bottom:8px;"><strong>Hedef Soru:</strong> ${item.questions}</div>` : ''}
-      ${item.pages ? `<div style="margin-bottom:8px;"><strong>Hedef Sayfa:</strong> ${item.pages}</div>` : ''}
-      ${item.book ? `<div style="margin-bottom:8px;"><strong>Kaynak:</strong> ${item.book}</div>` : ''}
-      <div style="margin-top:12px;">
-        <strong>Durum:</strong> 
-        <span class="badge ${item.done ? 'badge-ayt' : 'badge-tyt'}">${item.done ? 'Tamamlandı ✅' : 'Bekliyor ⏳'}</span>
-      </div>
-      ${wrongNotesSection}
-    `;
-  }
-  openModal('view-schedule-item-modal');
 }
 
 function _renderScheduleStats(schedule) {
@@ -397,7 +576,7 @@ function _renderScheduleStats(schedule) {
   _el('sched-pct',     e => e.textContent = total > 0 ? Math.round(done/total*100) + '%' : '0%');
 }
 
-// ─── Öğe İşlemleri ────────────────────────────────────────────────────────────
+// ─── ÖĞE İŞLEMLERİ ────────────────────────────────────────────────────────────
 
 function toggleScheduleItem(dateStr, itemId, done) {
   const data = getStudentData(window.activeStudent);
@@ -408,15 +587,13 @@ function toggleScheduleItem(dateStr, itemId, done) {
   if (item) item.done = done;
 
   saveStudentData(window.activeStudent, data);
-  _renderScheduleStats(data.schedule);
+  renderSchedule();
+  if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof checkNotifications === 'function') checkNotifications();
-
-  // Sadece o öğeyi güncelle (performans)
-  const el = document.getElementById(`si-${itemId}`);
-  if (el) el.className = `schedule-item ${done ? 'done' : ''}`;
 }
 
 function deleteScheduleItem(dateStr, itemId) {
+  if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
   const data = getStudentData(window.activeStudent);
   const day  = data.schedule.find(s => s.date === dateStr);
   if (!day) return;
@@ -430,11 +607,12 @@ function deleteScheduleItem(dateStr, itemId) {
   renderSchedule();
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof checkNotifications === 'function') checkNotifications();
+  showToast('Görev silindi.', 'info');
 }
 
-// ─── El ile Öğe Ekleme & Düzenleme ──────────────────────────────────────────
+// ─── EL İLE ÖĞE EKLEME & DÜZENLEME ──────────────────────────────────────────
 
-let editingScheduleContext = null; // { dateStr, itemId }
+let editingScheduleContext = null;
 
 function _populateSchedSubjectSelect() {
   const subjSelect = document.getElementById('sched-subject');
@@ -464,7 +642,7 @@ function _populateSchedSubjectSelect() {
 
 function openAddScheduleItem(dateStr) {
   editingScheduleContext = null;
-  if (!dateStr) dateStr = getTodayStr();
+  if (!dateStr) dateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
   document.getElementById('sched-item-date').value = dateStr;
 
   const title = document.getElementById('schedule-modal-title');
@@ -578,7 +756,7 @@ function updateSchedTopics() {
 function handleAddScheduleItem(e) {
   if (e) e.preventDefault();
 
-  const dateStr = document.getElementById('sched-item-date')?.value;
+  const dateStr = document.getElementById('sched-item-date')?.value || window.currentSelectedDayDate;
   const subject = document.getElementById('sched-subject')?.value.trim() || '';
   const topic   = document.getElementById('sched-topic')?.value.trim() || '';
   const dur     = parseInt(document.getElementById('sched-duration')?.value) || 60;
@@ -593,7 +771,6 @@ function handleAddScheduleItem(e) {
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
   if (editingScheduleContext) {
-    // Düzenleme modu
     const oldDateStr = editingScheduleContext.dateStr;
     const oldItemId = editingScheduleContext.itemId;
     const isDone = editingScheduleContext.done || false;
@@ -619,7 +796,6 @@ function handleAddScheduleItem(e) {
     saveStudentData(window.activeStudent, data);
     showToast('Görev güncellendi!', 'success');
   } else {
-    // Yeni ekleme
     let day = data.schedule.find(s => s.date === dateStr);
     if (!day) {
       day = { id: generateId(), date: dateStr, items: [] };
@@ -634,40 +810,25 @@ function handleAddScheduleItem(e) {
 
   closeModal('add-schedule-item-modal');
 
-  // Formu temizle
   ['sched-subject','sched-topic','sched-questions','sched-pages','sched-book'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
 
+  window.currentSelectedDayDate = dateStr;
   renderSchedule();
-  if (window.currentSelectedDayDate === dateStr) {
-    openDayDetailModal(dateStr);
-  }
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof checkNotifications === 'function') checkNotifications();
 }
 
-// Haftayı temizle
 function clearWeekSchedule() {
-  if (!confirm('Bu haftanın tüm programı silinecek. Emin misin?')) return;
-
-  const today   = new Date();
-  const dayOfWk = today.getDay();
-  const monday  = new Date(today);
-  monday.setDate(today.getDate() - (dayOfWk === 0 ? 6 : dayOfWk - 1));
-
-  const dates = Array.from({length:7}, (_,i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return d.toISOString().split('T')[0];
-  });
+  if (!confirm('Seçili dönemin tüm programı silinecek. Emin misiniz?')) return;
 
   const data = getStudentData(window.activeStudent);
-  data.schedule = (data.schedule || []).filter(s => !dates.includes(s.date));
+  data.schedule = [];
   saveStudentData(window.activeStudent, data);
   renderSchedule();
-  showToast('Bu haftanın programı temizlendi.', 'info');
+  showToast('Program temizlendi.', 'info');
 }
 
-// ─── Yanlış Defteri Entegrasyon Fonksiyonları ─────────────────────────────────
+// ─── YANLIŞ DEFTERİ ENTEGRASYONU ─────────────────────────────────────────────
 
 function _normStr(str) {
   if (!str) return '';
@@ -713,7 +874,7 @@ function openScheduleWrongModal(subject, topic) {
   }
 
   bodyEl.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06); flex-wrap:wrap; gap:8px;">
       <div style="font-size:13px; color:var(--text-muted);">
         Toplam <strong>${matching.length}</strong> kayıt • <span style="color:#f87171;">${matching.filter(w=>!w.reviewed).length} bekleyen</span>
       </div>
@@ -755,7 +916,6 @@ function toggleWrongReviewFromSchedule(wrongId, subject, topic) {
   entry.reviewed = !entry.reviewed;
   saveStudentData(window.activeStudent, data);
 
-  // Modal ve programı yenile
   openScheduleWrongModal(subject, topic);
   renderSchedule();
   if (typeof renderWrongNotes === 'function') renderWrongNotes();
@@ -775,7 +935,6 @@ function openWrongPoolModal() {
     return;
   }
 
-  // Konulara göre grupla
   const grouped = {};
   pending.forEach(w => {
     const key = `${w.subject || 'Diğer'}|||${w.topic || 'Genel'}`;
@@ -817,11 +976,19 @@ function openWrongPoolModal() {
   openModal('schedule-wrong-pool-modal');
 }
 
+function openWrongPoolForCurrentDay() {
+  openWrongPoolModal();
+}
+
+function openAddTaskForCurrentDay() {
+  openAddScheduleItem(window.currentSelectedDayDate);
+}
+
 function addTopicToScheduleAsReview(subject, topic, targetDate = null) {
   const data = getStudentData(window.activeStudent);
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
-  const dateStr = targetDate || new Date().toISOString().split('T')[0];
+  const dateStr = targetDate || window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
   let day = data.schedule.find(s => s.date === dateStr);
   if (!day) {
     day = { id: generateId(), date: dateStr, items: [] };
@@ -842,7 +1009,7 @@ function addTopicToScheduleAsReview(subject, topic, targetDate = null) {
   saveStudentData(window.activeStudent, data);
   renderSchedule();
   if (typeof renderDashboard === 'function') renderDashboard();
-  showToast(`"${subject} - ${topic}" tekrar görevi bugüne (${dateStr}) eklendi!`, 'success');
+  showToast(`"${subject} - ${topic}" tekrar görevi (${dateStr}) gününe eklendi!`, 'success');
 }
 
 function autoAssignWrongReviewsToSchedule() {
@@ -855,7 +1022,6 @@ function autoAssignWrongReviewsToSchedule() {
     return;
   }
 
-  // Konuları topla
   const grouped = {};
   pending.forEach(w => {
     const key = `${w.subject || 'Ders'}|||${w.topic || 'Konu'}`;
@@ -865,7 +1031,7 @@ function autoAssignWrongReviewsToSchedule() {
 
   const topTopics = Object.entries(grouped)
     .sort((a,b) => b[1] - a[1])
-    .slice(0, 5); // En çok hata yapılan ilk 5 konu
+    .slice(0, 5);
 
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
@@ -884,7 +1050,6 @@ function autoAssignWrongReviewsToSchedule() {
       data.schedule.push(day);
     }
 
-    // Aynı görev zaten varsa ekleme
     const exists = (day.items || []).some(i => i.subject === subj && i.topic.includes(top));
     if (!exists) {
       day.items.push({
@@ -905,15 +1070,19 @@ function autoAssignWrongReviewsToSchedule() {
     saveStudentData(window.activeStudent, data);
     renderSchedule();
     closeModal('schedule-wrong-pool-modal');
-    showToast(`✨ En çok hata yapılan ${addedCount} konu haftalık programa tekrar görevi olarak dağıtıldı!`, 'success');
+    showToast(`✨ En çok hata yapılan ${addedCount} konu programa tekrar görevi olarak dağıtıldı!`, 'success');
   } else {
-    showToast('Bu konular zaten haftalık programda mevcut.', 'info');
+    showToast('Bu konular zaten programda mevcut.', 'info');
   }
 }
 
 function _el(id, fn) { const el = document.getElementById(id); if (el) fn(el); }
 
 window.renderSchedule                  = renderSchedule;
+window.setScheduleViewMode             = setScheduleViewMode;
+window.selectScheduleDay               = selectScheduleDay;
+window.changePeriodOffset              = changePeriodOffset;
+window.resetPeriodOffset               = resetPeriodOffset;
 window.toggleScheduleItem              = toggleScheduleItem;
 window.deleteScheduleItem              = deleteScheduleItem;
 window.openAddScheduleItem             = openAddScheduleItem;
@@ -926,10 +1095,11 @@ window.toggleWrongReviewFromSchedule   = toggleWrongReviewFromSchedule;
 window.openWrongPoolModal              = openWrongPoolModal;
 window.addTopicToScheduleAsReview      = addTopicToScheduleAsReview;
 window.autoAssignWrongReviewsToSchedule= autoAssignWrongReviewsToSchedule;
+window.openAddTaskForCurrentDay        = openAddTaskForCurrentDay;
+window.openWrongPoolForCurrentDay      = openWrongPoolForCurrentDay;
 window.openDayDetailModal              = openDayDetailModal;
 window.toggleScheduleItemFromDayModal  = toggleScheduleItemFromDayModal;
 window.deleteScheduleItemFromDayModal  = deleteScheduleItemFromDayModal;
-window.openAddTaskForCurrentDay        = openAddTaskForCurrentDay;
-window.openWrongPoolForCurrentDay      = openWrongPoolForCurrentDay;
+
 
 
