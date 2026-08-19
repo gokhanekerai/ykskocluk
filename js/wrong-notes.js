@@ -511,21 +511,40 @@ Lütfen doğrudan sorunun çözümünü adım adım Türkçe olarak ver:
     }
 
     const apiKey = _getGeminiApiKey();
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: parts }]
-      })
-    });
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-pro'];
+    let outputText = '';
+    let lastError = null;
 
-    const data = await response.json();
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-      const outputText = data.candidates[0].content.parts[0].text;
+    for (const modelName of modelsToTry) {
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-goog-api-key': apiKey
+          },
+          body: JSON.stringify({
+            contents: [{ parts: parts }]
+          })
+        });
+
+        const resJson = await response.json();
+        if (resJson.candidates && resJson.candidates[0] && resJson.candidates[0].content) {
+          outputText = resJson.candidates[0].content.parts[0].text;
+          break;
+        } else if (resJson.error) {
+          lastError = resJson.error.message;
+        }
+      } catch (err) {
+        lastError = err.message;
+      }
+    }
+
+    if (outputText) {
       if (textDiv) textDiv.innerHTML = _formatMarkdownToHtml(outputText);
       showToast('✨ Gemini AI Çözüm ve Analiz başarıyla tamamlandı!', 'success');
     } else {
-      throw new Error(data.error?.message || 'API yanıt veremedi');
+      throw new Error(lastError || 'Yapay zeka modelleri şu an yanıt veremedi');
     }
   } catch (err) {
     console.error('Gemini API Error:', err);
