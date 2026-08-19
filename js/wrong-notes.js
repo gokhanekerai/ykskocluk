@@ -42,7 +42,7 @@ function _renderWrongList(wrongLog) {
         <span style="font-size:36px;">❌</span>
         <p style="margin:10px 0 6px; font-weight:700; font-size:15px; color:var(--text);">Henüz kayıtlı yanlış soru / not bulunmuyor.</p>
         <p style="font-size:13px; color:var(--text-muted); max-width:420px; margin:0 auto 16px;">
-          Denemelerde ve soru bankalarında yapamadığın veya dikkatinden kaçan soruları buraya kaydedip haftalık programa tekrar görevi olarak aktarabilirsin.
+          Denemelerde ve soru bankalarında yapamadığın veya dikkatinden kaçan soruları (ister fotoğraflı ister not olarak) buraya kaydedip haftalık programa tekrar görevi olarak aktarabilirsin.
         </p>
         <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="openModal('add-wrong-modal')">+ Yeni Yanlış Ekle</button>
@@ -72,6 +72,13 @@ function _renderWrongList(wrongLog) {
       </div>
       <div class="wrong-body">
         <div class="wrong-topic" style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px;">${e.topic || '—'}</div>
+        
+        ${e.image ? `
+          <div style="margin: 8px 0;">
+            <img src="${e.image}" onclick="openImageViewer('${e.image}')" style="max-height:130px; border-radius:8px; border:1px solid rgba(255,107,0,0.35); cursor:zoom-in; box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" title="Büyütmek için tıkla" alt="Soru Fotoğrafı">
+          </div>
+        ` : ''}
+
         ${e.source ? `<div class="wrong-source" style="font-size:12px; color:var(--text-muted); margin-bottom:2px;"><strong>📚 Kaynak:</strong> ${e.source}</div>` : ''}
         ${e.reason ? `<div class="wrong-reason" style="font-size:12px; color:#f87171; margin-bottom:4px;"><strong>⚠️ Hata Sebebi:</strong> ${e.reason}</div>` : ''}
         ${e.note   ? `<div class="wrong-note" style="font-size:12px; background:rgba(0,0,0,0.25); padding:6px 10px; border-radius:6px; margin-top:6px;">📝 ${e.note}</div>` : ''}
@@ -88,6 +95,81 @@ function _renderWrongList(wrongLog) {
   }
 }
 
+// ─── OTOMATİK FOTOĞRAF SIKIŞTIRMA & İŞLEME ────────────────────────────────────
+
+function handleWrongImageSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const statusEl = document.getElementById('wrong-photo-status');
+  if (statusEl) statusEl.textContent = 'Fotoğraf optimize ediliyor...';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Canvas ile otomatik akıllı sıkıştırma (max 850px, quality 0.72)
+      const maxDim = 850;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+      const kbSize = Math.round((compressedDataUrl.length * 3 / 4) / 1024);
+
+      document.getElementById('wrong-photo-data').value = compressedDataUrl;
+      const prevImg = document.getElementById('wrong-photo-preview');
+      if (prevImg) prevImg.src = compressedDataUrl;
+      const prevWrap = document.getElementById('wrong-photo-preview-wrap');
+      if (prevWrap) prevWrap.style.display = 'block';
+
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:#00F0FF; font-weight:700;">✅ Fotoğraf hazır (${kbSize} KB)</span>`;
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearWrongPhoto() {
+  const fileInput = document.getElementById('wrong-photo-input');
+  if (fileInput) fileInput.value = '';
+  const photoData = document.getElementById('wrong-photo-data');
+  if (photoData) photoData.value = '';
+  const prevWrap = document.getElementById('wrong-photo-preview-wrap');
+  if (prevWrap) prevWrap.style.display = 'none';
+  const prevImg = document.getElementById('wrong-photo-preview');
+  if (prevImg) prevImg.src = '';
+  const statusEl = document.getElementById('wrong-photo-status');
+  if (statusEl) statusEl.textContent = 'Henüz fotoğraf seçilmedi';
+}
+
+function openImageViewer(imgSrc) {
+  const lightboxImg = document.getElementById('lightbox-img');
+  if (lightboxImg && imgSrc) {
+    lightboxImg.src = imgSrc;
+    openModal('image-lightbox-modal');
+  }
+}
+
 function handleAddWrong(e) {
   if (e) e.preventDefault();
 
@@ -100,6 +182,7 @@ function handleAddWrong(e) {
     source:   document.getElementById('wrong-source')?.value.trim() || '',
     reason:   document.getElementById('wrong-reason')?.value.trim() || '',
     note:     document.getElementById('wrong-note-in')?.value.trim() || '',
+    image:    document.getElementById('wrong-photo-data')?.value || '',
     reviewed: false
   };
 
@@ -114,7 +197,7 @@ function handleAddWrong(e) {
   closeModal('add-wrong-modal');
   _clearWrongForm();
   renderWrongNotes();
-  showToast('Yanlış kaydedildi!', 'success');
+  showToast('Yanlış soru kaydedildi!', 'success');
 }
 
 function toggleWrongReview(id) {
@@ -147,6 +230,7 @@ function _clearWrongForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  clearWrongPhoto();
   
   const tytAyt = document.getElementById('wrong-tytayt');
   if (tytAyt) {
@@ -154,6 +238,7 @@ function _clearWrongForm() {
     if (typeof updateWrongSubjects === 'function') updateWrongSubjects();
   }
 }
+
 
 // --- Dynamic Subject/Topic Dropdowns ---
 
@@ -275,5 +360,9 @@ window.deleteWrongEntry      = deleteWrongEntry;
 window.markAllReviewed       = markAllReviewed;
 window.addWrongToSchedule    = addWrongToSchedule;
 window.loadSampleWrongNotes  = loadSampleWrongNotes;
+window.handleWrongImageSelect= handleWrongImageSelect;
+window.clearWrongPhoto       = clearWrongPhoto;
+window.openImageViewer       = openImageViewer;
+
 
 

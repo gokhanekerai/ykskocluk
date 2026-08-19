@@ -1284,8 +1284,23 @@
         <input id="wrong-reason" type="text" class="form-input" placeholder="Kural karıştırma, dikkatsizlik…">
       </div>
       <div class="form-group">
+        <label class="form-label">📷 Soru Fotoğrafı (Opsiyonel)</label>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="file" id="wrong-photo-input" accept="image/*" style="display:none;" onchange="handleWrongImageSelect(event)">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('wrong-photo-input').click()" style="display:flex; align-items:center; gap:6px;">
+            <span>📸</span> Fotoğraf Çek / Galeriden Seç
+          </button>
+          <span id="wrong-photo-status" style="font-size:12px; color:var(--text-muted);">Henüz fotoğraf seçilmedi</span>
+        </div>
+        <div id="wrong-photo-preview-wrap" style="display:none; margin-top:10px; position:relative; width:fit-content;">
+          <img id="wrong-photo-preview" src="" style="max-height:140px; border-radius:8px; border:1px solid rgba(255,107,0,0.4);" alt="Önizleme">
+          <button type="button" onclick="clearWrongPhoto()" style="position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:22px; height:22px; font-size:12px; cursor:pointer; font-weight:bold;">×</button>
+        </div>
+        <input type="hidden" id="wrong-photo-data">
+      </div>
+      <div class="form-group">
         <label class="form-label">Not</label>
-        <textarea id="wrong-note-in" class="form-input" rows="2" placeholder="Eklemek istediğin not"></textarea>
+        <textarea id="wrong-note-in" class="form-input" rows="2" placeholder="Eklemek istediğin not veya çözüm ipucu"></textarea>
       </div>
       <div class="form-actions">
         <button type="button" class="btn" onclick="closeModal('add-wrong-modal')">İptal</button>
@@ -1444,6 +1459,18 @@
     <div class="form-actions" style="margin-top: 16px;">
       <button class="btn" onclick="closeModal('schedule-wrong-pool-modal')">Kapat</button>
       <button class="btn btn-primary" onclick="autoAssignWrongReviewsToSchedule()">✨ Tümünü Otomatik Dağıt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Yanlış Soru Görsel Büyütme Modalı (Lightbox) -->
+<div id="image-lightbox-modal" class="modal" onclick="closeModal('image-lightbox-modal')">
+  <div class="modal-box" style="max-width: 90vw; max-height: 90vh; background: rgba(10, 15, 30, 0.95); border: 1px solid rgba(255, 107, 0, 0.4); padding: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="event.stopPropagation()">
+    <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 8px;">
+      <button class="modal-close" onclick="closeModal('image-lightbox-modal')">×</button>
+    </div>
+    <div style="max-height: 75vh; overflow: auto; width: 100%;">
+      <img id="lightbox-img" src="" style="max-width: 100%; max-height: 75vh; border-radius: 8px; object-fit: contain;" alt="Soru Fotoğrafı">
     </div>
   </div>
 </div>
@@ -1670,23 +1697,23 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=145"></script>
-<script src="js/data.js?v=145"></script>
-<script src="topics.js?v=145"></script>
-<script src="js/auth.js?v=145"></script>
-<script src="js/students.js?v=145"></script>
-<script src="js/dashboard.js?v=145"></script>
-<script src="js/resources.js?v=145"></script>
-<script src="js/exams.js?v=145"></script>
-<script src="rankings.js?v=145"></script>
-<script src="js/calculator.js?v=145"></script>
-<script src="js/ai-analysis.js?v=145"></script>
-<script src="js/schedule.js?v=145"></script>
-<script src="js/topics.js?v=145"></script>
-<script src="js/wrong-notes.js?v=145"></script>
-<script src="js/report.js?v=145"></script>
-<script src="js/vision.js?v=145"></script>
-<script src="js/app.js?v=145"></script>
+<script src="js/firebase.js?v=160"></script>
+<script src="js/data.js?v=160"></script>
+<script src="topics.js?v=160"></script>
+<script src="js/auth.js?v=160"></script>
+<script src="js/students.js?v=160"></script>
+<script src="js/dashboard.js?v=160"></script>
+<script src="js/resources.js?v=160"></script>
+<script src="js/exams.js?v=160"></script>
+<script src="rankings.js?v=160"></script>
+<script src="js/calculator.js?v=160"></script>
+<script src="js/ai-analysis.js?v=160"></script>
+<script src="js/schedule.js?v=160"></script>
+<script src="js/topics.js?v=160"></script>
+<script src="js/wrong-notes.js?v=160"></script>
+<script src="js/report.js?v=160"></script>
+<script src="js/vision.js?v=160"></script>
+<script src="js/app.js?v=160"></script>
 
 
 <script>

@@ -1032,6 +1032,11 @@ function openScheduleWrongModal(subject, topic) {
           <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px;">
             ${w.topic || 'Genel Soru'}
           </div>
+          ${w.image ? `
+            <div style="margin: 6px 0;">
+              <img src="${w.image}" onclick="if(typeof openImageViewer==='function') openImageViewer('${w.image}')" style="max-height:120px; border-radius:6px; border:1px solid rgba(255,107,0,0.35); cursor:zoom-in;" title="Büyütmek için tıkla" alt="Soru Fotoğrafı">
+            </div>
+          ` : ''}
           ${w.reason ? `<div style="font-size:12px; color:#f87171; margin-bottom:4px;"><strong>Hata Nedeni:</strong> ${w.reason}</div>` : ''}
           ${w.note ? `<div style="font-size:12px; color:var(--text-muted); background:rgba(0,0,0,0.2); padding:6px 10px; border-radius:6px; margin-top:6px;">📝 ${w.note}</div>` : ''}
         </div>
