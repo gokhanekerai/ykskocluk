@@ -113,30 +113,31 @@ function openCountdownModal() {
 }
 
 function calcCountdown() {
-  const startVal = document.getElementById('cd-start-date').value || '2026-08-17';
-  const examVal  = document.getElementById('cd-exam-date').value;
+  let startVal = document.getElementById('cd-start-date')?.value;
+  const examVal  = document.getElementById('cd-exam-date')?.value;
   const today = new Date();
-  today.setHours(0,0,0,0);
+  today.setHours(0, 0, 0, 0);
 
-  let passed = 1;
-  if (startVal) {
-    const sDate = new Date(startVal + 'T00:00:00');
-    sDate.setHours(0,0,0,0);
-    const diff = today.getTime() - sDate.getTime();
-    passed = Math.max(1, Math.floor(diff / (1000 * 3600 * 24)) + 1);
-  }
+  if (!startVal) startVal = '2026-08-17';
+  const sDate = new Date(startVal.includes('T') ? startVal : startVal + 'T00:00:00');
+  sDate.setHours(0, 0, 0, 0);
+  const diff = today.getTime() - sDate.getTime();
+  const passed = Math.max(1, Math.floor(diff / 86400000) + 1);
 
   let remaining = 0;
   if (examVal) {
-    const eDate = new Date(examVal + 'T00:00:00');
-    eDate.setHours(0,0,0,0);
-    const diff = eDate.getTime() - today.getTime();
-    remaining = Math.max(0, Math.floor(diff / (1000 * 3600 * 24)));
+    const eDate = new Date(examVal.includes('T') ? examVal : examVal + 'T00:00:00');
+    eDate.setHours(0, 0, 0, 0);
+    const diffRem = eDate.getTime() - today.getTime();
+    remaining = Math.max(0, Math.floor(diffRem / 86400000));
   }
 
-  document.getElementById('cd-passed-days').textContent = `${passed}. Gün`;
-  document.getElementById('cd-remaining-days').textContent = remaining;
+  const passedEl = document.getElementById('cd-passed-days');
+  if (passedEl) passedEl.textContent = passed;
+  const remEl = document.getElementById('cd-remaining-days');
+  if (remEl) remEl.textContent = remaining;
 }
+
 
 
 function handleSaveCountdown(e) {
