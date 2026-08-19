@@ -204,10 +204,10 @@
       <section id="tab-dashboard" class="tab-view active">
         <!-- Tüm Kartlar (10 Adet) Aynı Grid İçinde -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
-          <div class="stat-card purple" onclick="openCountdownModal()" style="cursor:pointer;" title="Sınav Sayacı ve Seri">
+          <div class="stat-card purple" onclick="openCountdownModal()" style="cursor:pointer;" title="Sınav Sayacı ve Kaçıncı Gün">
             <div class="stat-icon">🔥</div>
-            <div id="dash-streak" class="stat-value">0</div>
-            <div class="stat-label">Gün Serisi</div>
+            <div id="dash-streak" class="stat-value">3</div>
+            <div class="stat-label" id="dash-streak-label">Program Günü</div>
           </div>
           <div class="stat-card blue" onclick="switchTab('schedule')" style="cursor:pointer;" title="Görevlendirme sayfasına git" style="position:relative;">
             <div class="stat-icon">📅</div>
@@ -1450,8 +1450,8 @@
       
       <div style="display:flex; gap:16px; margin:20px 0;">
         <div style="flex:1; background:rgba(255,255,255,0.05); padding:16px; border-radius:8px; text-align:center;">
-          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Çalışılan Gün</div>
-          <div id="cd-passed-days" style="font-size:24px; font-weight:700; color:var(--primary); margin-top:8px;">0</div>
+          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Kaçıncı Gün?</div>
+          <div id="cd-passed-days" style="font-size:24px; font-weight:700; color:var(--primary); margin-top:8px;">1. Gün</div>
         </div>
         <div style="flex:1; background:rgba(255,255,255,0.05); padding:16px; border-radius:8px; text-align:center;">
           <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Kalan Gün</div>

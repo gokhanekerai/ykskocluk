@@ -18,17 +18,25 @@ function renderDashboard() {
   _el('goal-prof', e => e.textContent = g.profession || '—');
   _el('goal-rank', e => e.textContent = g.ranking    ? `#${g.ranking}` : '—');
 
-  // Streak
-  _updateStreak(data, student);
-  let streakVal = data.streak || 0;
-  if (data.personalGoal && data.personalGoal.startDate) {
-    const sDate = new Date(data.personalGoal.startDate);
-    sDate.setHours(0,0,0,0);
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    streakVal = Math.max(0, Math.floor((today.getTime() - sDate.getTime()) / 86400000));
+  // Kaçıncı Gün (Örn: 17 Ağustos = 1. Gün, 18 Ağustos = 2. Gün, 19 Ağustos = 3. Gün -> 3)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let startDateStr = data.personalGoal?.startDate;
+  if (!startDateStr && data.schedule && data.schedule.length > 0) {
+    const dates = data.schedule.map(s => s.date).sort();
+    startDateStr = dates[0];
   }
-  _el('dash-streak', e => e.textContent = streakVal);
+  if (!startDateStr) startDateStr = '2026-08-17';
+
+  const sDate = new Date(startDateStr + 'T00:00:00');
+  sDate.setHours(0, 0, 0, 0);
+  const diffDays = Math.floor((today.getTime() - sDate.getTime()) / 86400000);
+  const currentDayNum = Math.max(1, diffDays + 1);
+
+  _el('dash-streak', e => e.textContent = currentDayNum);
+  _el('dash-streak-label', e => e.textContent = `Programın ${currentDayNum}. Günü`);
+
 
   // Soru Takibi: İki Satır (1. Satır: Günlük Çözülecek Soru Hedefi, 2. Satır: Toplam Çözülen Soru Sayısı)
   const allTimeSolved = _getAllTimeSolved(data);
@@ -105,30 +113,31 @@ function openCountdownModal() {
 }
 
 function calcCountdown() {
-  const startVal = document.getElementById('cd-start-date').value;
+  const startVal = document.getElementById('cd-start-date').value || '2026-08-17';
   const examVal  = document.getElementById('cd-exam-date').value;
   const today = new Date();
   today.setHours(0,0,0,0);
 
-  let passed = 0;
+  let passed = 1;
   if (startVal) {
-    const sDate = new Date(startVal);
+    const sDate = new Date(startVal + 'T00:00:00');
     sDate.setHours(0,0,0,0);
     const diff = today.getTime() - sDate.getTime();
-    passed = Math.max(0, Math.floor(diff / (1000 * 3600 * 24)));
+    passed = Math.max(1, Math.floor(diff / (1000 * 3600 * 24)) + 1);
   }
 
   let remaining = 0;
   if (examVal) {
-    const eDate = new Date(examVal);
+    const eDate = new Date(examVal + 'T00:00:00');
     eDate.setHours(0,0,0,0);
     const diff = eDate.getTime() - today.getTime();
     remaining = Math.max(0, Math.floor(diff / (1000 * 3600 * 24)));
   }
 
-  document.getElementById('cd-passed-days').textContent = passed;
+  document.getElementById('cd-passed-days').textContent = `${passed}. Gün`;
   document.getElementById('cd-remaining-days').textContent = remaining;
 }
+
 
 function handleSaveCountdown(e) {
   if (e) e.preventDefault();
