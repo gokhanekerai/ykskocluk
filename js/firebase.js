@@ -5,10 +5,15 @@
 const FIREBASE_ROOT = 'ykskocum_data';
 let _syncListenerAttached = false;
 let _isWritingLocally = false;
+let _initialSyncDone = false;
 
 // Firebase'e kaydet
 function fbSet(key, data) {
   if (window.db) {
+    if (!_initialSyncDone) {
+      console.warn('[Firebase] Ilk senkronizasyon bekleniyor, yazma bekletildi:', key);
+      return;
+    }
     _isWritingLocally = true;
     window.db.ref(`${FIREBASE_ROOT}/${key}`).set(data)
       .catch(e => console.error('[Firebase] write error:', e))
@@ -39,11 +44,15 @@ function initFirebaseSync(onSyncCallback) {
       }
     }
 
+    _initialSyncDone = true;
+    window._initialSyncDone = true;
+
     if (changed && typeof onSyncCallback === 'function') {
       onSyncCallback();
     }
   });
 }
+
 
 window.fbSet = fbSet;
 window.initFirebaseSync = initFirebaseSync;

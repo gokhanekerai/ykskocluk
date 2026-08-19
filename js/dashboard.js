@@ -177,7 +177,7 @@ function _updateStreak(data, studentId) {
   yesterday.setDate(yesterday.getDate() - 1);
   const yStr = yesterday.toISOString().split('T')[0];
 
-  const hasTodayEntry = data.dailyLog.some(e => e.date === today);
+  const hasTodayEntry = (data.dailyLog || []).some(e => e.date === today);
 
   if (hasTodayEntry) {
     if (data.lastActiveDate !== today) {
@@ -187,11 +187,9 @@ function _updateStreak(data, studentId) {
         data.streak = 1;
       }
       data.lastActiveDate = today;
-      saveStudentData(studentId, data);
     }
   } else if (data.lastActiveDate && data.lastActiveDate !== today && data.lastActiveDate !== yStr) {
     data.streak = 0;
-    saveStudentData(studentId, data);
   }
 }
 
