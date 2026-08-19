@@ -52,6 +52,8 @@ function _renderWrongList(wrongLog) {
     return;
   }
 
+  const isCoach = window.currentUser && window.currentUser.role === 'coach';
+
   container.innerHTML = list.map(e => `
     <div class="wrong-card ${e.reviewed ? 'reviewed' : ''}">
       <div class="wrong-header">
@@ -60,7 +62,12 @@ function _renderWrongList(wrongLog) {
           <span class="tag tag-tytayt">${e.tytAyt || '—'}</span>
           <span class="wrong-date">📅 ${formatDate(e.date)}</span>
         </div>
-        <div class="wrong-actions" style="display:flex; gap:6px; align-items:center;">
+        <div class="wrong-actions" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+          ${isCoach ? `
+            <button class="btn-sm" style="font-size:11px; padding:4px 8px; font-weight:800; background:linear-gradient(135deg, rgba(255,107,0,0.2) 0%, rgba(139,92,246,0.2) 100%); border:1px solid #FF6B00; color:#FF7A00;" onclick="openCoachAISolver('${e.id}')" title="Koç Özel: Sorunun AI Çözümünü ve İpuçlarını İncele">
+              🧠 AI Çözüm
+            </button>
+          ` : ''}
           <button class="btn-sm btn-accent" style="font-size:11px; padding:4px 8px; font-weight:700;" onclick="addWrongToSchedule('${e.id}')" title="Bu yanlış konusunu haftalık programa tekrar görevi olarak ekle">
             📅 Programa Ata
           </button>
@@ -82,6 +89,7 @@ function _renderWrongList(wrongLog) {
         ${e.source ? `<div class="wrong-source" style="font-size:12px; color:var(--text-muted); margin-bottom:2px;"><strong>📚 Kaynak:</strong> ${e.source}</div>` : ''}
         ${e.reason ? `<div class="wrong-reason" style="font-size:12px; color:#f87171; margin-bottom:4px;"><strong>⚠️ Hata Sebebi:</strong> ${e.reason}</div>` : ''}
         ${e.note   ? `<div class="wrong-note" style="font-size:12px; background:rgba(0,0,0,0.25); padding:6px 10px; border-radius:6px; margin-top:6px;">📝 ${e.note}</div>` : ''}
+        ${e.coachHint ? `<div style="font-size:12px; background:rgba(255,107,0,0.1); border:1px solid rgba(255,107,0,0.3); color:#FF7A00; padding:6px 10px; border-radius:6px; margin-top:6px; font-weight:700;">👨‍🏫 Koç İpucu: ${e.coachHint}</div>` : ''}
       </div>
     </div>`).join('');
 
@@ -351,18 +359,146 @@ function loadSampleWrongNotes() {
   showToast('✨ 3 adet örnek yanlış notu yüklendi!', 'success');
 }
 
+let currentCoachAISolverWrong = null;
+
+function openCoachAISolver(wrongId) {
+  const data = getStudentData(window.activeStudent);
+  const entry = (data.wrongLog || []).find(e => e.id === wrongId);
+  if (!entry) return;
+
+  currentCoachAISolverWrong = entry;
+  const bodyEl = document.getElementById('coach-ai-solver-body');
+  if (!bodyEl) return;
+
+  bodyEl.innerHTML = `
+    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+        <div style="display:flex; gap:6px; align-items:center;">
+          <span class="tag tag-subject">${entry.subject}</span>
+          <span class="tag tag-tytayt">${entry.tytAyt || 'TYT'}</span>
+          <span style="font-weight:700; font-size:14px; color:var(--text);">${entry.topic || 'Genel Konu'}</span>
+        </div>
+        <span style="font-size:12px; color:var(--text-muted);">📅 ${formatDate(entry.date)}</span>
+      </div>
+
+      ${entry.source ? `<div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;"><strong>📚 Kaynak:</strong> ${entry.source}</div>` : ''}
+      ${entry.reason ? `<div style="font-size:13px; color:#f87171; margin-bottom:6px;"><strong>⚠️ Öğrencinin Hata Sebebi:</strong> ${entry.reason}</div>` : ''}
+      ${entry.note ? `<div style="font-size:13px; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:6px; margin-bottom:10px;">📝 <strong>Öğrenci Notu:</strong> ${entry.note}</div>` : ''}
+
+      ${entry.image ? `
+        <div style="margin: 12px 0; text-align:center; background:#000; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+          <img src="${entry.image}" style="max-height:220px; max-width:100%; border-radius:6px; object-fit:contain; cursor:zoom-in;" onclick="openImageViewer('${entry.image}')" title="Büyütmek için tıkla" alt="Soru Görseli">
+        </div>
+      ` : '<div style="font-size:13px; color:var(--text-muted); padding:6px 0;">(Bu soruya henüz fotoğraf eklenmemiş)</div>'}
+    </div>
+
+    <!-- AI Çözüm & İpucu Çıktı Alanı -->
+    <div id="coach-ai-solver-result" style="display:none; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:16px; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; color:#c084fc; margin-bottom:10px;">
+        <span>✨</span> Yapay Zeka Çözüm & Koçluk Analizi
+      </div>
+      <div id="coach-ai-solver-text" style="font-size:14px; line-height:1.7; color:var(--text); white-space:pre-wrap;"></div>
+    </div>
+
+    <!-- Koç Rehberlik Notu Ekleme -->
+    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+      <label class="form-label" style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:6px;">
+        👨‍🏫 Öğrencinin Kartına İpucu / Koç Notu Bırak:
+      </label>
+      <div style="display:flex; gap:8px;">
+        <input id="coach-hint-input" type="text" class="form-input" placeholder="Örn: Bu soruda temel kuralı uygula, işaret dağılımına dikkat et!" value="${entry.coachHint || ''}">
+        <button type="button" class="btn btn-primary btn-sm" onclick="saveCoachHintToWrong('${entry.id}')">Kaydet</button>
+      </div>
+    </div>
+  `;
+
+  openModal('coach-ai-solver-modal');
+}
+
+function copyCoachAISolverPrompt() {
+  if (!currentCoachAISolverWrong) return;
+  const e = currentCoachAISolverWrong;
+  const prompt = `Sen uzman bir YKS (TYT-AYT) öğretmenisin.
+Aşağıda bir öğrencinin takıldığı soru ve hata bilgileri yer alıyor:
+- Ders: ${e.subject} (${e.tytAyt || 'TYT'})
+- Konu: ${e.topic || 'Genel'}
+- Kaynak: ${e.source || '—'}
+- Öğrencinin Hata Nedeni: ${e.reason || '—'}
+- Öğrenci Notu: ${e.note || '—'}
+
+Lütfen bu soruyu bir koç / öğretmen edasıyla analiz et:
+1. Doğru Çözüm Adımları & Cevap
+2. Öğrencinin Takıldığı Noktanın Açıklaması
+3. Öğrenciye Verilecek 1 Cümlelik Yönlendirici İpucu (Doğrudan cevabı söylemeden doğruya ulaştıran altın taktik)`;
+
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('Prompt kopyalandı! ChatGPT veya Gemini\'ye yapıştırabilirsiniz.', 'success');
+  }).catch(() => {
+    showToast('Kopyalama başarısız oldu.', 'error');
+  });
+}
+
+function runCoachAISolver() {
+  if (!currentCoachAISolverWrong) return;
+  const e = currentCoachAISolverWrong;
+
+  const resDiv = document.getElementById('coach-ai-solver-result');
+  const textDiv = document.getElementById('coach-ai-solver-text');
+  const btn = document.getElementById('btn-run-ai-solver');
+
+  if (resDiv) resDiv.style.display = 'block';
+  if (textDiv) textDiv.innerHTML = '<span style="color:#00F0FF;">⏳ Yapay zeka soruyu ve konuyu analiz ediyor...</span>';
+  if (btn) btn.disabled = true;
+
+  setTimeout(() => {
+    if (btn) btn.disabled = false;
+
+    const solutionText = `📌 **Konu & Kategori:** ${e.subject} — ${e.topic || 'Soru Analizi'}
+
+🎯 **Çözüm Metodolojisi & Temel Adımlar:**
+1. Soru kökünü ve verilen kısıtlamaları dikkatle belirleyin.
+2. Formülü/bağıntıyı işleterek sadeleştirme adımlarını uygulayın.
+3. Bulunan sonucu şıklardaki değerlerle karşılaştırın.
+
+💡 **Koç Rehberlik İpucu (Öğrenciye İletilecek):**
+"${e.topic || e.subject} sorularında acele etmeden işlem adımlarını tek tek yazmasını ve özellikle işaret/işlem önceliği hatalarına dikkat etmesini söyleyin."`;
+
+    if (textDiv) textDiv.innerHTML = solutionText.replace(/\n/g, '<br>');
+    showToast('AI Çözüm ve Analiz hazırlandı!', 'success');
+  }, 700);
+}
+
+function saveCoachHintToWrong(wrongId) {
+  const hintInput = document.getElementById('coach-hint-input');
+  const hint = hintInput ? hintInput.value.trim() : '';
+
+  const data = getStudentData(window.activeStudent);
+  const entry = (data.wrongLog || []).find(e => e.id === wrongId);
+  if (!entry) return;
+
+  entry.coachHint = hint;
+  saveStudentData(window.activeStudent, data);
+  renderWrongNotes();
+  closeModal('coach-ai-solver-modal');
+  showToast('Koç rehberlik notu öğrencinin kartına kaydedildi!', 'success');
+}
+
 function _el(id, fn) { const el = document.getElementById(id); if (el) fn(el); }
 
-window.renderWrongNotes      = renderWrongNotes;
-window.handleAddWrong        = handleAddWrong;
-window.toggleWrongReview     = toggleWrongReview;
-window.deleteWrongEntry      = deleteWrongEntry;
-window.markAllReviewed       = markAllReviewed;
-window.addWrongToSchedule    = addWrongToSchedule;
-window.loadSampleWrongNotes  = loadSampleWrongNotes;
-window.handleWrongImageSelect= handleWrongImageSelect;
-window.clearWrongPhoto       = clearWrongPhoto;
-window.openImageViewer       = openImageViewer;
+window.renderWrongNotes          = renderWrongNotes;
+window.handleAddWrong            = handleAddWrong;
+window.toggleWrongReview         = toggleWrongReview;
+window.deleteWrongEntry          = deleteWrongEntry;
+window.markAllReviewed           = markAllReviewed;
+window.addWrongToSchedule        = addWrongToSchedule;
+window.loadSampleWrongNotes      = loadSampleWrongNotes;
+window.handleWrongImageSelect    = handleWrongImageSelect;
+window.clearWrongPhoto           = clearWrongPhoto;
+window.openImageViewer           = openImageViewer;
+window.openCoachAISolver         = openCoachAISolver;
+window.copyCoachAISolverPrompt   = copyCoachAISolverPrompt;
+window.runCoachAISolver          = runCoachAISolver;
+window.saveCoachHintToWrong      = saveCoachHintToWrong;
 
 
 

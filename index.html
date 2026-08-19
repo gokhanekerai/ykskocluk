@@ -1475,6 +1475,28 @@
   </div>
 </div>
 
+<!-- Koç Özel: AI Soru Çözüm & İpucu Asistanı Modalı -->
+<div id="coach-ai-solver-modal" class="modal">
+  <div class="modal-box wide" style="max-width: 780px;">
+    <div class="modal-header">
+      <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+        <span>🧠</span> Koç Özel: AI Soru Çözüm & Rehberlik Asistanı
+      </div>
+      <button class="modal-close" onclick="closeModal('coach-ai-solver-modal')">×</button>
+    </div>
+    <div id="coach-ai-solver-body" style="max-height: 65vh; overflow-y: auto; padding: 10px 0;">
+      <!-- Dinamik İçerik -->
+    </div>
+    <div class="form-actions" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <button type="button" class="btn" onclick="closeModal('coach-ai-solver-modal')">Kapat</button>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn btn-secondary" onclick="copyCoachAISolverPrompt()">📋 Promptu Kopyala</button>
+        <button type="button" class="btn btn-primary" id="btn-run-ai-solver" onclick="runCoachAISolver()">⚡ Yapay Zeka ile Çöz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Koçluk Raporu & Canlı PDF Modalı -->
 <div id="coach-report-modal" class="modal">
   <div class="modal-box wide" style="max-width: 880px; padding: 24px;">
@@ -1697,23 +1719,23 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=160"></script>
-<script src="js/data.js?v=160"></script>
-<script src="topics.js?v=160"></script>
-<script src="js/auth.js?v=160"></script>
-<script src="js/students.js?v=160"></script>
-<script src="js/dashboard.js?v=160"></script>
-<script src="js/resources.js?v=160"></script>
-<script src="js/exams.js?v=160"></script>
-<script src="rankings.js?v=160"></script>
-<script src="js/calculator.js?v=160"></script>
-<script src="js/ai-analysis.js?v=160"></script>
-<script src="js/schedule.js?v=160"></script>
-<script src="js/topics.js?v=160"></script>
-<script src="js/wrong-notes.js?v=160"></script>
-<script src="js/report.js?v=160"></script>
-<script src="js/vision.js?v=160"></script>
-<script src="js/app.js?v=160"></script>
+<script src="js/firebase.js?v=165"></script>
+<script src="js/data.js?v=165"></script>
+<script src="topics.js?v=165"></script>
+<script src="js/auth.js?v=165"></script>
+<script src="js/students.js?v=165"></script>
+<script src="js/dashboard.js?v=165"></script>
+<script src="js/resources.js?v=165"></script>
+<script src="js/exams.js?v=165"></script>
+<script src="rankings.js?v=165"></script>
+<script src="js/calculator.js?v=165"></script>
+<script src="js/ai-analysis.js?v=165"></script>
+<script src="js/schedule.js?v=165"></script>
+<script src="js/topics.js?v=165"></script>
+<script src="js/wrong-notes.js?v=165"></script>
+<script src="js/report.js?v=165"></script>
+<script src="js/vision.js?v=165"></script>
+<script src="js/app.js?v=165"></script>
 
 
 <script>
