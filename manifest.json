@@ -1,28 +1,28 @@
 {
-  "name": "YKS Koçum",
-  "short_name": "YKS Koçum",
-  "description": "Kişiselleştirilmiş Dijital YKS Sınav Koçluğu Platformu",
+  "name": "YKSrota — Akıllı YKS Koçluğu",
+  "short_name": "YKSrota",
+  "description": "Kişiselleştirilmiş Dijital YKS Sınav Koçluğu ve Rota Takip Platformu",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0a0a12",
-  "theme_color": "#8b5cf6",
+  "theme_color": "#0A192F",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "app-icon-512-v3.png?v=130",
+      "src": "app-icon-512-v3.png?v=155",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "app-icon-192-v3.png?v=130",
+      "src": "app-icon-192-v3.png?v=155",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "apple-touch-icon.png?v=130",
+      "src": "apple-touch-icon.png?v=155",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any maskable"

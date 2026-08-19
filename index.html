@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YKS Koçum | Kişisel Sınav Koçluğu</title>
-  <meta name="description" content="Kaan ve Çağan için YKS hazırlık takip, AI analiz ve çalışma programı platformu.">
-  <link rel="manifest" href="manifest.json?v=130">
-  <meta name="theme-color" content="#8b5cf6">
+  <title>YKSrota | Akıllı Sınav Koçluğu & Rota Takip</title>
+  <meta name="description" content="Kişiselleştirilmiş Akıllı YKS Sınav Koçluğu ve Rota Takip Platformu.">
+  <link rel="manifest" href="manifest.json?v=155">
+  <meta name="theme-color" content="#0A192F">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="YKS Koçum">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=130">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=130">
-  <link rel="apple-touch-icon" sizes="192x192" href="app-icon-192-v3.png?v=130">
-  <link rel="apple-touch-icon" sizes="512x512" href="app-icon-512-v3.png?v=130">
-  <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png?v=130">
-  <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192-v3.png?v=130">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=130">
-  <link rel="shortcut icon" href="favicon.ico?v=130">
-  <link rel="stylesheet" href="styles.css?v=145">
+  <meta name="apple-mobile-web-app-title" content="YKSrota">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=155">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=155">
+  <link rel="apple-touch-icon" sizes="192x192" href="app-icon-192-v3.png?v=155">
+  <link rel="apple-touch-icon" sizes="512x512" href="app-icon-512-v3.png?v=155">
+  <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png?v=155">
+  <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192-v3.png?v=155">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=155">
+  <link rel="shortcut icon" href="favicon.ico?v=155">
+  <link rel="stylesheet" href="styles.css?v=155">
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js?v=50"></script>
@@ -54,9 +54,11 @@
 <!-- ═══════════════════ GİRİŞ EKRANI ═══════════════════ -->
 <div id="login-screen" class="login-overlay">
   <div class="login-card">
-    <div class="login-logo">🎓</div>
-    <h1 class="login-title">YKS Koçum</h1>
-    <p class="login-subtitle">Kişisel Sınav Koçluğu Platformu</p>
+    <div class="login-logo" style="display:flex; justify-content:center; margin-bottom:12px;">
+      <img src="app-icon-192-v3.png?v=155" style="width:76px; height:76px; border-radius:18px; box-shadow:0 8px 24px rgba(0,0,0,0.5); border:1px solid rgba(255,107,0,0.3);" alt="YKSrota">
+    </div>
+    <h1 class="login-title">YKSrota</h1>
+    <p class="login-subtitle">Akıllı Sınav Koçluğu & Rota Takip Platformu</p>
 
     <form onsubmit="handleLogin(event)">
       <div class="form-group">
@@ -87,9 +89,11 @@
 
     <!-- Marka -->
     <div class="sidebar-brand">
-      <div class="brand-logo">🎓</div>
-      <div class="brand-name">YKS Koçum</div>
-      <div class="brand-tagline">Kişisel Koçluk Platformu</div>
+      <div class="brand-logo" style="display:flex; align-items:center; justify-content:center;">
+        <img src="app-icon-192-v3.png?v=155" style="width:36px; height:36px; border-radius:9px; border:1px solid rgba(255,107,0,0.3);" alt="YKSrota">
+      </div>
+      <div class="brand-name">YKSrota</div>
+      <div class="brand-tagline">Akıllı Sınav Koçluğu</div>
     </div>
 
     <!-- Geri Sayım -->
