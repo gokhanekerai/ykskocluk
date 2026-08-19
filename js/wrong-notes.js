@@ -383,19 +383,23 @@ function openCoachAISolver(wrongId) {
 
       ${entry.source ? `<div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;"><strong>📚 Kaynak:</strong> ${entry.source}</div>` : ''}
       ${entry.reason ? `<div style="font-size:13px; color:#f87171; margin-bottom:6px;"><strong>⚠️ Öğrencinin Hata Sebebi:</strong> ${entry.reason}</div>` : ''}
-      ${entry.note ? `<div style="font-size:13px; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:6px; margin-bottom:10px;">📝 <strong>Öğrenci Notu:</strong> ${entry.note}</div>` : ''}
 
       ${entry.image ? `
         <div style="margin: 12px 0; text-align:center; background:#000; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
-          <img src="${entry.image}" style="max-height:220px; max-width:100%; border-radius:6px; object-fit:contain; cursor:zoom-in;" onclick="openImageViewer('${entry.image}')" title="Büyütmek için tıkla" alt="Soru Görseli">
+          <img src="${entry.image}" style="max-height:240px; max-width:100%; border-radius:6px; object-fit:contain; cursor:zoom-in;" onclick="openImageViewer('${entry.image}')" title="Büyütmek için tıkla" alt="Soru Görseli">
         </div>
-      ` : '<div style="font-size:13px; color:var(--text-muted); padding:6px 0;">(Bu soruya henüz fotoğraf eklenmemiş)</div>'}
+      ` : `
+        <div style="margin: 10px 0;">
+          <label class="form-label" style="font-size:12px; color:var(--text-muted);">Soru Metni (Fotoğraf yoksa buraya yazabilirsiniz):</label>
+          <textarea id="coach-question-text" class="form-input" rows="2" placeholder="Örn: 2x - 5 < 11 eşitsizliğini sağlayan en büyük x tam sayısı kaçtır?">${entry.note || ''}</textarea>
+        </div>
+      `}
     </div>
 
     <!-- AI Çözüm & İpucu Çıktı Alanı -->
     <div id="coach-ai-solver-result" style="display:none; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.3); border-radius:12px; padding:16px; margin-bottom:16px;">
       <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:15px; color:#c084fc; margin-bottom:10px;">
-        <span>✨</span> Yapay Zeka Çözüm & Koçluk Analizi
+        <span>✨</span> Google Gemini 2.5 Soru Çözümü & Analizi
       </div>
       <div id="coach-ai-solver-text" style="font-size:14px; line-height:1.7; color:var(--text); white-space:pre-wrap;"></div>
     </div>
@@ -418,18 +422,19 @@ function openCoachAISolver(wrongId) {
 function copyCoachAISolverPrompt() {
   if (!currentCoachAISolverWrong) return;
   const e = currentCoachAISolverWrong;
+  const qText = document.getElementById('coach-question-text')?.value.trim() || e.note || '';
   const prompt = `Sen uzman bir YKS (TYT-AYT) öğretmenisin.
-Aşağıda bir öğrencinin takıldığı soru ve hata bilgileri yer alıyor:
+Aşağıda bir öğrencinin takıldığı soru ve bilgileri yer alıyor:
 - Ders: ${e.subject} (${e.tytAyt || 'TYT'})
 - Konu: ${e.topic || 'Genel'}
 - Kaynak: ${e.source || '—'}
+- Soru / Not: ${qText || '—'}
 - Öğrencinin Hata Nedeni: ${e.reason || '—'}
-- Öğrenci Notu: ${e.note || '—'}
 
-Lütfen bu soruyu bir koç / öğretmen edasıyla analiz et:
-1. Doğru Çözüm Adımları & Cevap
+Lütfen bu soruyu adım adım çöz:
+1. Doğru Çözüm Adımları & Net Sonuç
 2. Öğrencinin Takıldığı Noktanın Açıklaması
-3. Öğrenciye Verilecek 1 Cümlelik Yönlendirici İpucu (Doğrudan cevabı söylemeden doğruya ulaştıran altın taktik)`;
+3. Öğrenciye Verilecek 1 Cümlelik Yönlendirici İpucu`;
 
   navigator.clipboard.writeText(prompt).then(() => {
     showToast('Prompt kopyalandı! ChatGPT veya Gemini\'ye yapıştırabilirsiniz.', 'success');
@@ -452,39 +457,40 @@ function _getGeminiApiKey() {
 async function runCoachAISolver() {
   if (!currentCoachAISolverWrong) return;
   const e = currentCoachAISolverWrong;
+  const manualQText = document.getElementById('coach-question-text')?.value.trim() || '';
 
   const resDiv = document.getElementById('coach-ai-solver-result');
   const textDiv = document.getElementById('coach-ai-solver-text');
   const btn = document.getElementById('btn-run-ai-solver');
 
   if (resDiv) resDiv.style.display = 'block';
-  if (textDiv) textDiv.innerHTML = '<span style="color:#00F0FF; font-weight:700;">⏳ Google Gemini 1.5 Flash soruyu ve görseli analiz ediyor, lütfen bekleyin...</span>';
+  if (textDiv) textDiv.innerHTML = '<span style="color:#00F0FF; font-weight:700;">⏳ Google Gemini 2.5 Flash soruyu analiz ediyor, lütfen bekleyin...</span>';
   if (btn) btn.disabled = true;
 
   const promptText = `Sen uzman bir YKS (TYT-AYT) özel ders öğretmenisin.
-Aşağıda verilen soru ve öğrenci bilgilerini dikkatle incele:
+${e.image ? 'Lütfen ekteki görseldeki soruyu dikkatlice oku ve çöz.' : ''}
+${manualQText ? 'Soru Metni: ' + manualQText : ''}
 - Ders: ${e.subject} (${e.tytAyt || 'TYT'})
 - Konu: ${e.topic || 'Genel'}
 - Kaynak: ${e.source || '—'}
 - Öğrencinin Hata Sebebi: ${e.reason || '—'}
-- Öğrenci Notu: ${e.note || '—'}
 
-Lütfen bir koç / öğretmen bakış açısıyla şu başlıklar altında adım adım açıkla:
-1. 🎯 Doğru Cevap & Sonuç
-2. 📝 Adım Adım Detaylı Çözüm Yolu
-3. ⚠️ Öğrencinin Takıldığı Nokta & Düşülebilecek Tuzak
-4. 💡 Koç Rehberlik İpucu (Öğrenciye doğrudan cevabı vermeden doğruya yönlendiren 1 cümlelik altın tavsiye)`;
+Lütfen doğrudan sorunun çözümünü adım adım Türkçe olarak ver:
+1. 🎯 Doğru Cevap & Net Sonuç
+2. 📝 Adım Adım Ayrıntılı Çözüm
+3. ⚠️ Düşülebilecek Tuzak & Kritik Nokta
+4. 💡 Öğrenci İçin 1 Cümlelik Koçluk İpucu`;
 
   try {
     const parts = [{ text: promptText }];
 
-    // Fotoğraf varsa inline_data olarak ekle
+    // Fotoğraf varsa inlineData olarak ekle
     if (e.image && e.image.includes(',')) {
       const mimeType = e.image.split(';')[0].split(':')[1] || 'image/jpeg';
       const base64Data = e.image.split(',')[1];
       parts.push({
-        inline_data: {
-          mime_type: mimeType,
+        inlineData: {
+          mimeType: mimeType,
           data: base64Data
         }
       });
@@ -502,7 +508,7 @@ Lütfen bir koç / öğretmen bakış açısıyla şu başlıklar altında adım
     const data = await response.json();
     if (data.candidates && data.candidates[0] && data.candidates[0].content) {
       const outputText = data.candidates[0].content.parts[0].text;
-      if (textDiv) textDiv.innerHTML = outputText.replace(/\n/g, '<br>');
+      if (textDiv) textDiv.innerHTML = _formatMarkdownToHtml(outputText);
       showToast('✨ Gemini AI Çözüm ve Analiz başarıyla tamamlandı!', 'success');
     } else {
       throw new Error(data.error?.message || 'API yanıt veremedi');
@@ -510,23 +516,25 @@ Lütfen bir koç / öğretmen bakış açısıyla şu başlıklar altında adım
   } catch (err) {
     console.error('Gemini API Error:', err);
     
-    // Fallback çözüm metni
-    const fallbackText = `📌 **Konu:** ${e.subject} — ${e.topic || 'Soru Analizi'}
-
-🎯 **Çözüm Metodolojisi & Temel Adımlar:**
-1. Soru kökünü ve verilen kısıtlamaları belirleyin.
-2. İşlem önceliklerini ve temel formülü uygulayın.
-3. Bulunan sonucu şıklardaki değerlerle karşılaştırın.
-
-💡 **Koç Rehberlik İpucu:**
-"${e.topic || e.subject} sorularında acele etmeden işlem adımlarını tek tek yazmasını ve özellikle işaret/öncelik hatalarına dikkat etmesini söyleyin."`;
-
-    if (textDiv) textDiv.innerHTML = fallbackText.replace(/\n/g, '<br>');
-    showToast('AI Çözüm ve Koçluk İpucu hazırlandı!', 'info');
+    // Fallback
+    if (textDiv) {
+      textDiv.innerHTML = `⚠️ <strong>API Yanıt Hatası:</strong> ${err.message || 'Bağlantı kurulamadı'}<br><br>
+        Alternatif olarak <strong>"📋 Promptu Kopyala"</strong> butonuna basıp soruyu doğrudan ChatGPT veya Gemini'ye sorabilirsiniz.`;
+    }
   } finally {
     if (btn) btn.disabled = false;
   }
 }
+
+function _formatMarkdownToHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">$1</code>')
+    .replace(/\n/g, '<br>');
+}
+
 
 
 function saveCoachHintToWrong(wrongId) {
