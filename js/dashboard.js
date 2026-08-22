@@ -119,7 +119,7 @@ function renderDashboard() {
   });
   _el('dash-schedule-stat', e => e.textContent = `${doneTasks}/${totalTasks}`);
 
-  // ⏱️ Odak Sayacı (Bugünkü Hedef Süre vs Fiilen Çalışılan Süre)
+  // ⏱️ Odak Sayacı (Hedef, Günlük ve Şimdiye Kadarki Toplam Süre)
   const todayStr = getTodayStr();
   
   // 1. Hedef Süre (Bugünkü Görevlerin Süre Toplamı)
@@ -131,11 +131,26 @@ function renderDashboard() {
     });
   }
 
-  // 2. Fiilen Çalışılan Süre (Pomodoro / Sayaç Seansları)
-  const sessions = (data.studySessions || []).filter(s => s.date === todayStr);
-  const actualMinsToday = sessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
+  // 2. Günlük Fiilen Çalışılan Süre (Bugünkü Pomodoro Seansları)
+  const todaySessions = (data.studySessions || []).filter(s => s.date === todayStr);
+  const actualMinsToday = todaySessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
 
-  function _formatMinsToText(totalM) {
+  // 3. Şimdiye Kadarki Toplam Çalışma Süresi (Tüm Seanslar)
+  const allSessions = data.studySessions || [];
+  let allTimeMins = allSessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
+
+  // Eğer tamamlanmış eski görevler varsa hesaba kat
+  if (allTimeMins === 0 && data.schedule) {
+    data.schedule.forEach(day => {
+      (day.items || []).forEach(item => {
+        if (item.done && item.completedResult) {
+          allTimeMins += (Number(item.duration) || 45);
+        }
+      });
+    });
+  }
+
+  function _formatShortMins(totalM) {
     if (!totalM || totalM <= 0) return '0 dk';
     const h = Math.floor(totalM / 60);
     const m = totalM % 60;
@@ -144,29 +159,44 @@ function renderDashboard() {
     return `${m} dk`;
   }
 
-  const targetTimeStr = _formatMinsToText(targetMinsToday);
-  const actualTimeStr = _formatMinsToText(actualMinsToday);
+  function _formatTotalDaysHoursMins(totalM) {
+    if (!totalM || totalM <= 0) return '0 dk';
+    const d = Math.floor(totalM / (24 * 60));
+    const remM = totalM % (24 * 60);
+    const h = Math.floor(remM / 60);
+    const m = remM % 60;
+
+    const parts = [];
+    if (d > 0) parts.push(`${d} gün`);
+    if (h > 0) parts.push(`${h}s`);
+    if (m > 0 || parts.length === 0) parts.push(`${m}dk`);
+    return parts.join(' ');
+  }
+
+  const targetTimeStr = _formatShortMins(targetMinsToday);
+  const actualTimeStr = _formatShortMins(actualMinsToday);
+  const allTimeFormatted = _formatTotalDaysHoursMins(allTimeMins);
 
   _el('dash-pomo-time', e => {
-    e.style.fontSize = '18px';
-    e.style.lineHeight = '1.25';
+    e.style.fontSize = '15px';
+    e.style.lineHeight = '1.3';
     e.innerHTML = `
-      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-size:11.5px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Hedef:</span>
-        <div style="display:flex; align-items:baseline; gap:3px;">
-          <span style="font-size:24px; font-weight:900; color:#00F0FF; letter-spacing:-0.5px;">${targetTimeStr}</span>
-        </div>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:3px;">
+        <span style="font-size:11px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Hedef:</span>
+        <span style="font-size:20px; font-weight:900; color:#00F0FF; letter-spacing:-0.5px;">${targetTimeStr}</span>
       </div>
-      <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:4px;">
-        <span style="font-size:11.5px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Çalışılan:</span>
-        <div style="display:flex; align-items:baseline; gap:3px;">
-          <span style="font-size:24px; font-weight:900; color:#00F5A0; letter-spacing:-0.5px;">${actualTimeStr}</span>
-        </div>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:3px; margin-bottom:3px;">
+        <span style="font-size:11px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Bugün:</span>
+        <span style="font-size:20px; font-weight:900; color:#00F5A0; letter-spacing:-0.5px;">${actualTimeStr}</span>
+      </div>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:3px;">
+        <span style="font-size:11px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Toplam:</span>
+        <span style="font-size:17px; font-weight:900; color:#FFE600; letter-spacing:-0.3px;">${allTimeFormatted}</span>
       </div>
     `;
   });
   _el('dash-pomo-label', e => {
-    e.textContent = 'GÜNLÜK HEDEF & ÇALIŞILAN';
+    e.textContent = 'HEDEF • GÜNLÜK • TOPLAM SÜRE';
   });
 
   // 🎯 Hedefe Kalan Netler & İlerleme Paneli
