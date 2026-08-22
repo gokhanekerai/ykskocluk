@@ -156,6 +156,10 @@
         <span class="menu-icon">❌</span> Yanlış Defteri
       </div>
 
+      <div class="menu-item" data-tab="pomodoro" onclick="switchTab('pomodoro')">
+        <span class="menu-icon">⏱️</span> Odak & Pomodoro
+      </div>
+
       <div class="nav-section-label" style="margin-top:8px;">AI Koç</div>
       <div class="menu-item" data-tab="ai" onclick="switchTab('ai')">
         <span class="menu-icon">🤖</span> AI Analiz
@@ -201,7 +205,11 @@
           <span id="page-student-name">—</span>
         </div>
       </div>
-      <div class="topbar-right" id="topbar-actions">
+      <div class="topbar-right" id="topbar-actions" style="display:flex; align-items:center; gap:8px;">
+        <div id="topbar-pomo-badge" onclick="switchTab('pomodoro')" style="display:none; align-items:center; cursor:pointer; padding:4px 10px; border-radius:8px; background:linear-gradient(135deg, rgba(0,240,255,0.2), rgba(139,92,246,0.2)); border:1px solid rgba(0,240,255,0.4); color:#00F0FF; font-size:12px; font-weight:800; animation:pulse 2s infinite;" title="Aktif Odak Sayacına Git"></div>
+        <button class="btn btn-sm btn-secondary" onclick="switchTab('pomodoro')" style="display:flex; align-items:center; gap:5px; font-weight:700; border-color:rgba(0,240,255,0.3); color:#00F0FF;">
+          <span>⏱️</span> Odak Sayacı
+        </button>
         <button class="btn btn-sm btn-accent" onclick="openCoachReportModal()" style="display:flex; align-items:center; gap:6px; font-weight:700; background:linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(139,92,246,0.3) 100%); border:1px solid rgba(168,85,247,0.4); color:#c084fc;">
           <span>📄</span> Koçluk Raporu & PDF
         </button>
@@ -1032,6 +1040,86 @@
         </div>
       </section>
 
+      <!-- ══ ODAK & POMODORO SAYACI ══ -->
+      <section id="tab-pomodoro" class="tab-view">
+        <div class="section-header">
+          <div>
+            <div class="section-title">⏱️ Akıllı Odaklanma & Pomodoro</div>
+            <div class="section-subtitle">Zamanını yönet, derin odaklan ve süre bitiminde sorularını doğrudan soru takibine işle</div>
+          </div>
+        </div>
+
+        <!-- 3 Özet İstatistik Kartı -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+          <div class="stat-card blue">
+            <div class="stat-icon">⏱️</div>
+            <div id="pomo-stat-today-time" class="stat-value">0 dk</div>
+            <div class="stat-label">Bugünkü Çalışma Süresi</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">🎯</div>
+            <div id="pomo-stat-today-sessions" class="stat-value">0</div>
+            <div class="stat-label">Tamamlanan Seans</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-icon">📝</div>
+            <div id="pomo-stat-today-questions" class="stat-value">0</div>
+            <div class="stat-label">Seanslarda Çözülen Soru</div>
+          </div>
+        </div>
+
+        <!-- Ana Sayaç Kartı -->
+        <div class="card" style="margin-bottom: 20px; padding: 26px; text-align: center; border: 1px solid rgba(0, 240, 255, 0.25); background: linear-gradient(180deg, rgba(20,24,38,0.96) 0%, rgba(14,16,26,0.98) 100%);">
+          <!-- Mod Seçiciler -->
+          <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;">
+            <button type="button" class="btn btn-sm pomo-mode-btn active" data-mode="pomodoro" onclick="setPomodoroMode('pomodoro')">🍅 25 dk Pomodoro</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="deep" onclick="setPomodoroMode('deep')">🎯 45 dk Derin Odak</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="shortBreak" onclick="setPomodoroMode('shortBreak')">☕ 5 dk Mola</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="longBreak" onclick="setPomodoroMode('longBreak')">🏖️ 15 dk Mola</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="stopwatch" onclick="setPomodoroMode('stopwatch')">⏳ Serbest Kronometre</button>
+          </div>
+
+          <!-- Ders ve Alan Seçimi -->
+          <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;">
+            <select id="pomo-type-select" class="form-input" style="width: 110px;" onchange="populatePomodoroSubjects()">
+              <option value="TYT">TYT</option>
+              <option value="AYT">AYT</option>
+            </select>
+            <select id="pomo-subject-select" class="form-input" style="flex: 1; min-width: 180px;">
+              <option value="">Ders Seçiniz (İsteğe Bağlı)...</option>
+            </select>
+          </div>
+
+          <!-- Dairesel Sayaç Grafiği -->
+          <div style="position: relative; width: 220px; height: 220px; margin: 0 auto 24px;">
+            <svg style="width: 100%; height: 100%; transform: rotate(-90deg);" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"></circle>
+              <circle id="pomo-circle-progress" cx="100" cy="100" r="90" fill="none" stroke="#00F0FF" stroke-width="8" stroke-dasharray="565.48" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dashoffset 0.8s ease; filter: drop-shadow(0 0 8px rgba(0,240,255,0.5));"></circle>
+            </svg>
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <div id="pomo-time-display" style="font-size: 44px; font-weight: 900; font-family: monospace; letter-spacing: 1px; color: #ffffff; text-shadow: 0 0 20px rgba(0,240,255,0.4);">25:00</div>
+              <div id="pomo-current-mode-label" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px;">Odak Seansı</div>
+            </div>
+          </div>
+
+          <!-- Kontrol Butonları -->
+          <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+            <button id="pomo-btn-start" type="button" class="btn btn-primary" style="padding: 10px 24px; font-size: 15px; font-weight: 800;" onclick="startPomodoro()">⚡ Başlat</button>
+            <button id="pomo-btn-pause" type="button" class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px; font-weight: 700; display: none;" onclick="pausePomodoro()">⏸️ Duraklat</button>
+            <button id="pomo-btn-finish" type="button" class="btn btn-accent" style="padding: 10px 20px; font-size: 14px; font-weight: 700; display: none;" onclick="finishPomodoroEarly()">✅ Seansı Bitir</button>
+            <button id="pomo-btn-reset" type="button" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px; display: none;" onclick="resetPomodoro()">🔄 Sıfırla</button>
+          </div>
+        </div>
+
+        <!-- Seans Geçmişi -->
+        <div class="card">
+          <div class="card-title">📜 Bugünkü Odaklanma Seansları</div>
+          <div id="pomo-sessions-list">
+            <!-- Dinamik doldurulacak -->
+          </div>
+        </div>
+      </section>
+
     </div><!-- /content -->
   </main>
 </div><!-- /app -->
@@ -1828,26 +1916,100 @@
   </div>
 </div>
 
+<!-- ══ POMODORO SEANS TAMAMLAMA & SORU GİRİŞİ MODALI ══ -->
+<div id="pomodoro-completion-modal" class="modal">
+  <div class="modal-box" style="max-width: 500px;">
+    <div class="modal-header">
+      <div class="modal-title">🎉 Odak Seansı Tamamlandı!</div>
+      <button class="modal-close" onclick="closeModal('pomodoro-completion-modal')">×</button>
+    </div>
+
+    <div style="padding: 16px 20px 20px;">
+      <div style="background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(139,92,246,0.12)); border: 1px solid rgba(0,240,255,0.3); border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 16px;">
+        <div style="font-size: 28px; margin-bottom: 4px;">🏆</div>
+        <div style="font-size: 15px; font-weight: 800; color: #f8fafc;">Harika Odaklandın!</div>
+        <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
+          Tamamlanan Süre: <strong id="pomo-comp-duration" style="color: #00F0FF;">25 Dakika</strong>
+        </div>
+      </div>
+
+      <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px;">
+        📝 Bu seansta soru çözdüysen sayıları gir, otomatik soru takibine kaydedelim:
+      </div>
+
+      <div class="form-row" style="margin-bottom: 12px;">
+        <div class="form-group" style="flex: 1;">
+          <label class="form-label">Alan</label>
+          <select id="pomo-comp-type" class="form-input" onchange="updatePomoCompSubjects()">
+            <option value="TYT">TYT</option>
+            <option value="AYT">AYT</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex: 2;">
+          <label class="form-label">Ders</label>
+          <select id="pomo-comp-subject" class="form-input">
+            <option value="">Ders Seçiniz...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-bottom: 12px;">
+        <div class="form-group">
+          <label class="form-label">Çözülen Soru</label>
+          <input id="pomo-comp-solved" type="number" class="form-input" placeholder="0" min="0" oninput="calcPomoCompBlank()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Doğru</label>
+          <input id="pomo-comp-correct" type="number" class="form-input" placeholder="0" min="0" oninput="calcPomoCompBlank()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Yanlış</label>
+          <input id="pomo-comp-wrong" type="number" class="form-input" placeholder="0" min="0" oninput="calcPomoCompBlank()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Boş (Oto)</label>
+          <input id="pomo-comp-blank" type="number" class="form-input" placeholder="0" readonly style="background: rgba(255,255,255,0.05); color: #94a3b8;">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="form-label">Çalışılan Konu / Not (İsteğe Bağlı)</label>
+        <input id="pomo-comp-notes" type="text" class="form-input" placeholder="Örn: Paragraf Taktikleri veya Logaritma Test 3">
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-direction: column;">
+        <button type="button" class="btn btn-primary" style="padding: 10px; font-weight: 800; font-size: 14px;" onclick="handlePomoSaveWithQuestions()">
+          💾 Soru Takibine Ekle & Seansı Kaydet
+        </button>
+        <button type="button" class="btn btn-secondary" style="padding: 9px; font-size: 12.5px;" onclick="handlePomoSaveDurationOnly()">
+          ⏱️ Soru Çözmedim, Sadece Çalışma Süresini Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=228"></script>
-<script src="js/data.js?v=228"></script>
-<script src="topics.js?v=228"></script>
-<script src="js/auth.js?v=228"></script>
-<script src="js/students.js?v=228"></script>
-<script src="js/dashboard.js?v=228"></script>
-<script src="js/resources.js?v=228"></script>
-<script src="js/exams.js?v=228"></script>
-<script src="rankings.js?v=228"></script>
-<script src="js/calculator.js?v=228"></script>
-<script src="js/ai-analysis.js?v=228"></script>
-<script src="js/schedule.js?v=228"></script>
-<script src="js/topics.js?v=228"></script>
-<script src="js/wrong-notes.js?v=228"></script>
-<script src="js/report.js?v=228"></script>
-<script src="js/vision.js?v=228"></script>
-<script src="js/app.js?v=228"></script>
+<script src="js/firebase.js?v=229"></script>
+<script src="js/data.js?v=229"></script>
+<script src="topics.js?v=229"></script>
+<script src="js/auth.js?v=229"></script>
+<script src="js/students.js?v=229"></script>
+<script src="js/dashboard.js?v=229"></script>
+<script src="js/resources.js?v=229"></script>
+<script src="js/exams.js?v=229"></script>
+<script src="rankings.js?v=229"></script>
+<script src="js/calculator.js?v=229"></script>
+<script src="js/ai-analysis.js?v=229"></script>
+<script src="js/schedule.js?v=229"></script>
+<script src="js/topics.js?v=229"></script>
+<script src="js/wrong-notes.js?v=229"></script>
+<script src="js/pomodoro.js?v=229"></script>
+<script src="js/report.js?v=229"></script>
+<script src="js/vision.js?v=229"></script>
+<script src="js/app.js?v=229"></script>
 
 
 <script>

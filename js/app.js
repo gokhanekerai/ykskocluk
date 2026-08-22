@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (window.populateDailyFilter) populateDailyFilter();
   if (window.updateDailyAddSubjects) updateDailyAddSubjects();
+  if (window.initPomodoro) initPomodoro();
 
   initAuth();
   initFirebaseSync(() => {
@@ -87,6 +88,8 @@ function switchTab(tabId) {
       topbar.innerHTML = `<button class="btn" onclick="openModal('add-book-modal')">+ Kaynak Ekle</button>`;
     } else if (tabId === 'calculator') {
       topbar.innerHTML = `<button class="btn btn-primary" onclick="calculateAllScores()">⚡ Canlı Hesapla</button>`;
+    } else if (tabId === 'pomodoro') {
+      topbar.innerHTML = `<button class="btn btn-primary" onclick="startPomodoro()">⚡ Başlat</button>`;
     } else {
       topbar.innerHTML = '';
     }
@@ -105,15 +108,16 @@ function renderCurrentTab() {
   checkNotifications();
 
   switch (activeTab) {
-    case 'dashboard':  renderDashboard();                            break;
-    case 'exams':      renderExams();                                break;
-    case 'calculator': if (window.renderCalculator) renderCalculator(); break;
-    case 'resources':  renderResources();                            break;
-    case 'topics':     renderTopics();                               break;
-    case 'schedule':   renderSchedule();                             break;
-    case 'wrong':      renderWrongNotes();                           break;
-    case 'ai':         renderAIAnalysis();                           break;
-    case 'daily':     renderDailyLog();     break;
+    case 'dashboard':  renderDashboard();                                  break;
+    case 'exams':      renderExams();                                      break;
+    case 'calculator': if (window.renderCalculator) renderCalculator();    break;
+    case 'resources':  renderResources();                                  break;
+    case 'topics':     renderTopics();                                     break;
+    case 'schedule':   renderSchedule();                                   break;
+    case 'wrong':      renderWrongNotes();                                 break;
+    case 'ai':         renderAIAnalysis();                                 break;
+    case 'daily':      renderDailyLog();                                   break;
+    case 'pomodoro':   if (window._renderPomodoroUI) _renderPomodoroUI(); break;
   }
 }
 
