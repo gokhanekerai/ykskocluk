@@ -493,8 +493,16 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
                 ${_escapeHtml(item.topic)}
               </span>
             </div>
-            <div class="selected-day-task-meta">
-              ${metaParts.join(' • ')}
+            <div class="selected-day-task-meta" style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
+              <span>${metaParts.join(' • ')}</span>
+              ${!item.done ? `
+                <button type="button" class="btn btn-xs" 
+                        style="padding:2px 7px; font-size:11px; font-weight:700; background:linear-gradient(135deg, rgba(0,240,255,0.15), rgba(139,92,246,0.15)); border:1px solid rgba(0,240,255,0.35); color:#00F0FF; border-radius:6px; cursor:pointer;"
+                        onclick="event.stopPropagation(); startFocusForTask('${safeSubj}', '${safeTopic}', ${item.duration || 45})" 
+                        title="Bu göreve odaklan ve Pomodoro sayacını başlat">
+                  ⏱️ Odaklan (${item.duration || 45} dk)
+                </button>
+              ` : ''}
             </div>
             ${wrongBtnHtml}
           </div>

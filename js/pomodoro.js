@@ -415,6 +415,56 @@ function _renderPomodoroUI() {
   }
 }
 
+// Görevden Tek Tıkla Odak Sayacı Başlatma
+function startFocusForTask(subject, topic, durationMins = 45) {
+  if (typeof switchTab === 'function') switchTab('pomodoro');
+  
+  pomodoroSelectedSubject = subject || '';
+  pomodoroTotalSeconds = (parseInt(durationMins) || 45) * 60;
+  pomodoroSecondsLeft = pomodoroTotalSeconds;
+  pomodoroElapsedTime = 0;
+  pomodoroMode = 'custom';
+  
+  const subjSelect = document.getElementById('pomo-subject-select');
+  if (subjSelect && subject) {
+    subjSelect.value = subject;
+  }
+  
+  const modeLabel = document.getElementById('pomo-current-mode-label');
+  if (modeLabel) modeLabel.textContent = `${subject} • ${topic}`;
+  
+  _updatePomodoroDisplay();
+  startPomodoro();
+  showToast(`⏱️ "${topic}" için ${durationMins} dk odak sayacı başlatıldı! 🚀`, 'info');
+}
+
+// Seans Bitiminde Ek Süre Ekleme
+function extendPomodoroTime(extraMins = 15) {
+  closeModal('pomodoro-completion-modal');
+  pomodoroTotalSeconds = extraMins * 60;
+  pomodoroSecondsLeft = pomodoroTotalSeconds;
+  pomodoroIsRunning = true;
+  pomodoroIsPaused = false;
+  _toggleStartButtons(true);
+  _updatePomodoroDisplay();
+  
+  clearInterval(pomodoroTimer);
+  pomodoroTimer = setInterval(() => {
+    pomodoroSecondsLeft--;
+    pomodoroElapsedTime++;
+    if (pomodoroSecondsLeft <= 0) {
+      clearInterval(pomodoroTimer);
+      pomodoroIsRunning = false;
+      pomodoroIsPaused = false;
+      _onPomodoroComplete();
+      return;
+    }
+    _updatePomodoroDisplay();
+  }, 1000);
+  
+  showToast(`⏱️ +${extraMins} dakika ek süre eklendi, odaklanmaya devam! 🚀`, 'info');
+}
+
 // Global export
 window.initPomodoro = initPomodoro;
 window.setPomodoroMode = setPomodoroMode;
@@ -422,6 +472,8 @@ window.startPomodoro = startPomodoro;
 window.pausePomodoro = pausePomodoro;
 window.resetPomodoro = resetPomodoro;
 window.finishPomodoroEarly = finishPomodoroEarly;
+window.startFocusForTask = startFocusForTask;
+window.extendPomodoroTime = extendPomodoroTime;
 window.populatePomodoroSubjects = populatePomodoroSubjects;
 window.updatePomoCompSubjects = updatePomoCompSubjects;
 window.calcPomoCompBlank = calcPomoCompBlank;
