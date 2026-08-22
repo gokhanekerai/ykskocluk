@@ -131,24 +131,34 @@ function renderDashboard() {
     });
   }
 
-  // 2. Günlük Fiilen Çalışılan Süre (Bugünkü Pomodoro Seansları)
+  // 2. Günlük Fiilen Çalışılan Süre (Bugünkü Pomodoro Seansları + Bugün Tamamlanan Görevler)
   const todaySessions = (data.studySessions || []).filter(s => s.date === todayStr);
-  const actualMinsToday = todaySessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
-
-  // 3. Şimdiye Kadarki Toplam Çalışma Süresi (Tüm Seanslar)
-  const allSessions = data.studySessions || [];
-  let allTimeMins = allSessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
-
-  // Eğer tamamlanmış eski görevler varsa hesaba kat
-  if (allTimeMins === 0 && data.schedule) {
-    data.schedule.forEach(day => {
-      (day.items || []).forEach(item => {
-        if (item.done && item.completedResult) {
-          allTimeMins += (Number(item.duration) || 45);
-        }
-      });
+  const todayPomoMins = todaySessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
+  
+  let todayScheduleDoneMins = 0;
+  if (daySched && daySched.items) {
+    daySched.items.forEach(item => {
+      if (item.done) {
+        todayScheduleDoneMins += (Number(item.duration) || 45);
+      }
     });
   }
+  const actualMinsToday = Math.max(todayPomoMins, todayScheduleDoneMins);
+
+  // 3. Şimdiye Kadarki Toplam Çalışma Süresi (Geçmiş Tüm Tamamlanan Görevler + Tüm Seanslar)
+  let scheduleCompletedMinsAllTime = 0;
+  (data.schedule || []).forEach(day => {
+    (day.items || []).forEach(item => {
+      if (item.done) {
+        scheduleCompletedMinsAllTime += (Number(item.duration) || 45);
+      }
+    });
+  });
+
+  const allSessions = data.studySessions || [];
+  const pomoMinsAllTime = allSessions.reduce((s, e) => s + (Number(e.durationMins) || 0), 0);
+
+  let allTimeMins = scheduleCompletedMinsAllTime + pomoMinsAllTime;
 
   function _formatShortMins(totalM) {
     if (!totalM || totalM <= 0) return '0 dk';
