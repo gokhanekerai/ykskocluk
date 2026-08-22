@@ -8,15 +8,15 @@ function renderDashboard() {
   const student = window.activeStudent;
   if (!student) return;
 
-  const data  = getStudentData(student);
+  const data = getStudentData(student);
   const users = getUsers();
-  const user  = users[student] || {};
+  const user = users[student] || {};
 
   // Kişisel Hedef
   const g = data.personalGoal || {};
-  _el('goal-uni',  e => e.textContent = g.university || '—');
+  _el('goal-uni', e => e.textContent = g.university || '—');
   _el('goal-prof', e => e.textContent = g.profession || '—');
-  _el('goal-rank', e => e.textContent = g.ranking    ? `#${g.ranking}` : '—');
+  _el('goal-rank', e => e.textContent = g.ranking ? `#${g.ranking}` : '—');
 
   // Kaçıncı Gün (Örn: 17 Ağustos = 1. Gün, 18 Ağustos = 2. Gün, 19 Ağustos = 3. Gün -> 3)
   const today = new Date();
@@ -40,7 +40,7 @@ function renderDashboard() {
 
   // Soru Takibi: İki Satır (1. Satır: Günlük Çözülecek Soru Hedefi, 2. Satır: Toplam Çözülen Soru Sayısı)
   const allTimeSolved = _getAllTimeSolved(data);
-  const dailyGoalVal  = _getDailyQuestionGoal(data);
+  const dailyGoalVal = _getDailyQuestionGoal(data);
   _el('dash-week-solved', e => {
     e.style.fontSize = '18px';
     e.style.lineHeight = '1.25';
@@ -94,16 +94,16 @@ function renderDashboard() {
 
 
   // Son 7 gün TYT neti (en son deneme)
-  const lastMock = [...data.mockLog].sort((a,b) => b.date.localeCompare(a.date))[0];
+  const lastMock = [...data.mockLog].sort((a, b) => b.date.localeCompare(a.date))[0];
   if (lastMock) {
     _el('dash-last-mock-name', e => e.textContent = lastMock.name || lastMock.type);
-    _el('dash-last-mock-net',  e => e.textContent = (lastMock.totalNet || 0).toFixed(2));
+    _el('dash-last-mock-net', e => e.textContent = (lastMock.totalNet || 0).toFixed(2));
     _el('dash-last-mock-date', e => e.textContent = formatDate(lastMock.date));
   }
 
   // Kaynak tamamlama
   const totalBooks = data.books.length;
-  const doneBooks  = data.books.filter(b => _bookProgress(b) >= 100).length;
+  const doneBooks = data.books.filter(b => _bookProgress(b) >= 100).length;
   _el('dash-books-done', e => e.textContent = `${doneBooks}/${totalBooks}`);
 
   // Görevlendirme İstatistiği (Tamamlanan / Toplam Görev)
@@ -137,7 +137,7 @@ function openCountdownModal() {
 
 function calcCountdown() {
   let startVal = document.getElementById('cd-start-date')?.value;
-  const examVal  = document.getElementById('cd-exam-date')?.value;
+  const examVal = document.getElementById('cd-exam-date')?.value;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -172,7 +172,7 @@ function handleSaveCountdown(e) {
   saveStudentData(window.activeStudent, data);
   showToast('Sayaç bilgileri kaydedildi!', 'success');
   closeModal('countdown-modal');
-  
+
   if (window.updateGlobalCountdown) window.updateGlobalCountdown();
   renderDashboard();
 }
@@ -222,7 +222,7 @@ function _renderWeeklyChart(dailyLog) {
 
   const labels = [];
   const solvedData = [];
-  const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  const days = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
 
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
@@ -286,8 +286,8 @@ function _renderMockNetChart(mockLog) {
   const canvas = document.getElementById('chart-mocks');
   if (!canvas) return;
 
-  const sorted = [...mockLog].sort((a,b) => a.date.localeCompare(b.date)).slice(-10);
-  const labels = sorted.map(m => m.name?.substring(0,15) || m.type);
+  const sorted = [...mockLog].sort((a, b) => a.date.localeCompare(b.date)).slice(-10);
+  const labels = sorted.map(m => m.name?.substring(0, 15) || m.type);
   const netData = sorted.map(m => Number(m.totalNet) || 0);
 
   if (_charts.mocks) _charts.mocks.destroy();
@@ -430,11 +430,11 @@ function _renderTargetGapWidget(data, user) {
     const isDone = curNet >= targetNet;
     const diff = targetNet - curNet;
     const pct = targetNet > 0 ? Math.min(100, Math.round((curNet / targetNet) * 100)) : 0;
-    
+
     // Gradient ve Rozet Renkleri
     let barGradient = 'linear-gradient(90deg, #00F5A0, #00F0FF)';
     let badgeHtml = '';
-    
+
     if (isDone) {
       barGradient = 'linear-gradient(90deg, #00F5A0, #00D26A)';
       badgeHtml = `<span style="font-size:11px; font-weight:800; color:#00F5A0; background:rgba(0,245,160,0.12); padding:2px 6px; border-radius:4px; border:1px solid rgba(0,245,160,0.3);">✅ Hedefte (+${Math.abs(diff).toFixed(1)})</span>`;
@@ -541,7 +541,7 @@ function _renderTargetGapWidget(data, user) {
           <div style="font-size:20px; font-weight:800; color:#fff; margin-top:2px;">
             ${rec26.requiredRawScore.toFixed(1)} <span style="font-size:12px; color:var(--text-muted);">/ 500</span>
           </div>
-          <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">OBP Katkısı: +${(obp*0.6).toFixed(1)}</div>
+          <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">OBP Katkısı: +${(obp * 0.6).toFixed(1)}</div>
         </div>
 
         <div style="background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.25); border-radius:8px; padding:10px 14px;">
@@ -649,11 +649,11 @@ function _getNumericalTopicStats(data) {
   };
 }
 
-window.renderDashboard        = renderDashboard;
-window.editWeeklyGoal         = editWeeklyGoal;
-window._getTodaySolved        = _getTodaySolved;
-window._getAllTimeSolved      = _getAllTimeSolved;
-window._getDailyQuestionGoal  = _getDailyQuestionGoal;
+window.renderDashboard = renderDashboard;
+window.editWeeklyGoal = editWeeklyGoal;
+window._getTodaySolved = _getTodaySolved;
+window._getAllTimeSolved = _getAllTimeSolved;
+window._getDailyQuestionGoal = _getDailyQuestionGoal;
 window._renderTargetGapWidget = _renderTargetGapWidget;
 window._getNumericalTopicStats = _getNumericalTopicStats;
 
