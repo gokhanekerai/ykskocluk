@@ -333,19 +333,18 @@
             <div class="chart-wrapper" style="height: 290px; position: relative;"><canvas id="chart-daily-pie"></canvas></div>
           </div>
           <div class="card">
-            <div class="flex-between" style="margin-bottom: 10px; flex-wrap:wrap; gap:8px;">
-              <div class="card-title" style="margin-bottom:0;">📈 Toplam Çözülen Soru Eğilimi</div>
+            <div class="flex-between" style="margin-bottom: 8px; flex-wrap:wrap; gap:8px;">
+              <div>
+                <div class="card-title" style="margin-bottom:2px;">📈 Toplam Çözülen Soru Eğilimi</div>
+                <div id="chart-trend-range-label" style="font-size:11.5px; color:#00F0FF; font-weight:700;">Son 7 Gün</div>
+              </div>
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:11px; color:var(--text-muted); font-weight:600;">↔️ Kaydır</span>
-                <button type="button" class="btn btn-sm btn-secondary" onclick="scrollDailyTrendChart(-220)" title="Geçmiş Günlere Kaydır" style="padding:2px 8px; font-size:12px; line-height:1.4;">◀</button>
-                <button type="button" class="btn btn-sm btn-secondary" onclick="scrollDailyTrendChart(220)" title="Gelecek / Son Günlere Kaydır" style="padding:2px 8px; font-size:12px; line-height:1.4;">▶</button>
+                <button id="btn-trend-prev" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(1)" title="1 Gün Geriye Kaydır" style="padding:4px 9px; font-size:12px; font-weight:700;">◀ Geri</button>
+                <button id="btn-trend-today" type="button" class="btn btn-sm btn-secondary" onclick="resetDailyTrendOffset()" title="Bugüne Dön" style="padding:4px 8px; font-size:11.5px;">Bugün</button>
+                <button id="btn-trend-next" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(-1)" title="1 Gün İleriye Kaydır" style="padding:4px 9px; font-size:12px; font-weight:700;" disabled>İleri ▶</button>
               </div>
             </div>
-            <div id="chart-daily-trend-scroll-container" class="chart-scroll-container" style="overflow-x: auto; overflow-y: hidden; height: 260px; width: 100%; position: relative; border-radius: 8px; scrollbar-width: thin;">
-              <div id="chart-daily-trend-inner" style="height: 100%; min-width: 100%; position: relative;">
-                <canvas id="chart-daily-trend"></canvas>
-              </div>
-            </div>
+            <div class="chart-wrapper" style="height: 265px; position: relative;"><canvas id="chart-daily-trend"></canvas></div>
           </div>
         </div>
 
@@ -1832,23 +1831,23 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=227"></script>
-<script src="js/data.js?v=227"></script>
-<script src="topics.js?v=227"></script>
-<script src="js/auth.js?v=227"></script>
-<script src="js/students.js?v=227"></script>
-<script src="js/dashboard.js?v=227"></script>
-<script src="js/resources.js?v=227"></script>
-<script src="js/exams.js?v=227"></script>
-<script src="rankings.js?v=227"></script>
-<script src="js/calculator.js?v=227"></script>
-<script src="js/ai-analysis.js?v=227"></script>
-<script src="js/schedule.js?v=227"></script>
-<script src="js/topics.js?v=227"></script>
-<script src="js/wrong-notes.js?v=227"></script>
-<script src="js/report.js?v=227"></script>
-<script src="js/vision.js?v=227"></script>
-<script src="js/app.js?v=227"></script>
+<script src="js/firebase.js?v=228"></script>
+<script src="js/data.js?v=228"></script>
+<script src="topics.js?v=228"></script>
+<script src="js/auth.js?v=228"></script>
+<script src="js/students.js?v=228"></script>
+<script src="js/dashboard.js?v=228"></script>
+<script src="js/resources.js?v=228"></script>
+<script src="js/exams.js?v=228"></script>
+<script src="rankings.js?v=228"></script>
+<script src="js/calculator.js?v=228"></script>
+<script src="js/ai-analysis.js?v=228"></script>
+<script src="js/schedule.js?v=228"></script>
+<script src="js/topics.js?v=228"></script>
+<script src="js/wrong-notes.js?v=228"></script>
+<script src="js/report.js?v=228"></script>
+<script src="js/vision.js?v=228"></script>
+<script src="js/app.js?v=228"></script>
 
 
 <script>
