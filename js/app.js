@@ -448,8 +448,22 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             pointBackgroundColor: '#00F0FF',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4.5,
-            pointHoverRadius: 6.5
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            datalabels: {
+              display: (context) => (context.dataset.data[context.dataIndex] > 0),
+              anchor: 'end',
+              align: 'top',
+              offset: 6,
+              color: '#00F0FF',
+              backgroundColor: 'rgba(10, 15, 30, 0.85)',
+              borderColor: 'rgba(0, 240, 255, 0.4)',
+              borderWidth: 1,
+              borderRadius: 5,
+              padding: { top: 2, bottom: 2, left: 5, right: 5 },
+              font: { size: 11, weight: '800' },
+              formatter: (value) => formatNumber(value)
+            }
           },
           {
             label: 'Toplam Doğru',
@@ -462,8 +476,22 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             pointBackgroundColor: '#00F5A0',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6
+            pointRadius: 4.5,
+            pointHoverRadius: 6.5,
+            datalabels: {
+              display: (context) => (context.dataset.data[context.dataIndex] > 0),
+              anchor: 'start',
+              align: 'bottom',
+              offset: 6,
+              color: '#00F5A0',
+              backgroundColor: 'rgba(10, 30, 20, 0.85)',
+              borderColor: 'rgba(0, 245, 160, 0.4)',
+              borderWidth: 1,
+              borderRadius: 5,
+              padding: { top: 2, bottom: 2, left: 5, right: 5 },
+              font: { size: 11, weight: '800' },
+              formatter: (value) => formatNumber(value)
+            }
           },
           {
             label: 'Toplam Yanlış',
@@ -476,8 +504,22 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             pointBackgroundColor: '#FF0055',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6
+            pointRadius: 4.5,
+            pointHoverRadius: 6.5,
+            datalabels: {
+              display: (context) => (context.dataset.data[context.dataIndex] > 0),
+              anchor: 'end',
+              align: 'top',
+              offset: 6,
+              color: '#FF0055',
+              backgroundColor: 'rgba(30, 10, 20, 0.85)',
+              borderColor: 'rgba(255, 0, 85, 0.4)',
+              borderWidth: 1,
+              borderRadius: 5,
+              padding: { top: 2, bottom: 2, left: 5, right: 5 },
+              font: { size: 11, weight: '800' },
+              formatter: (value) => formatNumber(value)
+            }
           }
         ]
       },
@@ -485,37 +527,28 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: { top: 24, right: 10 }
+          padding: { top: 28, bottom: 10, left: 8, right: 12 }
         },
         plugins: {
           legend: {
             display: true,
             position: 'top',
             labels: {
-              color: '#94a3b8',
+              color: '#cbd5e1',
               usePointStyle: true,
               pointStyle: 'circle',
-              boxWidth: 7,
-              padding: 12,
-              font: { size: 11.5, weight: '700' }
+              boxWidth: 8,
+              padding: 16,
+              font: { size: 12, weight: '700' }
             }
           },
-          datalabels: {
-            display: (context) => (context.dataset.data[context.dataIndex] > 0),
-            anchor: 'end',
-            align: 'top',
-            offset: 4,
-            color: (context) => context.dataset.borderColor || '#ffffff',
-            font: { size: 10.5, weight: '800' },
-            formatter: (value) => formatNumber(value)
-          },
           tooltip: {
-            backgroundColor: 'rgba(15, 15, 25, 0.94)',
+            backgroundColor: 'rgba(15, 15, 25, 0.95)',
             titleColor: '#00F0FF',
             bodyColor: '#ffffff',
             borderColor: 'rgba(0, 240, 255, 0.3)',
             borderWidth: 1,
-            padding: 10,
+            padding: 12,
             cornerRadius: 8,
             mode: 'index',
             intersect: false
@@ -524,12 +557,12 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
         scales: {
           y: {
             beginAtZero: true,
-            grace: '15%',
+            grace: '25%',
             ticks: { color: '#94a3b8', font: { size: 11 } },
-            grid: { color: 'rgba(255,255,255,0.05)' }
+            grid: { color: 'rgba(255,255,255,0.06)' }
           },
           x: {
-            ticks: { color: '#f8fafc', font: { size: 12, weight: '700' } },
+            ticks: { color: '#f8fafc', font: { size: 12.5, weight: '700' } },
             grid: { display: false }
           }
         }
