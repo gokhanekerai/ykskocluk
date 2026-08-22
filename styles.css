@@ -519,6 +519,22 @@ body {
   gap: 14px;
   margin-bottom: 24px;
 }
+
+.chart-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+.chart-scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px;
+}
+.chart-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 3px;
+}
+.chart-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.6);
+}
+
 /* ═══════════════════════════════════════════════════════════
    UZAY ÇAĞI & Z KUŞAĞI HALOJEN STAT KART DOKULARI
    ═══════════════════════════════════════════════════════════ */

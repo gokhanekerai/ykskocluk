@@ -293,6 +293,13 @@ function renderDailyLog() {
   _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filterType, filterSubj);
 }
 
+function scrollDailyTrendChart(delta) {
+  const container = document.getElementById('chart-daily-trend-scroll-container');
+  if (container) {
+    container.scrollBy({ left: delta, behavior: 'smooth' });
+  }
+}
+
 function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filterType = 'all', filterSubj = 'all') {
   if (window._dailyPieChart) window._dailyPieChart.destroy();
   if (window._dailyTrendChart) window._dailyTrendChart.destroy();
@@ -386,7 +393,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
     });
   }
 
-  // Sağdaki Grafik: 3 Çizgili Çizgi Grafik (Son 7 Günlük Toplam, Doğru ve Yanlış Soru Eğilimi)
+  // Sağdaki Grafik: Kaydırılabilir 3 Çizgili Çizgi Grafik (Geçmişe Doğru Kaydırılabilir)
   const ctxTrend = document.getElementById('chart-daily-trend');
   if (ctxTrend) {
     const labels = [];
@@ -394,14 +401,30 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
     const correctData = [];
     const wrongData = [];
     const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+    const monthsShort = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
 
     const logData = data.dailyLog || [];
 
-    for (let i = 6; i >= 0; i--) {
+    // Geçmiş gün sayısını belirle: En az son 30 gün, ilk kayıt daha eskiyse ilk kayda kadar
+    let daysCount = 30;
+    if (logData.length > 0) {
+      const dates = logData.map(e => e.date).filter(Boolean).sort();
+      if (dates.length > 0) {
+        const earliest = new Date(dates[0] + 'T00:00:00');
+        const now = new Date();
+        const diffTime = Math.abs(now - earliest);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 30) daysCount = Math.min(diffDays + 7, 90);
+      }
+    }
+
+    for (let i = daysCount - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const str = formatDateISO(d);
-      labels.push(days[d.getDay()]);
+      
+      const dayLabel = `${d.getDate()} ${monthsShort[d.getMonth()]} ${days[d.getDay()]}`;
+      labels.push(dayLabel);
 
       const matchingEntries = logData.filter(e => {
         if (e.date !== str) return false;
@@ -424,6 +447,15 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
       solvedData.push(solved);
       correctData.push(correct);
       wrongData.push(wrong);
+    }
+
+    // İç canvas taşıyıcısının genişliğini dinamik ayarla (her güne ferah 70px)
+    const innerContainer = document.getElementById('chart-daily-trend-inner');
+    const scrollContainer = document.getElementById('chart-daily-trend-scroll-container');
+    if (innerContainer && scrollContainer) {
+      const parentWidth = scrollContainer.clientWidth || 500;
+      const targetWidth = Math.max(parentWidth, daysCount * 70);
+      innerContainer.style.width = targetWidth + 'px';
     }
 
     const chartCtx = ctxTrend.getContext('2d');
@@ -456,7 +488,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
               align: 'top',
               offset: 6,
               color: '#00F0FF',
-              backgroundColor: 'rgba(10, 15, 30, 0.85)',
+              backgroundColor: 'rgba(10, 15, 30, 0.88)',
               borderColor: 'rgba(0, 240, 255, 0.4)',
               borderWidth: 1,
               borderRadius: 5,
@@ -484,7 +516,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
               align: 'bottom',
               offset: 6,
               color: '#00F5A0',
-              backgroundColor: 'rgba(10, 30, 20, 0.85)',
+              backgroundColor: 'rgba(10, 30, 20, 0.88)',
               borderColor: 'rgba(0, 245, 160, 0.4)',
               borderWidth: 1,
               borderRadius: 5,
@@ -512,7 +544,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
               align: 'top',
               offset: 6,
               color: '#FF0055',
-              backgroundColor: 'rgba(30, 10, 20, 0.85)',
+              backgroundColor: 'rgba(30, 10, 20, 0.88)',
               borderColor: 'rgba(255, 0, 85, 0.4)',
               borderWidth: 1,
               borderRadius: 5,
@@ -527,7 +559,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: { top: 28, bottom: 10, left: 8, right: 12 }
+          padding: { top: 28, bottom: 10, left: 12, right: 16 }
         },
         plugins: {
           legend: {
@@ -562,12 +594,19 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             grid: { color: 'rgba(255,255,255,0.06)' }
           },
           x: {
-            ticks: { color: '#f8fafc', font: { size: 12.5, weight: '700' } },
+            ticks: { color: '#f8fafc', font: { size: 11.5, weight: '700' } },
             grid: { display: false }
           }
         }
       }
     });
+
+    // Varsayılan olarak en sağa (bugün ve son 7 güne) kaydır
+    if (scrollContainer) {
+      setTimeout(() => {
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+      }, 60);
+    }
   }
 }
 
@@ -849,12 +888,13 @@ window.updateDailyAddSubjects = updateDailyAddSubjects;
 window.handleDailyDateRangeChange = handleDailyDateRangeChange;
 window.handleDailyTypeChange = handleDailyTypeChange;
 window.resetDailyFilters = resetDailyFilters;
+window.scrollDailyTrendChart = scrollDailyTrendChart;
 
 Object.assign(window, {
   activeStudent, activeTab,
   switchStudent, switchTab, renderCurrentTab,
   renderDailyLog, handleAddDaily, editDailyEntry, openAddDailyModal, deleteDailyEntry,
-  handleDailyDateRangeChange, handleDailyTypeChange, resetDailyFilters,
+  handleDailyDateRangeChange, handleDailyTypeChange, resetDailyFilters, scrollDailyTrendChart,
   openModal, closeModal, closeAllModals,
   initTheme, toggleTheme,
   startCountdown, showToast, toggleSidebar
