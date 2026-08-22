@@ -154,27 +154,101 @@ function checkNotifications() {
 
 // ─── Günlük Soru Takibi ────────────────────────────────────────────────────────
 
+function handleDailyDateRangeChange(val) {
+  const dateInput = document.getElementById('daily-filter-date');
+  if (dateInput) {
+    if (val === 'custom') {
+      dateInput.style.display = 'inline-block';
+      if (!dateInput.value) dateInput.value = getTodayStr();
+    } else {
+      dateInput.style.display = 'none';
+    }
+  }
+  renderDailyLog();
+}
+
+function handleDailyTypeChange(type) {
+  populateDailyFilter(type);
+  renderDailyLog();
+}
+
+function resetDailyFilters() {
+  const rangeEl = document.getElementById('daily-filter-range');
+  if (rangeEl) rangeEl.value = 'last2';
+  
+  const dateEl = document.getElementById('daily-filter-date');
+  if (dateEl) { dateEl.value = ''; dateEl.style.display = 'none'; }
+
+  const typeEl = document.getElementById('daily-filter-type');
+  if (typeEl) typeEl.value = 'all';
+
+  populateDailyFilter('all');
+  
+  const subjEl = document.getElementById('daily-filter-subject');
+  if (subjEl) subjEl.value = 'all';
+
+  renderDailyLog();
+  showToast('Filtreler sıfırlandı (Son 2 gün)', 'info');
+}
+
 function renderDailyLog() {
   const data = getStudentData(window.activeStudent);
   const tbody = document.getElementById('daily-table-body');
   if (!tbody) return;
 
-  const filterVal = document.getElementById('daily-filter-subject')?.value || 'all';
+  const filterType       = document.getElementById('daily-filter-type')?.value || 'all';
+  const filterSubj       = document.getElementById('daily-filter-subject')?.value || 'all';
+  const filterRange      = document.getElementById('daily-filter-range')?.value || 'last2';
+  const filterCustomDate = document.getElementById('daily-filter-date')?.value || '';
 
-  let filteredData = (data.dailyLog || []).filter(e => {
-    if (filterVal === 'all') return true;
-    const parts = filterVal.split('_');
-    const type = parts[0];
-    const subj = parts.slice(1).join('_');
-    return e.tytAyt === type && e.subject === subj;
+  // 1. TYT / AYT & Ders Bazlı Filtreleme
+  let typeAndSubjFiltered = (data.dailyLog || []).filter(e => {
+    if (filterType !== 'all' && e.tytAyt !== filterType) return false;
+    if (filterSubj !== 'all') {
+      if (filterSubj.includes('_')) {
+        const parts = filterSubj.split('_');
+        if (e.tytAyt !== parts[0] || e.subject !== parts.slice(1).join('_')) return false;
+      } else {
+        if (e.subject !== filterSubj) return false;
+      }
+    }
+    return true;
   });
+
+  // 2. Tarih Bazlı Filtreleme (Varsayılan: Son 2 Gün)
+  let filteredData = typeAndSubjFiltered;
+  if (filterRange === 'last2') {
+    const distinctDates = [...new Set(typeAndSubjFiltered.map(e => e.date))].sort().reverse();
+    const last2Dates = distinctDates.slice(0, 2);
+    filteredData = typeAndSubjFiltered.filter(e => last2Dates.includes(e.date));
+  } else if (filterRange === 'today') {
+    const today = getTodayStr();
+    filteredData = typeAndSubjFiltered.filter(e => e.date === today);
+  } else if (filterRange === 'yesterday') {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yStr = yesterday.toISOString().split('T')[0];
+    filteredData = typeAndSubjFiltered.filter(e => e.date === yStr);
+  } else if (filterRange === 'last7') {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 7);
+    const cutoffStr = cutoff.toISOString().split('T')[0];
+    filteredData = typeAndSubjFiltered.filter(e => e.date >= cutoffStr);
+  } else if (filterRange === 'last30') {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffStr = cutoff.toISOString().split('T')[0];
+    filteredData = typeAndSubjFiltered.filter(e => e.date >= cutoffStr);
+  } else if (filterRange === 'custom' && filterCustomDate) {
+    filteredData = typeAndSubjFiltered.filter(e => e.date === filterCustomDate);
+  }
 
   const sorted = [...filteredData].sort((a,b) => b.date.localeCompare(a.date));
 
   if (!sorted.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="empty-cell">Henüz kayıt yok.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-cell">Seçilen filtrelere uygun soru kaydı bulunamadı.</td></tr>';
   } else {
-    tbody.innerHTML = sorted.slice(0, 50).map(e => {
+    tbody.innerHTML = sorted.map(e => {
       const blank = Math.max(0, (e.solved || 0) - (e.correct || 0) - (e.wrong || 0));
       return `
       <tr>
@@ -186,17 +260,17 @@ function renderDailyLog() {
         <td class="num wrong" style="text-align:center; font-weight:700;">${e.wrong || 0}</td>
         <td class="num" style="text-align:center; color:var(--text-muted); font-weight:600;">${blank}</td>
         <td style="text-align:center; white-space:nowrap;">
-          <button class="btn-sm btn-primary coach-only" onclick="editDailyEntry('${e.id}')" title="Düzenle" style="padding:3px 7px; margin-right:4px; font-size:12px;">✏️</button>
-          <button class="btn-sm btn-danger coach-only" onclick="deleteDailyEntry('${e.id}')" title="Sil" style="padding:3px 7px; font-size:12px;">🗑️</button>
+          <button class="btn-sm btn-primary" onclick="editDailyEntry('${e.id}')" title="Düzenle" style="padding:3px 7px; margin-right:4px; font-size:12px;">✏️</button>
+          <button class="btn-sm btn-danger" onclick="deleteDailyEntry('${e.id}')" title="Sil" style="padding:3px 7px; font-size:12px;">🗑️</button>
         </td>
       </tr>`;
     }).join('');
   }
 
-  // Genel İstatistikler (En baştan itibaren girilen tüm veriler)
-  const allTotal   = filteredData.reduce((s,e) => s + (Number(e.solved)||0), 0);
-  const allCorrect = filteredData.reduce((s,e) => s + (Number(e.correct)||0), 0);
-  const allWrong   = filteredData.reduce((s,e) => s + (Number(e.wrong)||0), 0);
+  // Genel İstatistikler
+  const allTotal   = typeAndSubjFiltered.reduce((s,e) => s + (Number(e.solved)||0), 0);
+  const allCorrect = typeAndSubjFiltered.reduce((s,e) => s + (Number(e.correct)||0), 0);
+  const allWrong   = typeAndSubjFiltered.reduce((s,e) => s + (Number(e.wrong)||0), 0);
   const allBlank   = Math.max(0, allTotal - allCorrect - allWrong);
 
   _el('daily-today-total',   el => el.textContent = formatNumber(allTotal));
@@ -216,10 +290,10 @@ function renderDailyLog() {
   _el('daily-tab-bar', e => e.style.width = pct + '%');
   _el('daily-tab-pct', e => e.textContent = pct + '%');
 
-  _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank);
+  _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filterType, filterSubj);
 }
 
-function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank) {
+function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filterType = 'all', filterSubj = 'all') {
   if (window._dailyPieChart) window._dailyPieChart.destroy();
   if (window._dailyTrendChart) window._dailyTrendChart.destroy();
 
@@ -258,7 +332,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank) {
           borderWidth: 1,
           borderRadius: 8,
           borderSkipped: false,
-          minBarLength: 8 // Küçük sayıların (örn. 1 boş) görünür olmasını sağlar
+          minBarLength: 8
         }]
       },
       options: {
@@ -312,14 +386,15 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank) {
     });
   }
 
-  // Sağdaki Grafik: Çizgi Grafik (Son 7 Günlük Soru Eğilimi)
+  // Sağdaki Grafik: 3 Çizgili Çizgi Grafik (Son 7 Günlük Toplam, Doğru ve Yanlış Soru Eğilimi)
   const ctxTrend = document.getElementById('chart-daily-trend');
   if (ctxTrend) {
     const labels = [];
     const solvedData = [];
+    const correctData = [];
+    const wrongData = [];
     const days = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
 
-    const filterVal = document.getElementById('daily-filter-subject')?.value || 'all';
     const logData = data.dailyLog || [];
 
     for (let i = 6; i >= 0; i--) {
@@ -327,83 +402,134 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank) {
       d.setDate(d.getDate() - i);
       const str = d.toISOString().split('T')[0];
       labels.push(days[d.getDay()]);
-      const solved = logData
-        .filter(e => {
-          if (e.date !== str) return false;
-          if (filterVal === 'all') return true;
-          const parts = filterVal.split('_');
-          return e.tytAyt === parts[0] && e.subject === parts.slice(1).join('_');
-        })
-        .reduce((s, e) => s + (Number(e.solved) || 0), 0);
+
+      const matchingEntries = logData.filter(e => {
+        if (e.date !== str) return false;
+        if (filterType !== 'all' && e.tytAyt !== filterType) return false;
+        if (filterSubj !== 'all') {
+          if (filterSubj.includes('_')) {
+            const parts = filterSubj.split('_');
+            if (e.tytAyt !== parts[0] || e.subject !== parts.slice(1).join('_')) return false;
+          } else {
+            if (e.subject !== filterSubj) return false;
+          }
+        }
+        return true;
+      });
+
+      const solved = matchingEntries.reduce((s, e) => s + (Number(e.solved) || 0), 0);
+      const correct = matchingEntries.reduce((s, e) => s + (Number(e.correct) || 0), 0);
+      const wrong = matchingEntries.reduce((s, e) => s + (Number(e.wrong) || 0), 0);
+
       solvedData.push(solved);
+      correctData.push(correct);
+      wrongData.push(wrong);
     }
 
     const chartCtx = ctxTrend.getContext('2d');
     const gradient = chartCtx.createLinearGradient(0, 0, 0, 220);
-    gradient.addColorStop(0, 'rgba(0, 240, 255, 0.4)');   // Halojen Cyan dolgu
-    gradient.addColorStop(1, 'rgba(168, 85, 247, 0.02)'); // Şeffaf mor
+    gradient.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
+    gradient.addColorStop(1, 'rgba(0, 240, 255, 0.01)');
 
     window._dailyTrendChart = new Chart(ctxTrend, {
       type: 'line',
       plugins: dlPlugin,
       data: {
         labels: labels,
-        datasets: [{
-          label: 'Çözülen Soru',
-          data: solvedData,
-          borderColor: '#00F0FF',
-          borderWidth: 3,
-          backgroundColor: gradient,
-          fill: true,
-          tension: 0.38,
-          pointBackgroundColor: '#00F0FF',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 2,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-          pointHoverBackgroundColor: '#00F5A0',
-          pointHoverBorderColor: '#ffffff'
-        }]
+        datasets: [
+          {
+            label: 'Toplam Soru',
+            data: solvedData,
+            borderColor: '#00F0FF',
+            borderWidth: 3,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#00F0FF',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4.5,
+            pointHoverRadius: 6.5
+          },
+          {
+            label: 'Toplam Doğru',
+            data: correctData,
+            borderColor: '#00F5A0',
+            borderWidth: 2.5,
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0.35,
+            pointBackgroundColor: '#00F5A0',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'Toplam Yanlış',
+            data: wrongData,
+            borderColor: '#FF0055',
+            borderWidth: 2.5,
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0.35,
+            pointBackgroundColor: '#FF0055',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: { top: 20 }
+          padding: { top: 24, right: 10 }
         },
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#94a3b8',
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 7,
+              padding: 12,
+              font: { size: 11.5, weight: '700' }
+            }
+          },
           datalabels: {
             display: (context) => (context.dataset.data[context.dataIndex] > 0),
             anchor: 'end',
             align: 'top',
-            offset: 6,
-            color: '#00F0FF',
-            font: { size: 11, weight: '800' },
+            offset: 4,
+            color: (context) => context.dataset.borderColor || '#ffffff',
+            font: { size: 10.5, weight: '800' },
             formatter: (value) => formatNumber(value)
           },
           tooltip: {
-            backgroundColor: 'rgba(15, 15, 25, 0.92)',
+            backgroundColor: 'rgba(15, 15, 25, 0.94)',
             titleColor: '#00F0FF',
             bodyColor: '#ffffff',
             borderColor: 'rgba(0, 240, 255, 0.3)',
             borderWidth: 1,
             padding: 10,
             cornerRadius: 8,
-            callbacks: {
-              label: (ctx) => ` Çözülen: ${formatNumber(ctx.raw)} Soru`
-            }
+            mode: 'index',
+            intersect: false
           }
         },
         scales: {
           y: {
             beginAtZero: true,
-            grace: '20%',
+            grace: '15%',
             ticks: { color: '#94a3b8', font: { size: 11 } },
             grid: { color: 'rgba(255,255,255,0.05)' }
           },
           x: {
-            ticks: { color: '#94a3b8', font: { size: 11 } },
+            ticks: { color: '#f8fafc', font: { size: 12, weight: '700' } },
             grid: { display: false }
           }
         }
@@ -425,22 +551,35 @@ function updateDailyAddSubjects() {
   }
 }
 
-function populateDailyFilter() {
+function populateDailyFilter(selectedType = 'all') {
   const select = document.getElementById('daily-filter-subject');
   if (!select || typeof YKS_TOPICS === 'undefined') return;
   
-  let html = '<option value="all">Tüm Dersler (Genel Özet)</option>';
+  const currentVal = select.value;
+  let html = '<option value="all">Tüm Dersler</option>';
   
-  for (const type of ['TYT', 'AYT']) {
-    if (YKS_TOPICS[type]) {
-      html += `<optgroup label="${type}">`;
-      Object.keys(YKS_TOPICS[type]).forEach(subj => {
-        html += `<option value="${type}_${subj}">${type} - ${subj}</option>`;
-      });
-      html += `</optgroup>`;
+  if (selectedType === 'all') {
+    for (const type of ['TYT', 'AYT']) {
+      if (YKS_TOPICS[type]) {
+        html += `<optgroup label="${type}">`;
+        Object.keys(YKS_TOPICS[type]).forEach(subj => {
+          html += `<option value="${type}_${subj}">${type} - ${subj}</option>`;
+        });
+        html += `</optgroup>`;
+      }
     }
+  } else if (YKS_TOPICS[selectedType]) {
+    Object.keys(YKS_TOPICS[selectedType]).forEach(subj => {
+      html += `<option value="${selectedType}_${subj}">${subj}</option>`;
+    });
   }
+
   select.innerHTML = html;
+  if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+    select.value = currentVal;
+  } else {
+    select.value = 'all';
+  }
 }
 
 let editingDailyId = null;
@@ -674,11 +813,15 @@ window.closeModal = closeModal;
 window.toggleTheme = toggleTheme;
 window.populateDailyFilter = populateDailyFilter;
 window.updateDailyAddSubjects = updateDailyAddSubjects;
+window.handleDailyDateRangeChange = handleDailyDateRangeChange;
+window.handleDailyTypeChange = handleDailyTypeChange;
+window.resetDailyFilters = resetDailyFilters;
 
 Object.assign(window, {
   activeStudent, activeTab,
   switchStudent, switchTab, renderCurrentTab,
   renderDailyLog, handleAddDaily, editDailyEntry, openAddDailyModal, deleteDailyEntry,
+  handleDailyDateRangeChange, handleDailyTypeChange, resetDailyFilters,
   openModal, closeModal, closeAllModals,
   initTheme, toggleTheme,
   startCountdown, showToast, toggleSidebar

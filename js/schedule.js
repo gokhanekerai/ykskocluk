@@ -334,7 +334,7 @@ function _renderWeekView(container, schedule, wrongLog) {
                     <div class="week-task-meta">
                       <span>⏱️ ${item.duration || 60} dk</span>
                       ${item.questions ? `<span>• ✏️ ${item.questions} S</span>` : ''}
-                      ${item.book ? `<span class="week-task-book">• 📚 ${_escapeHtml(item.book)}</span>` : ''}
+                      ${_renderTaskBooksSpan(item)}
                     </div>
                   </div>
                   ${isCoach ? `
@@ -459,7 +459,8 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
       let metaParts = [`⏱️ ${item.duration || 60} dk`, item.type || 'konu çalışma'];
       if (item.questions) metaParts.push(`✏️ ${item.questions} Soru`);
       if (item.pages) metaParts.push(`📄 ${item.pages} Sayfa`);
-      if (item.book) metaParts.push(`📚 ${_escapeHtml(item.book)}`);
+      const taskBooks = _getTaskBooks(item);
+      if (taskBooks.length > 0) metaParts.push(`📚 ${_escapeHtml(taskBooks.join(', '))}`);
 
       // Yanlış Notu Eşleşmesi
       const matchingWrongs = _getMatchingWrongNotes(item.subject, item.topic, wrongLog);
@@ -736,6 +737,156 @@ function _populateSchedSubjectSelect() {
   }
 }
 
+// ─── ÇOKLU KAYNAK (MULTI-RESOURCE) YARDIMCILARI ──────────────────────────
+
+window._currentSchedBooks = [];
+
+function _getTaskBooks(item) {
+  if (!item) return [];
+  if (Array.isArray(item.books) && item.books.length > 0) {
+    return item.books.map(b => String(b).trim()).filter(Boolean);
+  }
+  if (typeof item.book === 'string' && item.book.trim()) {
+    return item.book.split(',').map(b => b.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function _renderTaskBooksSpan(item) {
+  const books = _getTaskBooks(item);
+  if (!books.length) return '';
+  return `<span class="week-task-book" title="Kaynaklar: ${_escapeHtml(books.join(', '))}">• 📚 ${_escapeHtml(books.join(', '))}</span>`;
+}
+
+function _renderSchedSelectedBooksChips() {
+  const container = document.getElementById('sched-selected-books-container');
+  if (!container) return;
+  const books = window._currentSchedBooks || [];
+  if (!books.length) {
+    container.innerHTML = '<span style="font-size:12px; color:var(--text-muted); font-style:italic;">Seçilen kaynak yok</span>';
+    return;
+  }
+  container.innerHTML = books.map(b => `
+    <span class="sched-book-badge" style="background:rgba(255,107,0,0.18); border:1px solid rgba(255,107,0,0.4); color:#FF9040; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+      📚 ${_escapeHtml(b)}
+      <span onclick="removeSchedBook('${b.replace(/'/g, "\\'")}')" style="cursor:pointer; font-weight:800; font-size:13px; margin-left:2px; color:#ff5555;" title="Kaldır">✕</span>
+    </span>
+  `).join('');
+}
+
+function _syncSchedBooksPickerCheckboxes() {
+  const picker = document.getElementById('sched-books-picker');
+  if (!picker) return;
+  const selected = window._currentSchedBooks || [];
+  picker.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+    chk.checked = selected.includes(chk.value);
+  });
+}
+
+function _updateSchedBooksPicker(subjectOverride) {
+  const picker = document.getElementById('sched-books-picker');
+  if (!picker) return;
+  
+  const subjSelect = document.getElementById('sched-subject');
+  const subj = subjectOverride || (subjSelect ? (subjSelect.options[subjSelect.selectedIndex]?.getAttribute('data-subj') || subjSelect.value) : '');
+  
+  const data = getStudentData(window.activeStudent);
+  const allBooks = (data && data.books) ? data.books : [];
+  const selected = window._currentSchedBooks || [];
+  
+  if (!allBooks.length && !selected.length) {
+    picker.innerHTML = `
+      <div style="font-size:12px; color:var(--text-muted); padding:4px 0;">
+        Kütüphanede kayıtlı kaynak yok. 
+        <a href="javascript:void(0)" onclick="toggleCustomBookInput(true)" style="color:#00F0FF; font-weight:700; text-decoration:underline;">Özel Kaynak Ekle</a>
+      </div>`;
+    _renderSchedSelectedBooksChips();
+    return;
+  }
+
+  const curSubj = (subj || '').toLowerCase().trim();
+  const matchingBooks = allBooks.filter(b => {
+    if (!b.subject || !curSubj) return true;
+    const bSubj = b.subject.toLowerCase();
+    return bSubj.includes(curSubj) || curSubj.includes(bSubj);
+  });
+  const otherBooks = allBooks.filter(b => !matchingBooks.includes(b));
+
+  let html = '';
+  if (matchingBooks.length > 0) {
+    if (curSubj) html += `<div style="font-size:11px; font-weight:700; color:var(--primary); margin:2px 0 4px;">📖 Bu Dersin Kaynakları:</div>`;
+    matchingBooks.forEach(b => {
+      const isChecked = selected.includes(b.name);
+      html += `
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px; padding:3px 6px; border-radius:4px; transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${_escapeHtml(b.name)}" onchange="toggleSchedBook(this.value, this.checked)" ${isChecked ? 'checked' : ''} style="cursor:pointer; accent-color:var(--primary);">
+          <span style="color:var(--text);">${_escapeHtml(b.name)} <small style="color:var(--text-muted);">(${_escapeHtml(b.subject || '')})</small></span>
+        </label>
+      `;
+    });
+  }
+
+  if (otherBooks.length > 0) {
+    html += `<div style="font-size:11px; font-weight:700; color:var(--text-muted); margin:6px 0 4px;">📚 Diğer Derslerin Kaynakları:</div>`;
+    otherBooks.forEach(b => {
+      const isChecked = selected.includes(b.name);
+      html += `
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; padding:3px 6px; border-radius:4px; transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+          <input type="checkbox" value="${_escapeHtml(b.name)}" onchange="toggleSchedBook(this.value, this.checked)" ${isChecked ? 'checked' : ''} style="cursor:pointer; accent-color:var(--primary);">
+          <span style="color:var(--text-dim);">${_escapeHtml(b.name)} <small style="color:var(--text-muted);">(${_escapeHtml(b.subject || '')})</small></span>
+        </label>
+      `;
+    });
+  }
+
+  picker.innerHTML = html;
+  _renderSchedSelectedBooksChips();
+}
+
+function toggleSchedBook(bookName, isChecked) {
+  if (!bookName) return;
+  if (!Array.isArray(window._currentSchedBooks)) window._currentSchedBooks = [];
+  if (isChecked) {
+    if (!window._currentSchedBooks.includes(bookName)) {
+      window._currentSchedBooks.push(bookName);
+    }
+  } else {
+    window._currentSchedBooks = window._currentSchedBooks.filter(b => b !== bookName);
+  }
+  _renderSchedSelectedBooksChips();
+}
+
+function removeSchedBook(bookName) {
+  if (!Array.isArray(window._currentSchedBooks)) return;
+  window._currentSchedBooks = window._currentSchedBooks.filter(b => b !== bookName);
+  _renderSchedSelectedBooksChips();
+  _syncSchedBooksPickerCheckboxes();
+}
+
+function addCustomSchedBook() {
+  const input = document.getElementById('sched-custom-book-input');
+  const val = input?.value.trim();
+  if (!val) return;
+  if (!Array.isArray(window._currentSchedBooks)) window._currentSchedBooks = [];
+  if (!window._currentSchedBooks.includes(val)) {
+    window._currentSchedBooks.push(val);
+    showToast(`"${val}" kaynağı eklendi.`, 'success');
+  }
+  if (input) input.value = '';
+  _renderSchedSelectedBooksChips();
+  _syncSchedBooksPickerCheckboxes();
+}
+
+function toggleCustomBookInput(show) {
+  const wrapper = document.getElementById('sched-custom-book-wrapper');
+  if (!wrapper) return;
+  wrapper.style.display = show ? 'block' : 'none';
+  if (show) {
+    const inp = document.getElementById('sched-custom-book-input');
+    if (inp) setTimeout(() => inp.focus(), 50);
+  }
+}
+
 function openAddScheduleItem(dateStr) {
   editingScheduleContext = null;
   if (!dateStr) dateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
@@ -751,10 +902,11 @@ function openAddScheduleItem(dateStr) {
   document.getElementById('sched-topic').innerHTML = '<option value="">Önce ders seçin...</option>';
   toggleCustomTopicInput(false);
 
-  const bookSelect = document.getElementById('sched-book');
-  if (bookSelect) bookSelect.innerHTML = '<option value="">Önce ders seçin...</option>';
+  window._currentSchedBooks = [];
+  _updateSchedBooksPicker();
+  toggleCustomBookInput(false);
 
-  ['sched-duration','sched-questions','sched-pages','sched-book','sched-custom-topic'].forEach(id => {
+  ['sched-duration','sched-questions','sched-pages','sched-custom-topic','sched-custom-book-input'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = id === 'sched-duration' ? '60' : '';
   });
@@ -823,8 +975,11 @@ function openEditScheduleItem(dateStr, itemId) {
   const pEl = document.getElementById('sched-pages');
   if (pEl) pEl.value = item.pages ?? '';
 
-  const bEl = document.getElementById('sched-book');
-  if (bEl) bEl.value = item.book ?? '';
+  // Çoklu kaynakları doldur
+  window._currentSchedBooks = _getTaskBooks(item);
+  _updateSchedBooksPicker(item.subject);
+  _renderSchedSelectedBooksChips();
+  toggleCustomBookInput(false);
 
   openModal('add-schedule-item-modal');
 }
@@ -832,10 +987,11 @@ function openEditScheduleItem(dateStr, itemId) {
 function updateSchedTopics() {
   const subjSelect = document.getElementById('sched-subject');
   const topicSelect = document.getElementById('sched-topic');
-  const selectedOpt = subjSelect.options[subjSelect.selectedIndex];
+  const selectedOpt = subjSelect?.options[subjSelect?.selectedIndex];
   
   if (!selectedOpt || !selectedOpt.value) {
-    topicSelect.innerHTML = '<option value="">Önce ders seçin...</option>';
+    if (topicSelect) topicSelect.innerHTML = '<option value="">Önce ders seçin...</option>';
+    _updateSchedBooksPicker();
     return;
   }
   
@@ -850,25 +1006,9 @@ function updateSchedTopics() {
   }
 
   html += '<option value="__custom__">✏️ Özel / Manuel Konu Yaz...</option>';
-  topicSelect.innerHTML = html;
+  if (topicSelect) topicSelect.innerHTML = html;
   
-  const bookSelect = document.getElementById('sched-book');
-  if (bookSelect) {
-    const data = getStudentData(window.activeStudent);
-    let opts = '<option value="">Seçiniz...</option>';
-    if (data && data.books && data.books.length > 0) {
-      const filteredBooks = data.books.filter(b => {
-        if (!b.subject) return true;
-        const bSubj = b.subject.toLowerCase();
-        const curSubj = (subj || '').toLowerCase();
-        return bSubj.includes(curSubj) || curSubj.includes(bSubj);
-      });
-      filteredBooks.forEach(b => {
-        opts += `<option value="${b.name}">${b.name}</option>`;
-      });
-    }
-    bookSelect.innerHTML = opts;
-  }
+  _updateSchedBooksPicker(subj);
 }
 
 function handleAddScheduleItem(e) {
@@ -887,7 +1027,14 @@ function handleAddScheduleItem(e) {
   const type      = document.getElementById('sched-type')?.value || 'konu çalışma';
   const questions = parseInt(document.getElementById('sched-questions')?.value) || 0;
   const pages     = parseInt(document.getElementById('sched-pages')?.value) || 0;
-  const book      = document.getElementById('sched-book')?.value || '';
+
+  // Kaynaklar: seçili liste + eğer inputta yazılmış ve eklenmemiş değer varsa ekle
+  let books = Array.isArray(window._currentSchedBooks) ? [...window._currentSchedBooks] : [];
+  const customBookVal = document.getElementById('sched-custom-book-input')?.value.trim();
+  if (customBookVal && !books.includes(customBookVal)) {
+    books.push(customBookVal);
+  }
+  const book = books.join(', ');
 
   if (!subject || !topic) { showToast('Ders ve konu boş olamaz.', 'warning'); return; }
 
@@ -914,7 +1061,7 @@ function handleAddScheduleItem(e) {
       targetDay = { id: generateId(), date: dateStr, items: [] };
       data.schedule.push(targetDay);
     }
-    targetDay.items.push({ id: oldItemId, subject, topic, duration: dur, type, done: isDone, questions, pages, book });
+    targetDay.items.push({ id: oldItemId, subject, topic, duration: dur, type, done: isDone, questions, pages, book, books });
 
     _syncScheduleWithTopicStatus(data, subject, topic, isDone ? 'completed' : 'studying');
 
@@ -928,7 +1075,7 @@ function handleAddScheduleItem(e) {
       data.schedule.push(day);
     }
 
-    day.items.push({ id: generateId(), subject, topic, duration: dur, type, done: false, questions, pages, book });
+    day.items.push({ id: generateId(), subject, topic, duration: dur, type, done: false, questions, pages, book, books });
     data.hasNewTasks = true;
 
     _syncScheduleWithTopicStatus(data, subject, topic, 'studying');
@@ -939,8 +1086,10 @@ function handleAddScheduleItem(e) {
 
   closeModal('add-schedule-item-modal');
 
-  ['sched-subject','sched-topic','sched-custom-topic','sched-questions','sched-pages','sched-book'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['sched-subject','sched-topic','sched-custom-topic','sched-questions','sched-pages','sched-custom-book-input'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   toggleCustomTopicInput(false);
+  toggleCustomBookInput(false);
+  window._currentSchedBooks = [];
 
   window.currentSelectedDayDate = dateStr;
   renderSchedule();
@@ -1239,6 +1388,12 @@ window.openDayDetailModal              = openDayDetailModal;
 window.toggleCustomTopicInput          = toggleCustomTopicInput;
 window.handleTopicSelectChange         = handleTopicSelectChange;
 window._syncScheduleWithTopicStatus    = _syncScheduleWithTopicStatus;
+window._getTaskBooks                   = _getTaskBooks;
+window._renderTaskBooksSpan            = _renderTaskBooksSpan;
+window.toggleSchedBook                 = toggleSchedBook;
+window.removeSchedBook                 = removeSchedBook;
+window.addCustomSchedBook              = addCustomSchedBook;
+window.toggleCustomBookInput           = toggleCustomBookInput;
 
 
 

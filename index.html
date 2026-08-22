@@ -18,7 +18,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192-v3.png?v=155">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=155">
   <link rel="shortcut icon" href="favicon.ico?v=155">
-  <link rel="stylesheet" href="styles.css?v=155">
+  <link rel="stylesheet" href="styles.css?v=221">
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js?v=50"></script>
@@ -338,10 +338,50 @@
           </div>
         </div>
 
-        <div class="toolbar" style="margin-bottom: 16px;">
-          <select id="daily-filter-subject" class="form-input" style="width:250px;" onchange="renderDailyLog()">
-            <option value="all">Tüm Dersler (Genel Özet)</option>
-          </select>
+        <div class="card" style="margin-bottom: 16px; padding: 12px 16px; border: 1px solid rgba(139,92,246,0.25); background: linear-gradient(145deg, rgba(22,22,34,0.95) 0%, rgba(14,14,24,0.98) 100%);">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:16px;">🔍</span>
+              <span style="font-weight:700; font-size:13.5px; color:var(--text);">Soru Kayıt Filtreleri</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; flex:1; justify-content:flex-end;">
+              <!-- 1. Tarih Filtresi -->
+              <div style="display:flex; align-items:center; gap:6px;">
+                <label for="daily-filter-range" style="font-size:12px; color:var(--text-muted); font-weight:600; white-space:nowrap;">📅 Tarih:</label>
+                <select id="daily-filter-range" class="form-input" style="width:auto; min-width:160px; padding:6px 10px; font-size:13px;" onchange="handleDailyDateRangeChange(this.value)">
+                  <option value="last2" selected>Son 2 Gün (Varsayılan)</option>
+                  <option value="today">Bugün</option>
+                  <option value="yesterday">Dün</option>
+                  <option value="last7">Son 7 Gün</option>
+                  <option value="last30">Son 30 Gün</option>
+                  <option value="all">Tüm Geçmiş</option>
+                  <option value="custom">📅 Tarih Seç...</option>
+                </select>
+                <input id="daily-filter-date" type="date" class="form-input" style="width:auto; padding:5px 8px; font-size:13px; display:none;" onchange="renderDailyLog()">
+              </div>
+
+              <!-- 2. TYT / AYT Filtresi -->
+              <div style="display:flex; align-items:center; gap:6px;">
+                <label for="daily-filter-type" style="font-size:12px; color:var(--text-muted); font-weight:600; white-space:nowrap;">🎯 Alan:</label>
+                <select id="daily-filter-type" class="form-input" style="width:auto; min-width:130px; padding:6px 10px; font-size:13px;" onchange="handleDailyTypeChange(this.value)">
+                  <option value="all">Tümü (TYT/AYT)</option>
+                  <option value="TYT">TYT</option>
+                  <option value="AYT">AYT</option>
+                </select>
+              </div>
+
+              <!-- 3. Ders Filtresi -->
+              <div style="display:flex; align-items:center; gap:6px;">
+                <label for="daily-filter-subject" style="font-size:12px; color:var(--text-muted); font-weight:600; white-space:nowrap;">📖 Ders:</label>
+                <select id="daily-filter-subject" class="form-input" style="width:auto; min-width:160px; padding:6px 10px; font-size:13px;" onchange="renderDailyLog()">
+                  <option value="all">Tüm Dersler</option>
+                </select>
+              </div>
+
+              <!-- Sıfırla Butonu -->
+              <button type="button" class="btn btn-sm btn-secondary" onclick="resetDailyFilters()" title="Filtreleri Sıfırla" style="padding:6px 10px; font-size:12px;">🔄 Sıfırla</button>
+            </div>
+          </div>
         </div>
 
         <div class="table-wrapper">
@@ -1387,20 +1427,37 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Kaynak (Opsiyonel)</label>
-          <select id="sched-book" class="form-input">
-            <option value="">Seçiniz...</option>
-          </select>
+          <label class="form-label">Hedef Soru (Opsiyonel)</label>
+          <input id="sched-questions" type="number" class="form-input" placeholder="Örn: 50" min="0">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Hedef Soru (Opsiyonel)</label>
-          <input id="sched-questions" type="number" class="form-input" placeholder="Örn: 50" min="0">
-        </div>
-        <div class="form-group">
           <label class="form-label">Hedef Sayfa (Opsiyonel)</label>
           <input id="sched-pages" type="number" class="form-input" placeholder="Örn: 20" min="0">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:4px;">
+        <div class="flex-between" style="margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0;">📚 Kaynaklar (Birden Fazla Seçilebilir)</label>
+          <span style="font-size:12px; color:#00F0FF; cursor:pointer; font-weight:700;" onclick="toggleCustomBookInput(true)">+ Özel Kaynak Ekle</span>
+        </div>
+        
+        <!-- Seçili Kaynak Rozetleri -->
+        <div id="sched-selected-books-container" class="sched-selected-books" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; min-height:24px;"></div>
+
+        <!-- Kayıtlı Kaynaklar Listesi -->
+        <div id="sched-books-picker" class="sched-books-picker" style="max-height:130px; overflow-y:auto; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:6px 10px; display:flex; flex-direction:column; gap:4px;">
+          <div style="color:var(--text-muted); font-size:12px;">Önce ders seçin...</div>
+        </div>
+
+        <!-- Özel Kaynak Ekleme Alanı -->
+        <div id="sched-custom-book-wrapper" style="display:none; margin-top:8px;">
+          <div style="display:flex; gap:6px;">
+            <input id="sched-custom-book-input" type="text" class="form-input" placeholder="Örn: MEB Kazanım Testleri, Deneme Deposu" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSchedBook();}">
+            <button type="button" class="btn btn-sm btn-primary" onclick="addCustomSchedBook()">Ekle</button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCustomBookInput(false)">Kapat</button>
+          </div>
         </div>
       </div>
       <div class="form-actions">
@@ -1719,23 +1776,23 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=220"></script>
-<script src="js/data.js?v=220"></script>
-<script src="topics.js?v=220"></script>
-<script src="js/auth.js?v=220"></script>
-<script src="js/students.js?v=220"></script>
-<script src="js/dashboard.js?v=220"></script>
-<script src="js/resources.js?v=220"></script>
-<script src="js/exams.js?v=220"></script>
-<script src="rankings.js?v=220"></script>
-<script src="js/calculator.js?v=220"></script>
-<script src="js/ai-analysis.js?v=220"></script>
-<script src="js/schedule.js?v=220"></script>
-<script src="js/topics.js?v=220"></script>
-<script src="js/wrong-notes.js?v=220"></script>
-<script src="js/report.js?v=220"></script>
-<script src="js/vision.js?v=220"></script>
-<script src="js/app.js?v=220"></script>
+<script src="js/firebase.js?v=223"></script>
+<script src="js/data.js?v=223"></script>
+<script src="topics.js?v=223"></script>
+<script src="js/auth.js?v=223"></script>
+<script src="js/students.js?v=223"></script>
+<script src="js/dashboard.js?v=223"></script>
+<script src="js/resources.js?v=223"></script>
+<script src="js/exams.js?v=223"></script>
+<script src="rankings.js?v=223"></script>
+<script src="js/calculator.js?v=223"></script>
+<script src="js/ai-analysis.js?v=223"></script>
+<script src="js/schedule.js?v=223"></script>
+<script src="js/topics.js?v=223"></script>
+<script src="js/wrong-notes.js?v=223"></script>
+<script src="js/report.js?v=223"></script>
+<script src="js/vision.js?v=223"></script>
+<script src="js/app.js?v=223"></script>
 
 
 <script>
