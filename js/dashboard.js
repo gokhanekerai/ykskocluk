@@ -355,25 +355,19 @@ function editWeeklyGoal() {
   showToast('Günlük hedef güncellendi!', 'success');
 }
 
-function _getDailyQuestionGoal(data) {
+function _getDailyQuestionGoal(data, dateStr = null) {
   if (!data) return 150;
-  const todayStr = getTodayStr();
+  const targetDate = dateStr || getTodayStr();
 
-  // 1. Bugünün görevlerindeki hedef soru sayıları toplamı
-  const todaySched = (data.schedule || []).find(s => s.date === todayStr);
-  let assignedQuestions = 0;
-  if (todaySched && Array.isArray(todaySched.items)) {
-    assignedQuestions = todaySched.items.reduce((sum, item) => sum + (Number(item.questions) || 0), 0);
+  // 1. O günün programındaki görevlerin hedef soru toplamı
+  const daySched = (data.schedule || []).find(s => s.date === targetDate);
+  if (daySched && Array.isArray(daySched.items) && daySched.items.length > 0) {
+    const assignedQuestions = daySched.items.reduce((sum, item) => sum + (Number(item.questions) || 0), 0);
+    if (assignedQuestions > 0) return assignedQuestions;
   }
 
-  // 2. Eğer bugünün özel kaydı yoksa, programdaki tüm günlerin hedef soru toplamını al
-  if (assignedQuestions === 0 && Array.isArray(data.schedule) && data.schedule.length > 0) {
-    assignedQuestions = data.schedule.reduce((sum, day) => {
-      return sum + (day.items || []).reduce((s, item) => s + (Number(item.questions) || 0), 0);
-    }, 0);
-  }
-
-  return assignedQuestions > 0 ? assignedQuestions : (data.dailyGoal || 150);
+  // 2. Eğer o gün için özel görev soru hedefi yoksa öğrencinin günlük hedefini al
+  return Number(data.dailyGoal) || 150;
 }
 
 function _renderTargetGapWidget(data, user) {

@@ -623,27 +623,194 @@ function _syncScheduleWithTopicStatus(data, subject, topic, targetStatus) {
   }
 }
 
+let pendingCompletionContext = null;
+
+function _resolveTytAyt(subject) {
+  if (!subject) return 'TYT';
+  if (subject.startsWith('AYT ') || subject.includes('(AYT)')) return 'AYT';
+  if (subject.startsWith('TYT ') || subject.includes('(TYT)')) return 'TYT';
+  if (typeof YKS_TOPICS !== 'undefined') {
+    if (YKS_TOPICS.AYT && YKS_TOPICS.AYT[subject]) return 'AYT';
+    if (YKS_TOPICS.TYT && YKS_TOPICS.TYT[subject]) return 'TYT';
+  }
+  return 'TYT';
+}
+
+function _cleanSubjectName(subject) {
+  if (!subject) return '';
+  return subject.replace(/^(TYT|AYT)\s+/, '').replace(/\s+\((TYT|AYT)\)/, '').trim();
+}
+
 function toggleScheduleItem(dateStr, itemId, done) {
   const data = getStudentData(window.activeStudent);
   const day  = (data.schedule || []).find(s => s.date === dateStr);
   if (!day) return;
 
   const item = (day.items || []).find(i => i.id === itemId);
-  if (item) {
-    item.done = done;
-    _syncScheduleWithTopicStatus(data, item.subject, item.topic, done ? 'completed' : 'revert_from_completed');
+  if (!item) return;
+
+  if (done) {
+    // Görevi tamamlama ve soru girişi modalını aç
+    openTaskCompletionModal(dateStr, itemId, item);
+  } else {
+    // Tamamlanmayı geri al
+    item.done = false;
+    _syncScheduleWithTopicStatus(data, item.subject, item.topic, 'revert_from_completed');
+
+    // Eğer bu göreve bağlı eklenmiş soru kaydı varsa temizle
+    if (Array.isArray(data.dailyLog)) {
+      data.dailyLog = data.dailyLog.filter(e => e.taskId !== itemId);
+    }
+    delete item.completedResult;
+
+    saveStudentData(window.activeStudent, data);
+    renderSchedule();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof _renderTopicStats === 'function') _renderTopicStats();
+    if (typeof renderTopics === 'function') renderTopics();
+    if (typeof renderDailyLog === 'function') renderDailyLog();
+    if (typeof checkNotifications === 'function') checkNotifications();
+    showToast(`"${item.topic}" tamamlanmadı olarak işaretlendi.`, 'info');
+  }
+}
+
+function openTaskCompletionModal(dateStr, itemId, item) {
+  pendingCompletionContext = { dateStr, itemId, item };
+
+  const titleEl = document.getElementById('comp-task-title');
+  if (titleEl) titleEl.textContent = `${item.subject} — ${item.topic}`;
+
+  const metaEl = document.getElementById('comp-task-meta');
+  if (metaEl) {
+    const books = _getTaskBooks(item);
+    let metaTxt = `⏱️ ${item.duration || 60} dk`;
+    if (item.questions) metaTxt += ` • 🎯 Hedef: ${item.questions} Soru`;
+    if (books.length > 0) metaTxt += ` • 📚 ${books.join(', ')}`;
+    metaEl.textContent = metaTxt;
+  }
+
+  const solvedInput = document.getElementById('comp-solved');
+  if (solvedInput) solvedInput.value = item.questions || '';
+
+  const correctInput = document.getElementById('comp-correct');
+  if (correctInput) correctInput.value = '';
+
+  const wrongInput = document.getElementById('comp-wrong');
+  if (wrongInput) wrongInput.value = '';
+
+  calcCompBlank();
+  openModal('task-completion-modal');
+}
+
+function calcCompBlank() {
+  const solved = parseInt(document.getElementById('comp-solved')?.value) || 0;
+  const correct = parseInt(document.getElementById('comp-correct')?.value) || 0;
+  const wrong = parseInt(document.getElementById('comp-wrong')?.value) || 0;
+  const blank = Math.max(0, solved - correct - wrong);
+
+  const display = document.getElementById('comp-blank-display');
+  if (display) {
+    display.textContent = `${blank} Boş`;
+    display.style.color = (correct + wrong > solved && solved > 0) ? 'var(--danger)' : '#FFE600';
+  }
+}
+
+function handleTaskCompletionSubmit(e) {
+  if (e) e.preventDefault();
+  if (!pendingCompletionContext) return;
+
+  const { dateStr, itemId, item } = pendingCompletionContext;
+  const data = getStudentData(window.activeStudent);
+  const day = (data.schedule || []).find(s => s.date === dateStr);
+  if (!day) return;
+  const currentItem = (day.items || []).find(i => i.id === itemId) || item;
+
+  const solved = parseInt(document.getElementById('comp-solved')?.value) || 0;
+  const correct = parseInt(document.getElementById('comp-correct')?.value) || 0;
+  const wrong = parseInt(document.getElementById('comp-wrong')?.value) || 0;
+
+  if (solved > 0 && (correct + wrong > solved)) {
+    showToast('Doğru + Yanlış sayısı toplam çözülen sorudan fazla olamaz!', 'warning');
+    return;
+  }
+
+  // 1. Görevi tamamlandı olarak işaretle
+  currentItem.done = true;
+  _syncScheduleWithTopicStatus(data, currentItem.subject, currentItem.topic, 'completed');
+
+  // 2. Eğer soru çözülmüşse Soru Takibine (dailyLog) otomatik işle
+  if (solved > 0) {
+    if (!Array.isArray(data.dailyLog)) data.dailyLog = [];
+    
+    const existingIdx = data.dailyLog.findIndex(el => el.taskId === itemId);
+    const logEntry = {
+      id: existingIdx !== -1 ? data.dailyLog[existingIdx].id : generateId(),
+      date: dateStr,
+      tytAyt: _resolveTytAyt(currentItem.subject),
+      subject: _cleanSubjectName(currentItem.subject),
+      solved: solved,
+      correct: correct,
+      wrong: wrong,
+      taskId: itemId
+    };
+
+    if (existingIdx !== -1) {
+      data.dailyLog[existingIdx] = logEntry;
+    } else {
+      data.dailyLog.push(logEntry);
+    }
+    currentItem.completedResult = { solved, correct, wrong, blank: Math.max(0, solved - correct - wrong) };
   }
 
   saveStudentData(window.activeStudent, data);
+  closeModal('task-completion-modal');
+  pendingCompletionContext = null;
+
+  renderSchedule();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof _renderTopicStats === 'function') _renderTopicStats();
+  if (typeof renderTopics === 'function') renderTopics();
+  if (typeof renderDailyLog === 'function') renderDailyLog();
+  if (typeof checkNotifications === 'function') checkNotifications();
+
+  if (solved > 0) {
+    showToast(`🎉 Tebrikler! Görev tamamlandı ve Soru Takibine ${solved} soru (${correct} D, ${wrong} Y) işlendi!`, 'success');
+  } else {
+    showToast(`🎉 Tebrikler! "${currentItem.topic}" tamamlandı!`, 'success');
+  }
+}
+
+function completeTaskWithoutQuestions() {
+  if (!pendingCompletionContext) return;
+  const { dateStr, itemId, item } = pendingCompletionContext;
+  const data = getStudentData(window.activeStudent);
+  const day = (data.schedule || []).find(s => s.date === dateStr);
+  if (day) {
+    const currentItem = (day.items || []).find(i => i.id === itemId) || item;
+    currentItem.done = true;
+    _syncScheduleWithTopicStatus(data, currentItem.subject, currentItem.topic, 'completed');
+  }
+  saveStudentData(window.activeStudent, data);
+  closeModal('task-completion-modal');
+  pendingCompletionContext = null;
+
   renderSchedule();
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof _renderTopicStats === 'function') _renderTopicStats();
   if (typeof renderTopics === 'function') renderTopics();
   if (typeof checkNotifications === 'function') checkNotifications();
+  showToast(`🎉 "${item.topic}" tamamlandı olarak işaretlendi!`, 'success');
+}
 
-  if (done) {
-    showToast(`🎉 Tebrikler! "${item?.topic || 'Görev'}" tamamlandı & Konu durumu güncellendi!`, 'success');
+function cancelTaskCompletion() {
+  if (pendingCompletionContext) {
+    const { itemId } = pendingCompletionContext;
+    const chk = document.querySelector(`#si-${itemId} input[type="checkbox"]`);
+    if (chk) chk.checked = false;
+    renderSchedule();
   }
+  closeModal('task-completion-modal');
+  pendingCompletionContext = null;
 }
 
 function deleteScheduleItem(dateStr, itemId) {
@@ -1394,7 +1561,8 @@ window.toggleSchedBook                 = toggleSchedBook;
 window.removeSchedBook                 = removeSchedBook;
 window.addCustomSchedBook              = addCustomSchedBook;
 window.toggleCustomBookInput           = toggleCustomBookInput;
-
-
-
-
+window.openTaskCompletionModal        = openTaskCompletionModal;
+window.calcCompBlank                  = calcCompBlank;
+window.handleTaskCompletionSubmit     = handleTaskCompletionSubmit;
+window.completeTaskWithoutQuestions   = completeTaskWithoutQuestions;
+window.cancelTaskCompletion           = cancelTaskCompletion;
