@@ -89,6 +89,15 @@ function getTodayStr() {
   return `${year}-${month}-${day}`;
 }
 
+function formatDateISO(d) {
+  if (!d) return getTodayStr();
+  const dateObj = (typeof d === 'string') ? new Date(d.length === 10 ? d + 'T00:00:00' : d) : d;
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
@@ -107,5 +116,6 @@ window.getUsers        = getUsers;
 window.saveUsers       = saveUsers;
 window.generateId      = generateId;
 window.getTodayStr     = getTodayStr;
+window.formatDateISO   = formatDateISO;
 window.formatDate      = formatDate;
 window.formatNumber    = formatNumber;

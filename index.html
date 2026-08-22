@@ -1821,29 +1821,29 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=224"></script>
-<script src="js/data.js?v=224"></script>
-<script src="topics.js?v=224"></script>
-<script src="js/auth.js?v=224"></script>
-<script src="js/students.js?v=224"></script>
-<script src="js/dashboard.js?v=224"></script>
-<script src="js/resources.js?v=224"></script>
-<script src="js/exams.js?v=224"></script>
-<script src="rankings.js?v=224"></script>
-<script src="js/calculator.js?v=224"></script>
-<script src="js/ai-analysis.js?v=224"></script>
-<script src="js/schedule.js?v=224"></script>
-<script src="js/topics.js?v=224"></script>
-<script src="js/wrong-notes.js?v=224"></script>
-<script src="js/report.js?v=224"></script>
-<script src="js/vision.js?v=224"></script>
-<script src="js/app.js?v=224"></script>
+<script src="js/firebase.js?v=225"></script>
+<script src="js/data.js?v=225"></script>
+<script src="topics.js?v=225"></script>
+<script src="js/auth.js?v=225"></script>
+<script src="js/students.js?v=225"></script>
+<script src="js/dashboard.js?v=225"></script>
+<script src="js/resources.js?v=225"></script>
+<script src="js/exams.js?v=225"></script>
+<script src="rankings.js?v=225"></script>
+<script src="js/calculator.js?v=225"></script>
+<script src="js/ai-analysis.js?v=225"></script>
+<script src="js/schedule.js?v=225"></script>
+<script src="js/topics.js?v=225"></script>
+<script src="js/wrong-notes.js?v=225"></script>
+<script src="js/report.js?v=225"></script>
+<script src="js/vision.js?v=225"></script>
+<script src="js/app.js?v=225"></script>
 
 
 <script>
   // Bugünün tarihini date input'larına ayarla
   document.addEventListener('DOMContentLoaded', () => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayStr();
     ['daily-date','wrong-date','exam-date'].forEach(id => {
       const el = document.getElementById(id);
       if (el && !el.value) el.value = today;

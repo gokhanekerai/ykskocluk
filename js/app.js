@@ -227,17 +227,17 @@ function renderDailyLog() {
   } else if (filterRange === 'yesterday') {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yStr = yesterday.toISOString().split('T')[0];
+    const yStr = formatDateISO(yesterday);
     filteredData = typeAndSubjFiltered.filter(e => e.date === yStr);
   } else if (filterRange === 'last7') {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 7);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
+    const cutoffStr = formatDateISO(cutoff);
     filteredData = typeAndSubjFiltered.filter(e => e.date >= cutoffStr);
   } else if (filterRange === 'last30') {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 30);
-    const cutoffStr = cutoff.toISOString().split('T')[0];
+    const cutoffStr = formatDateISO(cutoff);
     filteredData = typeAndSubjFiltered.filter(e => e.date >= cutoffStr);
   } else if (filterRange === 'custom' && filterCustomDate) {
     filteredData = typeAndSubjFiltered.filter(e => e.date === filterCustomDate);
@@ -400,7 +400,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const str = d.toISOString().split('T')[0];
+      const str = formatDateISO(d);
       labels.push(days[d.getDay()]);
 
       const matchingEntries = logData.filter(e => {

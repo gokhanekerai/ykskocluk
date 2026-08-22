@@ -198,7 +198,7 @@ function _updateStreak(data, studentId) {
   const today = getTodayStr();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yStr = yesterday.toISOString().split('T')[0];
+  const yStr = formatDateISO(yesterday);
 
   const hasTodayEntry = (data.dailyLog || []).some(e => e.date === today);
 
@@ -227,7 +227,7 @@ function _renderWeeklyChart(dailyLog) {
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const str = d.toISOString().split('T')[0];
+    const str = formatDateISO(d);
     labels.push(days[d.getDay()]);
     const solved = dailyLog
       .filter(e => e.date === str)

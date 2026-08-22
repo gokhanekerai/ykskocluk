@@ -15,7 +15,7 @@ function _escapeHtml(s) {
 
 window.currentScheduleViewMode = window.innerWidth < 768 ? 'week' : 'month'; // 'month' | 'week' | 'day'
 let currentPeriodOffset = 0;
-window.currentSelectedDayDate = new Date().toISOString().split('T')[0];
+window.currentSelectedDayDate = getTodayStr();
 
 function setScheduleViewMode(mode) {
   window.currentScheduleViewMode = mode;
@@ -37,7 +37,7 @@ function changePeriodOffset(delta) {
 
 function resetPeriodOffset() {
   currentPeriodOffset = 0;
-  window.currentSelectedDayDate = new Date().toISOString().split('T')[0];
+  window.currentSelectedDayDate = getTodayStr();
   renderSchedule();
 }
 
@@ -182,21 +182,15 @@ function _renderMonthView(container, schedule, wrongLog) {
       badgeHtml = `<span class="month-day-badge desktop-only" style="${badgeStyle}">${doneCount}/${items.length}</span>`;
     }
 
-    const monthShortNames = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
-    const monthShort = monthShortNames[cellMonth];
-
-    const cellClasses = [
-      'month-day-cell',
-      isToday ? 'today' : '',
-      isSelected ? 'selected' : '',
-      isOtherMonth ? 'other-month' : ''
-    ].filter(Boolean).join(' ');
+    const MONTHS_SHORT = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+    const monthShort = MONTHS_SHORT[cellMonth];
 
     html += `
-      <div class="${cellClasses}" onclick="selectScheduleDay('${dStr}')" title="${dStr} görevlerini görüntüle / yönet">
+      <div class="month-day-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}"
+           onclick="selectScheduleDay('${dStr}')">
         <div class="month-day-top">
-          <div class="month-day-number">
-            <span>${cellDayNum}</span>
+          <div style="display:flex; align-items:baseline; gap:3px;">
+            <span class="month-day-num">${cellDayNum}</span>
             <span class="month-short-name desktop-only">${monthShort}</span>
           </div>
           ${badgeHtml}
@@ -210,7 +204,7 @@ function _renderMonthView(container, schedule, wrongLog) {
   }
   html += '</div>'; // .month-calendar-grid
 
-  // 3. Seçili Günün Görevleri Paneli (Her cihazda, özellikle mobilde takvimin altında anında görünür)
+  // 3. Seçili Günün Görevleri Paneli
   html += _renderSelectedDayCardHtml(schedule, wrongLog, window.currentSelectedDayDate);
   html += '</div>'; // .calendar-month-wrapper
 
@@ -252,14 +246,14 @@ function _renderWeekView(container, schedule, wrongLog) {
 
   const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
   const DAYS_SHORT = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
-  const todayStr = now.toISOString().split('T')[0];
+  const todayStr = getTodayStr();
 
   let html = '<div class="calendar-week-container">';
 
   // Mobil için Gün Seçici Şerit (Pills)
   html += '<div class="week-pills-bar mobile-only">';
   weekDates.forEach((dObj, idx) => {
-    const dStr = dObj.toISOString().split('T')[0];
+    const dStr = formatDateISO(dObj);
     const isToday = (dStr === todayStr);
     const isSelected = (dStr === window.currentSelectedDayDate);
     const dayData = schedule.find(s => s.date === dStr);
@@ -283,7 +277,7 @@ function _renderWeekView(container, schedule, wrongLog) {
   // 7 Günlük Kartlar Izgarası
   html += '<div class="week-columns-grid">';
   weekDates.forEach((dObj, idx) => {
-    const dStr = dObj.toISOString().split('T')[0];
+    const dStr = formatDateISO(dObj);
     const isToday = (dStr === todayStr);
     const isSelected = (dStr === window.currentSelectedDayDate);
     const dayData = schedule.find(s => s.date === dStr);
@@ -298,14 +292,12 @@ function _renderWeekView(container, schedule, wrongLog) {
         <!-- Gün Başlığı -->
         <div class="week-day-header" onclick="selectScheduleDay('${dStr}')">
           <div>
-            <div class="week-day-title">${DAYS[idx]}</div>
-            <div class="week-day-date-str">${dObj.getDate()} ${MONTHS[dObj.getMonth()]}</div>
+            <div class="week-day-name">${DAYS[idx]}</div>
+            <div class="week-day-date">${dObj.getDate()} ${MONTHS[dObj.getMonth()]}</div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
             ${items.length > 0 ? `
-              <span class="badge ${isAllDone ? 'badge-ayt' : 'badge-tyt'}" style="font-size:11px; padding:2px 6px;">
-                ${doneCount}/${items.length}
-              </span>
+              <span class="week-day-badge ${isAllDone ? 'done' : ''}">${doneCount}/${items.length}</span>
             ` : ''}
             <button class="btn-icon-sm" style="color:var(--primary); font-size:14px;" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')" title="Bu güne görev ekle">➕</button>
           </div>
@@ -372,7 +364,7 @@ function _renderWeekView(container, schedule, wrongLog) {
 // ─── 3. GÜNLÜK GÖRÜNÜM (DAY / LIST VIEW) ────────────────────────────────────
 
 function _renderDayView(container, schedule, wrongLog) {
-  const targetDateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
+  const targetDateStr = window.currentSelectedDayDate || getTodayStr();
   const dateObj = new Date(targetDateStr + 'T00:00:00');
   
   const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
@@ -382,7 +374,7 @@ function _renderDayView(container, schedule, wrongLog) {
 
   const subLbl = document.getElementById('schedule-period-sub');
   if (subLbl) {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getTodayStr();
     subLbl.textContent = (targetDateStr === todayStr) ? 'Bugün' : targetDateStr;
   }
 
@@ -396,11 +388,11 @@ function _renderDayView(container, schedule, wrongLog) {
 // ─── SEÇİLİ GÜNÜN DETAY KARTI (INLINE AKTİF GÜN GÖREV YÖNETİCİSİ) ────────────
 
 function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView = false) {
-  if (!dateStr) dateStr = new Date().toISOString().split('T')[0];
+  if (!dateStr) dateStr = getTodayStr();
   const dateObj = new Date(dateStr + 'T00:00:00');
   const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayStr();
   const isToday = (dateStr === todayStr);
 
   const dayData = schedule.find(s => s.date === dateStr);
@@ -1442,7 +1434,7 @@ function addTopicToScheduleAsReview(subject, topic, targetDate = null) {
   const data = getStudentData(window.activeStudent);
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
-  const dateStr = targetDate || window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
+  const dateStr = targetDate || window.currentSelectedDayDate || getTodayStr();
   let day = data.schedule.find(s => s.date === dateStr);
   if (!day) {
     day = { id: generateId(), date: dateStr, items: [] };
@@ -1496,7 +1488,7 @@ function autoAssignWrongReviewsToSchedule() {
     const [subj, top] = key.split('|||');
     const targetDateObj = new Date(today);
     targetDateObj.setDate(today.getDate() + idx);
-    const dateStr = targetDateObj.toISOString().split('T')[0];
+    const dateStr = formatDateISO(targetDateObj);
 
     let day = data.schedule.find(s => s.date === dateStr);
     if (!day) {
