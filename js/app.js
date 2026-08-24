@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDashboard();
       }
     }
+    if (typeof window.updateGlobalCountdown === 'function') {
+      window.updateGlobalCountdown();
+    }
   });
 
   // Enter tuşu ile form gönder
@@ -832,18 +835,18 @@ function toggleTheme() {
 // ─── Geri Sayım ───────────────────────────────────────────────────────────────
 
 function startCountdown() {
-  function update() {
+  function getTargetExamDate() {
     const now = new Date();
     let yksDate = null;
 
     try {
       const studentId = window.activeStudent || localStorage.getItem('yks_coach_active_student');
-      if (studentId) {
+      if (studentId && typeof getStudentData === 'function') {
         const data = getStudentData(studentId);
         if (data && data.personalGoal && data.personalGoal.examDate) {
           const timeStr = data.personalGoal.examTime || '10:30';
           const parsed = typeof parseSafeDate === 'function' ? parseSafeDate(data.personalGoal.examDate, timeStr) : new Date(`${data.personalGoal.examDate}T${timeStr}:00`);
-          if (parsed && !isNaN(parsed.getTime())) {
+          if (parsed && !isNaN(parsed.getTime()) && parsed.getTime() > now.getTime()) {
             yksDate = parsed;
           }
         }
@@ -854,35 +857,52 @@ function startCountdown() {
         const globalTime = localStorage.getItem('yks_coach_exam_time') || '10:30';
         if (globalDate) {
           const parsedG = typeof parseSafeDate === 'function' ? parseSafeDate(globalDate, globalTime) : new Date(`${globalDate}T${globalTime}:00`);
-          if (parsedG && !isNaN(parsedG.getTime())) {
+          if (parsedG && !isNaN(parsedG.getTime()) && parsedG.getTime() > now.getTime()) {
             yksDate = parsedG;
           }
         }
       }
-    } catch(e) {}
-
-    // Eğer özel hedef tarihi girilmemişse veya geçmişse, varsayılan YKS tarihine (Haziran saat 10:30) ayarla
-    if (!yksDate) {
-      const currentYear = now.getFullYear();
-      const targetYear = (now.getMonth() > 5 || (now.getMonth() === 5 && now.getDate() > 20)) ? currentYear + 1 : currentYear;
-      yksDate = new Date(`${targetYear}-06-19T10:30:00`);
+    } catch(e) {
+      console.warn('Geri sayım tarihi okuma hatası:', e);
     }
 
-    const diff = Math.max(0, yksDate.getTime() - now.getTime());
-    const days  = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins  = Math.floor((diff % 3600000) / 60000);
-    const secs  = Math.floor((diff % 60000) / 1000);
+    // Hedef tarih yoksa veya geçmişte kalmışsa, bir sonraki YKS sınav tarihine ayarla
+    if (!yksDate || yksDate.getTime() <= now.getTime()) {
+      const currentYear = now.getFullYear();
+      const thisYearExam = new Date(currentYear, 5, 20, 10, 15, 0); // Bu yıl 20 Haziran 10:15
+      if (now.getTime() < thisYearExam.getTime()) {
+        yksDate = thisYearExam;
+      } else {
+        yksDate = new Date(currentYear + 1, 5, 19, 10, 15, 0); // Gelecek yıl Haziran
+      }
+    }
 
-    const dEl = document.getElementById('countdown-days');
-    const hEl = document.getElementById('countdown-hours');
-    const mEl = document.getElementById('countdown-mins');
-    const sEl = document.getElementById('countdown-secs');
+    return yksDate;
+  }
 
-    if (dEl) dEl.textContent = days;
-    if (hEl) hEl.textContent = String(hours).padStart(2, '0');
-    if (mEl) mEl.textContent = String(mins).padStart(2, '0');
-    if (sEl) sEl.textContent = String(secs).padStart(2, '0');
+  function update() {
+    try {
+      const now = new Date();
+      const yksDate = getTargetExamDate();
+
+      const diff = Math.max(0, yksDate.getTime() - now.getTime());
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000) / 60000);
+      const secs  = Math.floor((diff % 60000) / 1000);
+
+      const dEl = document.getElementById('countdown-days');
+      const hEl = document.getElementById('countdown-hours');
+      const mEl = document.getElementById('countdown-mins');
+      const sEl = document.getElementById('countdown-secs');
+
+      if (dEl) dEl.textContent = days;
+      if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+      if (mEl) mEl.textContent = String(mins).padStart(2, '0');
+      if (sEl) sEl.textContent = String(secs).padStart(2, '0');
+    } catch(err) {
+      console.error('Geri sayım güncelleme hatası:', err);
+    }
   }
 
   update();

@@ -225,9 +225,25 @@ function openCountdownModal() {
   const eInp = document.getElementById('cd-exam-date');
   const tInp = document.getElementById('cd-exam-time');
 
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const thisYearExam = new Date(currentYear, 5, 20, 10, 15, 0);
+  const defaultExamYear = (now.getTime() < thisYearExam.getTime()) ? currentYear : currentYear + 1;
+  const defaultExamDate = `${defaultExamYear}-06-19`;
+
   const savedStart = g.startDate || localStorage.getItem('yks_coach_program_start') || '2026-08-17';
-  const savedExam  = g.examDate  || localStorage.getItem('yks_coach_exam_date')     || '2027-06-19';
-  const savedTime  = g.examTime  || localStorage.getItem('yks_coach_exam_time')     || '10:30';
+  let savedExam = g.examDate || localStorage.getItem('yks_coach_exam_date');
+  
+  if (savedExam) {
+    const parsed = typeof parseSafeDate === 'function' ? parseSafeDate(savedExam, g.examTime || '10:30') : new Date(savedExam);
+    if (!parsed || isNaN(parsed.getTime()) || parsed.getTime() <= now.getTime()) {
+      savedExam = defaultExamDate;
+    }
+  } else {
+    savedExam = defaultExamDate;
+  }
+
+  const savedTime  = g.examTime  || localStorage.getItem('yks_coach_exam_time') || '10:30';
 
   if (sInp) sInp.value = typeof formatDateForInput === 'function' ? formatDateForInput(savedStart) : savedStart;
   if (eInp) eInp.value = typeof formatDateForInput === 'function' ? formatDateForInput(savedExam)  : savedExam;
@@ -238,10 +254,16 @@ function openCountdownModal() {
 }
 
 function calcCountdown() {
-  let startVal    = document.getElementById('cd-start-date')?.value || '2026-08-17';
-  let examVal     = document.getElementById('cd-exam-date')?.value  || '2027-06-19';
-  let examTimeVal = document.getElementById('cd-exam-time')?.value  || '10:30';
   const now = new Date();
+  const currentYear = now.getFullYear();
+  const thisYearExam = new Date(currentYear, 5, 20, 10, 15, 0);
+  const defaultExamYear = (now.getTime() < thisYearExam.getTime()) ? currentYear : currentYear + 1;
+  const defaultExamDate = `${defaultExamYear}-06-19`;
+
+  let startVal    = document.getElementById('cd-start-date')?.value || '2026-08-17';
+  let examVal     = document.getElementById('cd-exam-date')?.value  || defaultExamDate;
+  let examTimeVal = document.getElementById('cd-exam-time')?.value  || '10:30';
+  
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -252,7 +274,7 @@ function calcCountdown() {
 
   const eDate = (typeof parseSafeDate === 'function' ? parseSafeDate(examVal, examTimeVal) : new Date(examVal)) || new Date();
   let remainingDays = 0;
-  if (!isNaN(eDate.getTime())) {
+  if (eDate && !isNaN(eDate.getTime())) {
     const diffRem = eDate.getTime() - now.getTime();
     remainingDays = Math.max(0, Math.floor(diffRem / 86400000));
   }

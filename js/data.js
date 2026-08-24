@@ -3,36 +3,70 @@
  */
 
 function parseSafeDate(dateStr, timeStr) {
-  if (!timeStr) timeStr = '10:30';
   if (!dateStr) return null;
-  dateStr = String(dateStr).trim();
+  if (dateStr instanceof Date) return isNaN(dateStr.getTime()) ? null : dateStr;
   
+  dateStr = String(dateStr).trim();
+  timeStr = timeStr ? String(timeStr).trim() : '10:30';
+
+  // Eğer dateStr içinde zaten T varsa ayrıştır
+  if (dateStr.includes('T')) {
+    const splitT = dateStr.split('T');
+    dateStr = splitT[0];
+    if (splitT[1] && (!timeStr || timeStr === '10:30')) {
+      timeStr = splitT[1].substring(0, 5);
+    }
+  }
+
+  let year = null, month = null, day = null;
+
   if (dateStr.includes('.')) {
     const parts = dateStr.split('.');
     if (parts.length === 3) {
-      const d = parts[0].padStart(2, '0');
-      const m = parts[1].padStart(2, '0');
-      const y = parts[2];
-      dateStr = `${y}-${m}-${d}`;
+      day = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10);
+      year = parseInt(parts[2], 10);
     }
   } else if (dateStr.includes('/')) {
     const parts = dateStr.split('/');
     if (parts.length === 3) {
       if (parts[0].length === 4) {
-        dateStr = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+        year = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10);
+        day = parseInt(parts[2], 10);
       } else {
-        dateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        day = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10);
+        year = parseInt(parts[2], 10);
+      }
+    }
+  } else if (dateStr.includes('-')) {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        year = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10);
+        day = parseInt(parts[2], 10);
+      } else {
+        day = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10);
+        year = parseInt(parts[2], 10);
       }
     }
   }
 
-  const time = (timeStr && timeStr.includes(':')) ? timeStr : '10:30';
-  const isoStr = `${dateStr}T${time}:00`;
-  const parsed = new Date(isoStr);
-  if (!isNaN(parsed.getTime())) {
-    return parsed;
+  let hours = 10, mins = 30;
+  if (timeStr && timeStr.includes(':')) {
+    const tParts = timeStr.split(':');
+    hours = parseInt(tParts[0], 10) || 0;
+    mins = parseInt(tParts[1], 10) || 0;
   }
-  
+
+  if (year && month && day && !isNaN(year) && !isNaN(month) && !isNaN(day)) {
+    const d = new Date(year, month - 1, day, hours, mins, 0);
+    if (!isNaN(d.getTime())) return d;
+  }
+
   const fallback = new Date(dateStr);
   return isNaN(fallback.getTime()) ? null : fallback;
 }
@@ -73,6 +107,18 @@ function formatDateForInput(dateStr) {
   return dateStr;
 }
 window.formatDateForInput = formatDateForInput;
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+window.escapeHtml = escapeHtml;
+window._escapeHtml = escapeHtml;
 
 const DEFAULT_STUDENT_DATA = {
   dailyLog: [],       // { id, date, tytAyt, subject, solved, correct, wrong }
