@@ -712,6 +712,20 @@ canvas {
   display: block;
 }
 
+/* Soru Kayıt Filtreleri */
+.daily-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.daily-filter-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* Hedef banner */
 .goal-banner {
   background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(34,211,238,0.08));
@@ -2234,6 +2248,11 @@ span.desktop-only {
 
   #exam-analysis-subjects-container {
     grid-template-columns: 1fr !important;
+  }
+
+  .daily-filters-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
 }
 

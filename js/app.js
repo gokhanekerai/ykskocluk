@@ -457,7 +457,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
       const str = formatDateISO(d);
       if (i === 6) windowStartStr = str;
 
-      const dayLabel = `${d.getDate()} ${monthsShort[d.getMonth()]}`;
+      const dayLabel = [`${d.getDate()}`, days[d.getDay()]];
       labels.push(dayLabel);
 
       const matchingEntries = logData.filter(e => {
@@ -612,6 +612,13 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             mode: 'index',
             intersect: false,
             callbacks: {
+              title: function(items) {
+                if (!items || !items.length) return '';
+                const idx = items[0].dataIndex;
+                const d = new Date(endWindowDate);
+                d.setDate(d.getDate() - (6 - idx));
+                return `📅 ${d.getDate()} ${monthsShort[d.getMonth()]} (${days[d.getDay()]})`;
+              },
               label: function(ctx) {
                 return ` ${ctx.dataset.label}: ${formatNumber(ctx.raw)} Soru`;
               }
@@ -628,7 +635,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
           x: {
             ticks: {
               color: '#f8fafc',
-              font: { size: 10.5, weight: '700' },
+              font: { size: 10, weight: '700' },
               maxRotation: 0,
               minRotation: 0,
               autoSkip: false
