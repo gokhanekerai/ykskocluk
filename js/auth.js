@@ -5,7 +5,8 @@
 let currentUser = null; // { id, username, name, role, roleTitle, avatar, branch? }
 
 function initAuth() {
-  const sessionKey = localStorage.getItem('yks_coach_session');
+  const rawSession = localStorage.getItem('yks_coach_session');
+  const sessionKey = (rawSession && rawSession !== 'null' && rawSession !== 'undefined') ? rawSession.trim() : null;
   const users = getUsers();
 
   if (sessionKey) {
@@ -16,6 +17,9 @@ function initAuth() {
       return true;
     }
   }
+
+  // Geçerli bir oturum yoksa temizle ve giriş ekranını göster
+  localStorage.removeItem('yks_coach_session');
   showLoginScreen();
   return false;
 }
