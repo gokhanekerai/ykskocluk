@@ -60,17 +60,22 @@ function logout() {
 }
 
 function _applySession(user) {
+  if (!user) return;
   currentUser = user;
   window.currentUser = user;
-  localStorage.setItem('yks_coach_session', user.id || user.username);
+  if (user.id || user.username) {
+    localStorage.setItem('yks_coach_session', user.id || user.username);
+  }
 
   const isCoachRole = user.role === 'coach' || user.role === 'supercoach';
   const isSuperCoachRole = user.role === 'supercoach' || user.username === 'gokhan' || user.username === 'koc';
 
-  if (user.role === 'student') {
-    document.body.classList.add('student-role');
-  } else {
-    document.body.classList.remove('student-role');
+  if (document.body) {
+    if (user.role === 'student') {
+      document.body.classList.add('student-role');
+    } else {
+      document.body.classList.remove('student-role');
+    }
   }
 
   // Sidebar kullanıcı bilgisi
@@ -97,13 +102,17 @@ function _applySession(user) {
   if (sel) sel.style.display = isCoachRole ? '' : 'none';
 
   if (user.role === 'student') {
-    window.switchStudent(user.id, true);
+    if (typeof window.switchStudent === 'function') {
+      window.switchStudent(user.id || user.username, true);
+    }
   } else {
     const visibleStudents = typeof getVisibleStudents === 'function' ? getVisibleStudents(user) : [];
     const savedStudent = localStorage.getItem('yks_coach_active_student');
     const isSavedVisible = visibleStudents.some(s => s.key === savedStudent || s.id === savedStudent);
     const targetStudentId = isSavedVisible ? savedStudent : (visibleStudents[0]?.key || 'kaan');
-    window.switchStudent(targetStudentId, true);
+    if (typeof window.switchStudent === 'function') {
+      window.switchStudent(targetStudentId, true);
+    }
   }
 
   if (typeof renderStudentSelector === 'function') {

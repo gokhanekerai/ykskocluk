@@ -177,7 +177,7 @@ body {
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(12px);
 }
-.login-overlay.hidden { display: none; }
+.login-overlay.hidden { display: none !important; }
 
 .login-card {
   background: var(--bg-card);
