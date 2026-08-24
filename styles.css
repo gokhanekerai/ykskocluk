@@ -1441,16 +1441,21 @@ span.desktop-only {
 
 @media (max-width: 768px) {
   .mobile-only {
-    display: block !important;
+    display: block;
+  }
+  div.mobile-only {
+    display: block;
   }
   span.mobile-only {
     display: inline !important;
   }
-  div.mobile-only {
-    display: block !important;
-  }
   .desktop-only {
     display: none !important;
+  }
+  .week-pills-bar, div.week-pills-bar.mobile-only {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
   }
 }
 
@@ -1686,35 +1691,45 @@ span.desktop-only {
 }
 
 .week-pills-bar {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 4px 2px 10px;
-  margin-bottom: 12px;
-  scrollbar-width: none;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: stretch !important;
+  gap: 5px !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 4px 2px 10px !important;
+  margin-bottom: 14px !important;
+  scrollbar-width: none !important;
+  box-sizing: border-box !important;
 }
 .week-pills-bar::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }
 
 .week-pill-btn {
-  flex: 1;
-  min-width: 44px;
-  padding: 8px 4px;
-  background: var(--bg-card, #1e1e24);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  flex: 1 1 0 !important;
+  min-width: 40px !important;
+  max-width: calc(100% / 7) !important;
+  padding: 7px 2px !important;
+  background: var(--bg-card, #1e1e24) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
 }
 
 .week-pill-btn.today {
-  border-color: rgba(139, 92, 246, 0.6);
-  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.6) !important;
+  background: rgba(139, 92, 246, 0.1) !important;
 }
 
 .week-pill-btn.selected {
@@ -2086,6 +2101,20 @@ span.desktop-only {
   .schedule-nav-bar > div:first-child {
     display: flex;
     justify-content: space-between;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .stat-card {
+    padding: 10px 12px !important;
+  }
+  .stat-value {
+    font-size: 18px !important;
+  }
+  .stat-label {
+    font-size: 10px !important;
   }
 
   /* Aylık Takvim Hücreleri Mobilde Kompakt & Kare */
