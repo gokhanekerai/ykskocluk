@@ -457,7 +457,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
       const str = formatDateISO(d);
       if (i === 6) windowStartStr = str;
 
-      const dayLabel = `${d.getDate()} ${monthsShort[d.getMonth()]} ${days[d.getDay()]}`;
+      const dayLabel = `${d.getDate()} ${monthsShort[d.getMonth()]}`;
       labels.push(dayLabel);
 
       const matchingEntries = logData.filter(e => {
@@ -517,87 +517,65 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
         labels: labels,
         datasets: [
           {
-            label: 'Toplam Soru',
+            label: 'Toplam',
             data: solvedData,
             borderColor: '#00F0FF',
-            borderWidth: 3,
+            borderWidth: 2.5,
             backgroundColor: gradient,
             fill: true,
             tension: 0.35,
             pointBackgroundColor: '#00F0FF',
             pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 5,
-            pointHoverRadius: 7,
+            pointBorderWidth: 1.5,
+            pointRadius: 4.5,
+            pointHoverRadius: 6.5,
             datalabels: {
               display: (context) => (context.dataset.data[context.dataIndex] > 0),
               anchor: 'end',
               align: 'top',
-              offset: 6,
+              offset: 4,
               color: '#00F0FF',
-              backgroundColor: 'rgba(10, 15, 30, 0.88)',
+              backgroundColor: 'rgba(10, 15, 30, 0.92)',
               borderColor: 'rgba(0, 240, 255, 0.4)',
               borderWidth: 1,
-              borderRadius: 5,
-              padding: { top: 2, bottom: 2, left: 5, right: 5 },
-              font: { size: 11, weight: '800' },
+              borderRadius: 4,
+              padding: { top: 1, bottom: 1, left: 4, right: 4 },
+              font: { size: 10, weight: '800' },
               formatter: (value) => formatNumber(value)
             }
           },
           {
-            label: 'Toplam Doğru',
+            label: 'Doğru',
             data: correctData,
             borderColor: '#00F5A0',
-            borderWidth: 2.5,
+            borderWidth: 2,
             backgroundColor: 'transparent',
             fill: false,
             tension: 0.35,
             pointBackgroundColor: '#00F5A0',
             pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 4.5,
-            pointHoverRadius: 6.5,
+            pointBorderWidth: 1.5,
+            pointRadius: 3.5,
+            pointHoverRadius: 5.5,
             datalabels: {
-              display: (context) => (context.dataset.data[context.dataIndex] > 0),
-              anchor: 'start',
-              align: 'bottom',
-              offset: 6,
-              color: '#00F5A0',
-              backgroundColor: 'rgba(10, 30, 20, 0.88)',
-              borderColor: 'rgba(0, 245, 160, 0.4)',
-              borderWidth: 1,
-              borderRadius: 5,
-              padding: { top: 2, bottom: 2, left: 5, right: 5 },
-              font: { size: 11, weight: '800' },
-              formatter: (value) => formatNumber(value)
+              display: false
             }
           },
           {
-            label: 'Toplam Yanlış',
+            label: 'Yanlış',
             data: wrongData,
             borderColor: '#FF0055',
-            borderWidth: 2.5,
+            borderWidth: 2,
             backgroundColor: 'transparent',
             fill: false,
             tension: 0.35,
             pointBackgroundColor: '#FF0055',
             pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 4.5,
-            pointHoverRadius: 6.5,
+            pointBorderWidth: 1.5,
+            pointRadius: 3.5,
+            pointHoverRadius: 5.5,
             datalabels: {
-              display: (context) => (context.dataset.data[context.dataIndex] > 0),
-              anchor: 'end',
-              align: 'top',
-              offset: 6,
-              color: '#FF0055',
-              backgroundColor: 'rgba(30, 10, 20, 0.88)',
-              borderColor: 'rgba(255, 0, 85, 0.4)',
-              borderWidth: 1,
-              borderRadius: 5,
-              padding: { top: 2, bottom: 2, left: 5, right: 5 },
-              font: { size: 11, weight: '800' },
-              formatter: (value) => formatNumber(value)
+              display: false
             }
           }
         ]
@@ -606,19 +584,21 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: { top: 28, bottom: 10, left: 12, right: 16 }
+          padding: { top: 18, bottom: 4, left: 4, right: 8 }
         },
         plugins: {
           legend: {
             display: true,
             position: 'top',
+            align: 'center',
             labels: {
               color: '#cbd5e1',
               usePointStyle: true,
               pointStyle: 'circle',
-              boxWidth: 8,
-              padding: 16,
-              font: { size: 12, weight: '700' }
+              boxWidth: 6,
+              boxHeight: 6,
+              padding: 12,
+              font: { size: 11, weight: '700' }
             }
           },
           tooltip: {
@@ -627,21 +607,32 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             bodyColor: '#ffffff',
             borderColor: 'rgba(0, 240, 255, 0.3)',
             borderWidth: 1,
-            padding: 12,
+            padding: 10,
             cornerRadius: 8,
             mode: 'index',
-            intersect: false
+            intersect: false,
+            callbacks: {
+              label: function(ctx) {
+                return ` ${ctx.dataset.label}: ${formatNumber(ctx.raw)} Soru`;
+              }
+            }
           }
         },
         scales: {
           y: {
             beginAtZero: true,
-            grace: '25%',
-            ticks: { color: '#94a3b8', font: { size: 11 } },
+            grace: '20%',
+            ticks: { color: '#94a3b8', font: { size: 10.5 } },
             grid: { color: 'rgba(255,255,255,0.06)' }
           },
           x: {
-            ticks: { color: '#f8fafc', font: { size: 11.5, weight: '700' } },
+            ticks: {
+              color: '#f8fafc',
+              font: { size: 10.5, weight: '700' },
+              maxRotation: 0,
+              minRotation: 0,
+              autoSkip: false
+            },
             grid: { display: false }
           }
         }

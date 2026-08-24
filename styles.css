@@ -2202,7 +2202,7 @@ span.desktop-only {
   }
 
   .chart-wrapper {
-    height: 210px !important;
+    height: 250px !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
@@ -2210,11 +2210,11 @@ span.desktop-only {
   }
 
   #tab-daily .chart-wrapper {
-    height: 220px !important;
+    height: 260px !important;
   }
 
   .exams-charts-grid .card > div {
-    height: 210px !important;
+    height: 230px !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
