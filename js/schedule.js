@@ -66,6 +66,13 @@ function selectScheduleDay(dateStr) {
 }
 
 function renderSchedule() {
+  if (!window.activeStudent) {
+    const container = document.getElementById('schedule-week');
+    if (container) container.innerHTML = '<div class="empty-state" style="text-align:center; padding:40px 20px; color:var(--text-muted);">Henüz kayıtlı bir öğrenciniz bulunmuyor.</div>';
+    _renderWrongPoolBanner([]);
+    _renderScheduleStats([]);
+    return;
+  }
   const data = getStudentData(window.activeStudent);
   const schedule = data.schedule || [];
   const wrongLog = data.wrongLog || [];

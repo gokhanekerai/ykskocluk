@@ -6,7 +6,26 @@ let _charts = {};
 
 function renderDashboard() {
   const student = window.activeStudent;
-  if (!student) return;
+  if (!student) {
+    _el('goal-uni', e => e.textContent = '—');
+    _el('goal-prof', e => e.textContent = '—');
+    _el('goal-rank', e => e.textContent = '—');
+    _el('dash-streak', e => e.textContent = '0');
+    _el('dash-streak-label', e => e.textContent = 'Henüz öğrenci yok');
+    _el('dash-week-solved', e => e.textContent = '0 Soru');
+    _el('dash-week-pct', e => e.textContent = '%0');
+    _el('dash-week-badge', e => e.textContent = 'Öğrenci Yok');
+    _el('dash-exam-count', e => e.textContent = '0');
+    _el('dash-topic-pct', e => e.textContent = '%0');
+    _el('dash-task-count', e => e.textContent = '0/0');
+    _el('dash-wrong-count', e => e.textContent = '0');
+    _el('dash-reading-pages', e => e.textContent = '0');
+    _el('recent-exams-list', e => e.innerHTML = '<p class="empty-msg" style="text-align:center; padding:20px; color:var(--text-muted);">Henüz kayıtlı öğrenci bulunmuyor.</p>');
+    _el('dash-tasks-list', e => e.innerHTML = '<p class="empty-msg" style="text-align:center; padding:20px; color:var(--text-muted);">Henüz kayıtlı öğrenci bulunmuyor.</p>');
+    if (_charts['weekly']) { _charts['weekly'].destroy(); delete _charts['weekly']; }
+    if (_charts['mockNet']) { _charts['mockNet'].destroy(); delete _charts['mockNet']; }
+    return;
+  }
 
   const data = getStudentData(student);
   const users = getUsers();

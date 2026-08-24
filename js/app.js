@@ -46,7 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── Öğrenci Geçişi ────────────────────────────────────────────────────────────
 
 function switchStudent(studentId, force = false) {
-  if (!studentId) return;
+  if (!studentId) {
+    activeStudent = null;
+    window.activeStudent = null;
+    localStorage.removeItem('yks_coach_active_student');
+    _el('page-student-name', e => e.textContent = 'Öğrenci Yok');
+    if (typeof renderStudentSelector === 'function') {
+      renderStudentSelector();
+    }
+    renderCurrentTab();
+    return;
+  }
   if (!force && activeStudent === studentId) return;
 
   activeStudent = studentId;
@@ -213,9 +223,16 @@ function resetDailyFilters() {
 }
 
 function renderDailyLog() {
-  const data = getStudentData(window.activeStudent);
   const tbody = document.getElementById('daily-table-body');
   if (!tbody) return;
+
+  if (!window.activeStudent) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-cell">Henüz kayıtlı bir öğrenciniz bulunmuyor.</td></tr>';
+    _renderDailyCharts([]);
+    return;
+  }
+
+  const data = getStudentData(window.activeStudent);
 
   const filterType       = document.getElementById('daily-filter-type')?.value || 'all';
   const filterSubj       = document.getElementById('daily-filter-subject')?.value || 'all';

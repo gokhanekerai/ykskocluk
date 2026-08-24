@@ -25,6 +25,11 @@ let examTrendChartAYT = null;
 let editingExamId = null;
 
 function renderExams() {
+  if (!window.activeStudent) {
+    _renderExamTable([]);
+    _renderExamCharts([]);
+    return;
+  }
   const data = getStudentData(window.activeStudent);
   _renderExamTable(data.mockLog);
   _renderExamCharts(data.mockLog);

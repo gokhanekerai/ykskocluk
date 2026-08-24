@@ -139,6 +139,9 @@ const DEFAULT_STUDENT_DATA = {
 // --- Öğrenci Verisi ---
 
 function getStudentData(studentId) {
+  if (!studentId) {
+    return JSON.parse(JSON.stringify(DEFAULT_STUDENT_DATA));
+  }
   const key = `yks_coach_${studentId}`;
   const str = localStorage.getItem(key);
   let data;
@@ -175,6 +178,7 @@ function getStudentData(studentId) {
 }
 
 function saveStudentData(studentId, data) {
+  if (!studentId) return;
   const key = `yks_coach_${studentId}`;
   localStorage.setItem(key, JSON.stringify(data));
   if (typeof fbSet === 'function') fbSet(key, data);

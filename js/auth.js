@@ -113,7 +113,7 @@ function _applySession(user) {
     const visibleStudents = typeof getVisibleStudents === 'function' ? getVisibleStudents(user) : [];
     const savedStudent = localStorage.getItem('yks_coach_active_student');
     const isSavedVisible = visibleStudents.some(s => s.key === savedStudent || s.id === savedStudent);
-    const targetStudentId = isSavedVisible ? savedStudent : (visibleStudents[0]?.key || 'kaan');
+    const targetStudentId = isSavedVisible ? savedStudent : (visibleStudents[0]?.key || null);
     if (typeof window.switchStudent === 'function') {
       window.switchStudent(targetStudentId, true);
     }
