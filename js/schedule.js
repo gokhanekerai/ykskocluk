@@ -163,10 +163,10 @@ function _renderMonthView(container, schedule, wrongLog) {
     if (items.length > 0) {
       const visibleItems = items.slice(0, 3);
       chipsHtml = visibleItems.map(it => `
-        <div class="month-task-chip ${it.done ? 'done' : ''}" title="${_escapeHtml(it.subject)}: ${_escapeHtml(it.topic)}" onclick="event.stopPropagation(); selectScheduleDay('${dStr}')">
+        <div class="month-task-chip ${it.done ? 'done' : ''}" title="${_escapeHtml(it.subject || '')}: ${_escapeHtml(it.topic || '')}" onclick="event.stopPropagation(); selectScheduleDay('${dStr}')">
           <span style="color:${it.done ? '#34d399' : 'var(--primary)'}; font-size:10px;">${it.done ? '✓' : '●'}</span>
-          <span style="font-weight:700; color:var(--text);">${_escapeHtml(it.subject.replace(/^(TYT|AYT)\s+/, ''))}:</span>
-          <span style="font-weight:500; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis;">${_escapeHtml(it.topic)}</span>
+          <span style="font-weight:700; color:var(--text);">${_escapeHtml((it.subject || '').replace(/^(TYT|AYT)\s+/, ''))}:</span>
+          <span style="font-weight:500; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis;">${_escapeHtml(it.topic || '')}</span>
         </div>
       `).join('');
 
@@ -449,6 +449,9 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
         'konu çalışma': '📖', 'soru çözme': '✏️', 'deneme': '📝', 'tekrar': '🔁', 'video': '🎬'
       }[item.type] || '📌';
 
+      const safeSubj = (item.subject || '').replace(/'/g, "\\'");
+      const safeTopic = (item.topic || '').replace(/'/g, "\\'");
+
       let metaParts = [`⏱️ ${item.duration || 60} dk`, item.type || 'konu çalışma'];
       if (item.questions) metaParts.push(`✏️ ${item.questions} Soru`);
       if (item.pages) metaParts.push(`📄 ${item.pages} Sayfa`);
@@ -466,9 +469,6 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
         const badgeStyle = isPending 
           ? 'background:rgba(239,68,68,0.18); color:#f87171; border:1px solid rgba(239,68,68,0.4);' 
           : 'background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);';
-
-        const safeSubj = (item.subject || '').replace(/'/g, "\\'");
-        const safeTopic = (item.topic || '').replace(/'/g, "\\'");
 
         wrongBtnHtml = `
           <button type="button" 
@@ -489,9 +489,9 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
           <div class="selected-day-task-content">
             <div class="selected-day-task-top">
               <span style="font-size:16px;">${icon}</span>
-              <span class="tag tag-subject" style="font-size:11px;">${_escapeHtml(item.subject)}</span>
+              <span class="tag tag-subject" style="font-size:11px;">${_escapeHtml(item.subject || '')}</span>
               <span class="selected-day-task-title ${item.done ? 'done' : ''}">
-                ${_escapeHtml(item.topic)}
+                ${_escapeHtml(item.topic || '')}
               </span>
             </div>
             <div class="selected-day-task-meta" style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
