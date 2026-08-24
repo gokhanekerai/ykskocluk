@@ -38,6 +38,42 @@ function parseSafeDate(dateStr, timeStr) {
 }
 window.parseSafeDate = parseSafeDate;
 
+function formatDateForInput(dateStr) {
+  if (!dateStr) return '';
+  dateStr = String(dateStr).trim();
+  if (dateStr.includes('.')) {
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const d = parts[0].padStart(2, '0');
+      const m = parts[1].padStart(2, '0');
+      const y = parts[2];
+      return `${y}-${m}-${d}`;
+    }
+  }
+  if (dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+      } else {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+    }
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return dateStr;
+  }
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  return dateStr;
+}
+window.formatDateForInput = formatDateForInput;
+
 const DEFAULT_STUDENT_DATA = {
   dailyLog: [],       // { id, date, tytAyt, subject, solved, correct, wrong }
   mockLog: [],        // { id, date, type, name, results:{}, nets:{}, totalNet, scores:{} }

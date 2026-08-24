@@ -872,19 +872,22 @@ function startCountdown() {
     const days  = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
     const mins  = Math.floor((diff % 3600000) / 60000);
+    const secs  = Math.floor((diff % 60000) / 1000);
 
     const dEl = document.getElementById('countdown-days');
     const hEl = document.getElementById('countdown-hours');
     const mEl = document.getElementById('countdown-mins');
+    const sEl = document.getElementById('countdown-secs');
 
     if (dEl) dEl.textContent = days;
-    if (hEl) hEl.textContent = String(hours).padStart(2,'0');
-    if (mEl) mEl.textContent = String(mins).padStart(2,'0');
+    if (hEl) hEl.textContent = String(hours).padStart(2, '0');
+    if (mEl) mEl.textContent = String(mins).padStart(2, '0');
+    if (sEl) sEl.textContent = String(secs).padStart(2, '0');
   }
 
   update();
   if (window._countdownTimerInterval) clearInterval(window._countdownTimerInterval);
-  window._countdownTimerInterval = setInterval(update, 5000);
+  window._countdownTimerInterval = setInterval(update, 1000);
   
   // Dışarıdan tetiklenebilmesi için window'a ekle
   window.updateGlobalCountdown = update;

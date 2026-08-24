@@ -229,8 +229,8 @@ function openCountdownModal() {
   const savedExam  = g.examDate  || localStorage.getItem('yks_coach_exam_date')     || '2027-06-19';
   const savedTime  = g.examTime  || localStorage.getItem('yks_coach_exam_time')     || '10:30';
 
-  if (sInp) sInp.value = savedStart;
-  if (eInp) eInp.value = savedExam;
+  if (sInp) sInp.value = typeof formatDateForInput === 'function' ? formatDateForInput(savedStart) : savedStart;
+  if (eInp) eInp.value = typeof formatDateForInput === 'function' ? formatDateForInput(savedExam)  : savedExam;
   if (tInp) tInp.value = savedTime;
 
   calcCountdown();
