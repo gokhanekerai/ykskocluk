@@ -178,6 +178,7 @@ body {
   backdrop-filter: blur(12px);
 }
 .login-overlay.hidden { display: none !important; }
+html.needs-login .login-overlay { display: flex !important; }
 
 .login-card {
   background: var(--bg-card);

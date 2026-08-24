@@ -131,6 +131,7 @@ function _applySession(user) {
 }
 
 function showLoginScreen() {
+  document.documentElement.classList.add('needs-login');
   const el = document.getElementById('login-screen');
   if (el) {
     el.classList.remove('hidden');
@@ -139,6 +140,7 @@ function showLoginScreen() {
 }
 
 function hideLoginScreen() {
+  document.documentElement.classList.remove('needs-login');
   const el = document.getElementById('login-screen');
   if (el) {
     el.classList.add('hidden');
