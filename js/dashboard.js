@@ -226,7 +226,7 @@ function openCountdownModal() {
   const tInp = document.getElementById('cd-exam-time');
 
   const savedStart = g.startDate || localStorage.getItem('yks_coach_program_start') || '2026-08-17';
-  const savedExam  = g.examDate  || localStorage.getItem('yks_coach_exam_date')     || '2027-06-12';
+  const savedExam  = g.examDate  || localStorage.getItem('yks_coach_exam_date')     || '2027-06-19';
   const savedTime  = g.examTime  || localStorage.getItem('yks_coach_exam_time')     || '10:30';
 
   if (sInp) sInp.value = savedStart;
@@ -239,7 +239,7 @@ function openCountdownModal() {
 
 function calcCountdown() {
   let startVal    = document.getElementById('cd-start-date')?.value || '2026-08-17';
-  let examVal     = document.getElementById('cd-exam-date')?.value  || '2027-06-12';
+  let examVal     = document.getElementById('cd-exam-date')?.value  || '2027-06-19';
   let examTimeVal = document.getElementById('cd-exam-time')?.value  || '10:30';
   const now = new Date();
   const today = new Date();
@@ -270,7 +270,7 @@ function handleSaveCountdown(e) {
   if (!data.personalGoal) data.personalGoal = {};
 
   const sVal = document.getElementById('cd-start-date')?.value || '2026-08-17';
-  const eVal = document.getElementById('cd-exam-date')?.value  || '2027-06-12';
+  const eVal = document.getElementById('cd-exam-date')?.value  || '2027-06-19';
   const tVal = document.getElementById('cd-exam-time')?.value  || '10:30';
 
   data.personalGoal.startDate = sVal;

@@ -865,7 +865,7 @@ function startCountdown() {
     if (!yksDate) {
       const currentYear = now.getFullYear();
       const targetYear = (now.getMonth() > 5 || (now.getMonth() === 5 && now.getDate() > 20)) ? currentYear + 1 : currentYear;
-      yksDate = new Date(`${targetYear}-06-12T10:30:00`);
+      yksDate = new Date(`${targetYear}-06-19T10:30:00`);
     }
 
     const diff = Math.max(0, yksDate.getTime() - now.getTime());
