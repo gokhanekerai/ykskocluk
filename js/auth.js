@@ -58,6 +58,9 @@ function _applySession(user) {
   currentUser = user;
   window.currentUser = user;
 
+  const isCoachRole = user.role === 'coach' || user.role === 'supercoach';
+  const isSuperCoachRole = user.role === 'supercoach' || user.username === 'gokhan' || user.username === 'koc';
+
   if (user.role === 'student') {
     document.body.classList.add('student-role');
   } else {
@@ -65,31 +68,40 @@ function _applySession(user) {
   }
 
   // Sidebar kullanıcı bilgisi
-  _el('sidebar-user-avatar', el => el.textContent = user.avatar);
+  _el('sidebar-user-avatar', el => el.textContent = user.avatar || 'K');
   _el('sidebar-user-name',   el => el.textContent = user.name);
-  _el('sidebar-user-role',   el => el.textContent = user.roleTitle);
+  _el('sidebar-user-role',   el => el.textContent = user.roleTitle || (isSuperCoachRole ? 'YKS Süper Koçu' : (isCoachRole ? 'YKS Koçu' : 'Öğrenci')));
 
   // Dinamik menü ve başlık isimlendirmesi
-  const isCoachRole = user.role === 'coach';
   _el('menu-schedule-text', el => el.textContent = isCoachRole ? 'Görevlendirme' : 'Verilen Görevler');
   _el('tab-schedule-title', el => el.textContent = isCoachRole ? '📅 Görevlendirme' : '📅 Verilen Görevler');
 
   // Koç-only menü öğeleri
   document.querySelectorAll('.coach-only').forEach(el => {
-    el.style.display = user.role === 'coach' ? '' : 'none';
+    el.style.display = isCoachRole ? '' : 'none';
+  });
+
+  // Süper Koç (Gökhan) öğeleri
+  document.querySelectorAll('.supercoach-only').forEach(el => {
+    el.style.display = isSuperCoachRole ? '' : 'none';
   });
 
   // Öğrenci seçici (koça özel)
   const sel = document.getElementById('student-selector');
-  if (sel) sel.style.display = user.role === 'coach' ? '' : 'none';
+  if (sel) sel.style.display = isCoachRole ? '' : 'none';
 
   if (user.role === 'student') {
     window.switchStudent(user.id, true);
   } else {
-    window.switchStudent(window.activeStudent || 'kaan', true);
+    const visibleStudents = typeof getVisibleStudents === 'function' ? getVisibleStudents(user) : [];
+    const isCurrentActiveVisible = visibleStudents.some(s => s.key === window.activeStudent);
+    const targetStudentId = isCurrentActiveVisible ? window.activeStudent : (visibleStudents[0]?.key || 'kaan');
+    window.switchStudent(targetStudentId, true);
   }
 
-  renderStudentSelector();
+  if (typeof renderStudentSelector === 'function') {
+    renderStudentSelector();
+  }
 }
 
 function showLoginScreen() {
@@ -150,8 +162,17 @@ function handlePasswordChange(e) {
   }
 }
 
-function isCoach() { return currentUser?.role === 'coach'; }
-function isStudent() { return currentUser?.role === 'student'; }
+function isCoach() { 
+  return currentUser?.role === 'coach' || currentUser?.role === 'supercoach'; 
+}
+
+function isSuperCoach() {
+  return currentUser?.role === 'supercoach' || currentUser?.username === 'gokhan' || currentUser?.username === 'koc' || currentUser?.id === 'gokhan';
+}
+
+function isStudent() { 
+  return currentUser?.role === 'student'; 
+}
 
 function _el(id, fn) {
   const el = document.getElementById(id);
@@ -166,6 +187,7 @@ window.logout                    = logout;
 window.togglePasswordVisibility  = togglePasswordVisibility;
 window.handlePasswordChange      = handlePasswordChange;
 window.isCoach                   = isCoach;
+window.isSuperCoach              = isSuperCoach;
 window.isStudent                 = isStudent;
 
 Object.defineProperty(window, 'currentUser', {
