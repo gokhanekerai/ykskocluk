@@ -840,20 +840,20 @@ function startCountdown() {
       if (window.activeStudent) {
         const data = getStudentData(window.activeStudent);
         if (data && data.personalGoal && data.personalGoal.examDate) {
-          const userExamDate = new Date(data.personalGoal.examDate + 'T10:15:00');
-          if (!isNaN(userExamDate.getTime()) && userExamDate > now) {
+          const timeStr = data.personalGoal.examTime || '13:30';
+          const userExamDate = new Date(`${data.personalGoal.examDate}T${timeStr}:00`);
+          if (!isNaN(userExamDate.getTime())) {
             yksDate = userExamDate;
           }
         }
       }
     } catch(e) {}
 
-    // Eğer özel hedef tarihi girilmemişse veya geçmişse, en yakın YKS tarihine (Haziran ayının 2. cumartesi) ayarla
+    // Eğer özel hedef tarihi girilmemişse veya geçmişse, varsayılan YKS tarihine (Haziran saat 13:30) ayarla
     if (!yksDate) {
       const currentYear = now.getFullYear();
-      // Eğer bu yılın Haziran ayı geçtiyse bir sonraki yılın Haziran'ı
       const targetYear = (now.getMonth() > 5 || (now.getMonth() === 5 && now.getDate() > 20)) ? currentYear + 1 : currentYear;
-      yksDate = new Date(`${targetYear}-06-12T10:15:00`);
+      yksDate = new Date(`${targetYear}-06-12T13:30:00`);
     }
 
     const diff = Math.max(0, yksDate.getTime() - now.getTime());
