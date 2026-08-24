@@ -1532,6 +1532,25 @@ function autoAssignWrongReviewsToSchedule() {
 
 function _el(id, fn) { const el = document.getElementById(id); if (el) fn(el); }
 
+function openDayDetailModal(dateStr) {
+  if (!dateStr) dateStr = window.currentSelectedDayDate || getTodayStr();
+  window.currentSelectedDayDate = dateStr;
+  const data = getStudentData(window.activeStudent);
+  const schedule = data.schedule || [];
+  const wrongLog = data.wrongLog || [];
+  const bodyEl = document.getElementById('schedule-day-modal-body');
+  if (bodyEl) {
+    bodyEl.innerHTML = _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, true);
+  }
+  const titleEl = document.getElementById('schedule-day-modal-title');
+  if (titleEl) {
+    const dateObj = new Date(dateStr + 'T00:00:00');
+    const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+    titleEl.textContent = `📅 Günlük Görev Yönetimi (${formattedDate})`;
+  }
+  openModal('schedule-day-modal');
+}
+
 window.renderSchedule                  = renderSchedule;
 window.setScheduleViewMode             = setScheduleViewMode;
 window.selectScheduleDay               = selectScheduleDay;

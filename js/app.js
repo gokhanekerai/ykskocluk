@@ -898,7 +898,7 @@ function checkNotifications() {
 
 // Global olarak dışa aktar
 window.switchTab = switchTab;
-window.switchSidebar = switchSidebar;
+window.toggleSidebar = toggleSidebar;
 window.renderDailyLog = renderDailyLog;
 window.handleAddDaily = handleAddDaily;
 window.editDailyEntry = editDailyEntry;
