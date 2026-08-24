@@ -218,28 +218,32 @@ function renderDashboard() {
 }
 
 function openCountdownModal() {
-  const data = getStudentData(window.activeStudent);
+  const studentId = window.activeStudent || 'kaan';
+  const data = getStudentData(studentId);
   const g = data.personalGoal || {};
   const sInp = document.getElementById('cd-start-date');
   const eInp = document.getElementById('cd-exam-date');
   const tInp = document.getElementById('cd-exam-time');
-  if (sInp) sInp.value = g.startDate || '2026-08-17';
-  if (eInp) eInp.value = g.examDate || '2027-06-12';
-  if (tInp) tInp.value = g.examTime || '10:30';
+
+  const savedStart = g.startDate || localStorage.getItem('yks_coach_program_start') || '2026-08-17';
+  const savedExam  = g.examDate  || localStorage.getItem('yks_coach_exam_date')     || '2027-06-12';
+  const savedTime  = g.examTime  || localStorage.getItem('yks_coach_exam_time')     || '10:30';
+
+  if (sInp) sInp.value = savedStart;
+  if (eInp) eInp.value = savedExam;
+  if (tInp) tInp.value = savedTime;
+
   calcCountdown();
   openModal('countdown-modal');
 }
 
 function calcCountdown() {
-  let startVal = document.getElementById('cd-start-date')?.value;
-  let examVal = document.getElementById('cd-exam-date')?.value;
-  let examTimeVal = document.getElementById('cd-exam-time')?.value || '10:30';
+  let startVal    = document.getElementById('cd-start-date')?.value || '2026-08-17';
+  let examVal     = document.getElementById('cd-exam-date')?.value  || '2027-06-12';
+  let examTimeVal = document.getElementById('cd-exam-time')?.value  || '10:30';
   const now = new Date();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  if (!startVal) startVal = '2026-08-17';
-  if (!examVal) examVal = '2027-06-12';
 
   const sDate = new Date(startVal + 'T00:00:00');
   sDate.setHours(0, 0, 0, 0);
@@ -261,17 +265,37 @@ function calcCountdown() {
 
 function handleSaveCountdown(e) {
   if (e) e.preventDefault();
-  const data = getStudentData(window.activeStudent);
+  const studentId = window.activeStudent || 'kaan';
+  const data = getStudentData(studentId);
   if (!data.personalGoal) data.personalGoal = {};
-  data.personalGoal.startDate = document.getElementById('cd-start-date')?.value || '2026-08-17';
-  data.personalGoal.examDate = document.getElementById('cd-exam-date')?.value || '2027-06-12';
-  data.personalGoal.examTime = document.getElementById('cd-exam-time')?.value || '10:30';
-  saveStudentData(window.activeStudent, data);
-  showToast('Sayaç ve hedef tarihleri kaydedildi!', 'success');
+
+  const sVal = document.getElementById('cd-start-date')?.value || '2026-08-17';
+  const eVal = document.getElementById('cd-exam-date')?.value  || '2027-06-12';
+  const tVal = document.getElementById('cd-exam-time')?.value  || '10:30';
+
+  data.personalGoal.startDate = sVal;
+  data.personalGoal.examDate  = eVal;
+  data.personalGoal.examTime  = tVal;
+
+  localStorage.setItem('yks_coach_exam_date', eVal);
+  localStorage.setItem('yks_coach_exam_time', tVal);
+  localStorage.setItem('yks_coach_program_start', sVal);
+  if (typeof fbSet === 'function') {
+    fbSet('yks_coach_exam_date', eVal);
+    fbSet('yks_coach_exam_time', tVal);
+    fbSet('yks_coach_program_start', sVal);
+  }
+
+  saveStudentData(studentId, data);
+  showToast('Sayaç ve sınav tarihi kaydedildi!', 'success');
   closeModal('countdown-modal');
 
-  if (typeof window.updateGlobalCountdown === 'function') window.updateGlobalCountdown();
-  renderDashboard();
+  if (typeof window.updateGlobalCountdown === 'function') {
+    window.updateGlobalCountdown();
+  }
+  if (typeof renderDashboard === 'function') {
+    renderDashboard();
+  }
 }
 
 function _bookProgress(book) {

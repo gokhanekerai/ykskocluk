@@ -284,6 +284,7 @@ function savePersonalGoal(e) {
   if (e) e.preventDefault();
   const data = getStudentData(window.activeStudent);
   data.personalGoal = {
+    ...(data.personalGoal || {}),
     university: document.getElementById('goal-university')?.value.trim() || '',
     profession: document.getElementById('goal-profession')?.value.trim() || '',
     ranking:    document.getElementById('goal-ranking')?.value.trim() || ''

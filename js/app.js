@@ -837,13 +837,25 @@ function startCountdown() {
     let yksDate = null;
 
     try {
-      if (window.activeStudent) {
-        const data = getStudentData(window.activeStudent);
+      const studentId = window.activeStudent || localStorage.getItem('yks_coach_active_student');
+      if (studentId) {
+        const data = getStudentData(studentId);
         if (data && data.personalGoal && data.personalGoal.examDate) {
           const timeStr = data.personalGoal.examTime || '10:30';
           const userExamDate = new Date(`${data.personalGoal.examDate}T${timeStr}:00`);
           if (!isNaN(userExamDate.getTime())) {
             yksDate = userExamDate;
+          }
+        }
+      }
+
+      if (!yksDate) {
+        const globalDate = localStorage.getItem('yks_coach_exam_date');
+        const globalTime = localStorage.getItem('yks_coach_exam_time') || '10:30';
+        if (globalDate) {
+          const gDate = new Date(`${globalDate}T${globalTime}:00`);
+          if (!isNaN(gDate.getTime())) {
+            yksDate = gDate;
           }
         }
       }
@@ -871,7 +883,8 @@ function startCountdown() {
   }
 
   update();
-  setInterval(update, 10000); // 10 saniyede bir güncelle
+  if (window._countdownTimerInterval) clearInterval(window._countdownTimerInterval);
+  window._countdownTimerInterval = setInterval(update, 5000);
   
   // Dışarıdan tetiklenebilmesi için window'a ekle
   window.updateGlobalCountdown = update;
