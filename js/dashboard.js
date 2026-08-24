@@ -225,7 +225,7 @@ function openCountdownModal() {
   const tInp = document.getElementById('cd-exam-time');
   if (sInp) sInp.value = g.startDate || '2026-08-17';
   if (eInp) eInp.value = g.examDate || '2027-06-12';
-  if (tInp) tInp.value = g.examTime || '13:30';
+  if (tInp) tInp.value = g.examTime || '10:30';
   calcCountdown();
   openModal('countdown-modal');
 }
@@ -233,7 +233,7 @@ function openCountdownModal() {
 function calcCountdown() {
   let startVal = document.getElementById('cd-start-date')?.value;
   let examVal = document.getElementById('cd-exam-date')?.value;
-  let examTimeVal = document.getElementById('cd-exam-time')?.value || '13:30';
+  let examTimeVal = document.getElementById('cd-exam-time')?.value || '10:30';
   const now = new Date();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -265,7 +265,7 @@ function handleSaveCountdown(e) {
   if (!data.personalGoal) data.personalGoal = {};
   data.personalGoal.startDate = document.getElementById('cd-start-date')?.value || '2026-08-17';
   data.personalGoal.examDate = document.getElementById('cd-exam-date')?.value || '2027-06-12';
-  data.personalGoal.examTime = document.getElementById('cd-exam-time')?.value || '13:30';
+  data.personalGoal.examTime = document.getElementById('cd-exam-time')?.value || '10:30';
   saveStudentData(window.activeStudent, data);
   showToast('Sayaç ve hedef tarihleri kaydedildi!', 'success');
   closeModal('countdown-modal');
