@@ -61,6 +61,7 @@ function switchStudent(studentId, force = false) {
   dailyTrendOffset = 0;
   renderCurrentTab();
   if (typeof checkNotifications === 'function') checkNotifications();
+  if (typeof window.updateGlobalCountdown === 'function') window.updateGlobalCountdown();
 }
 
 // ─── Tab Geçişi ────────────────────────────────────────────────────────────────
@@ -828,37 +829,45 @@ function toggleTheme() {
 
 function startCountdown() {
   function update() {
-    let examDateStr = '2026-06-13T09:00:00'; // Varsayılan
+    const now = new Date();
+    let yksDate = null;
+
     try {
       if (window.activeStudent) {
         const data = getStudentData(window.activeStudent);
         if (data && data.personalGoal && data.personalGoal.examDate) {
-          examDateStr = data.personalGoal.examDate + 'T00:00:00';
+          const userExamDate = new Date(data.personalGoal.examDate + 'T10:15:00');
+          if (!isNaN(userExamDate.getTime()) && userExamDate > now) {
+            yksDate = userExamDate;
+          }
         }
       }
     } catch(e) {}
 
-    const yksDate = new Date(examDateStr);
-    const now   = new Date();
-    const diff  = yksDate - now;
-    if (diff <= 0) { 
-      _el('countdown-days', e => e.textContent = '0');
-      _el('countdown-hours', e => e.textContent = '00');
-      _el('countdown-mins', e => e.textContent = '00');
-      return; 
+    // Eğer özel hedef tarihi girilmemişse veya geçmişse, en yakın YKS tarihine (Haziran ayının 2. cumartesi) ayarla
+    if (!yksDate) {
+      const currentYear = now.getFullYear();
+      // Eğer bu yılın Haziran ayı geçtiyse bir sonraki yılın Haziran'ı
+      const targetYear = (now.getMonth() > 5 || (now.getMonth() === 5 && now.getDate() > 20)) ? currentYear + 1 : currentYear;
+      yksDate = new Date(`${targetYear}-06-12T10:15:00`);
     }
 
+    const diff = Math.max(0, yksDate.getTime() - now.getTime());
     const days  = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
     const mins  = Math.floor((diff % 3600000) / 60000);
 
-    _el('countdown-days',  e => e.textContent = days);
-    _el('countdown-hours', e => e.textContent = String(hours).padStart(2,'0'));
-    _el('countdown-mins',  e => e.textContent = String(mins).padStart(2,'0'));
+    const dEl = document.getElementById('countdown-days');
+    const hEl = document.getElementById('countdown-hours');
+    const mEl = document.getElementById('countdown-mins');
+
+    if (dEl) dEl.textContent = days;
+    if (hEl) hEl.textContent = String(hours).padStart(2,'0');
+    if (mEl) mEl.textContent = String(mins).padStart(2,'0');
   }
+
   update();
-  // 1 dakikada bir güncelle
-  setInterval(update, 60000);
+  setInterval(update, 10000); // 10 saniyede bir güncelle
   
   // Dışarıdan tetiklenebilmesi için window'a ekle
   window.updateGlobalCountdown = update;
