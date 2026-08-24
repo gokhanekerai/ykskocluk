@@ -31,7 +31,26 @@ function setScheduleViewMode(mode) {
 }
 
 function changePeriodOffset(delta) {
-  currentPeriodOffset += delta;
+  const mode = window.currentScheduleViewMode || 'month';
+  if (mode === 'day') {
+    const curr = window.currentSelectedDayDate ? new Date(window.currentSelectedDayDate + 'T00:00:00') : new Date();
+    curr.setDate(curr.getDate() + delta);
+    window.currentSelectedDayDate = formatDateISO(curr);
+  } else if (mode === 'week') {
+    currentPeriodOffset += delta;
+    const now = new Date();
+    now.setDate(now.getDate() + (currentPeriodOffset * 7));
+    window.currentSelectedDayDate = formatDateISO(now);
+  } else if (mode === 'month') {
+    currentPeriodOffset += delta;
+    const now = new Date();
+    const targetMonthDate = new Date(now.getFullYear(), now.getMonth() + currentPeriodOffset, 1);
+    if (currentPeriodOffset === 0) {
+      window.currentSelectedDayDate = getTodayStr();
+    } else {
+      window.currentSelectedDayDate = formatDateISO(targetMonthDate);
+    }
+  }
   renderSchedule();
 }
 
