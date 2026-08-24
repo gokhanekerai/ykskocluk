@@ -34,6 +34,21 @@ function getStudentData(studentId) {
   // Firebase boş array/object'leri siliyor — garantile
   const required = ['dailyLog','mockLog','tasks','wrongLog','books','schedule','aiAnalyses'];
   required.forEach(k => { if (!Array.isArray(data[k])) data[k] = []; });
+  
+  // Schedule ve içerisindeki items dizilerini garantile
+  if (Array.isArray(data.schedule)) {
+    data.schedule.forEach(day => {
+      if (!day) return;
+      if (!Array.isArray(day.items)) {
+        if (day.items && typeof day.items === 'object') {
+          day.items = Object.values(day.items);
+        } else {
+          day.items = [];
+        }
+      }
+    });
+  }
+
   if (!data.topicStatus || typeof data.topicStatus !== 'object') data.topicStatus = {};
   if (!data.personalGoal) data.personalGoal = { university: '', profession: '', ranking: '' };
   if (data.obp === undefined || data.obp === null) data.obp = 85;

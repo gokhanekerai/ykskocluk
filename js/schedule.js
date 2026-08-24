@@ -161,19 +161,20 @@ function _renderMonthView(container, schedule, wrongLog) {
     // Masaüstü için Görev Chip'leri
     let chipsHtml = '';
     if (items.length > 0) {
-      const visibleItems = items.slice(0, 2);
+      const visibleItems = items.slice(0, 3);
       chipsHtml = visibleItems.map(it => `
-        <div class="month-task-chip ${it.done ? 'done' : ''}" title="${_escapeHtml(it.subject)}: ${_escapeHtml(it.topic)}">
-          <span>${it.done ? '✓' : '•'}</span>
-          <span>${_escapeHtml(it.subject)}</span>
+        <div class="month-task-chip ${it.done ? 'done' : ''}" title="${_escapeHtml(it.subject)}: ${_escapeHtml(it.topic)}" onclick="event.stopPropagation(); selectScheduleDay('${dStr}')">
+          <span style="color:${it.done ? '#34d399' : 'var(--primary)'}; font-size:10px;">${it.done ? '✓' : '●'}</span>
+          <span style="font-weight:700; color:var(--text);">${_escapeHtml(it.subject.replace(/^(TYT|AYT)\s+/, ''))}:</span>
+          <span style="font-weight:500; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis;">${_escapeHtml(it.topic)}</span>
         </div>
       `).join('');
 
-      if (items.length > 2) {
-        chipsHtml += `<div class="month-task-more">+${items.length - 2} daha</div>`;
+      if (items.length > 3) {
+        chipsHtml += `<div class="month-task-more">+${items.length - 3} görev daha</div>`;
       }
     } else {
-      chipsHtml = `<div class="month-task-empty desktop-only">+ Görev Ekle</div>`;
+      chipsHtml = `<div class="month-task-empty desktop-only" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')">+ Görev Ekle</div>`;
     }
 
     let badgeHtml = '';
@@ -1228,6 +1229,9 @@ function handleAddScheduleItem(e) {
       targetDay = { id: generateId(), date: dateStr, items: [] };
       data.schedule.push(targetDay);
     }
+    if (!Array.isArray(targetDay.items)) {
+      targetDay.items = targetDay.items && typeof targetDay.items === 'object' ? Object.values(targetDay.items) : [];
+    }
     targetDay.items.push({ id: oldItemId, subject, topic, duration: dur, type, done: isDone, questions, pages, book, books });
 
     _syncScheduleWithTopicStatus(data, subject, topic, isDone ? 'completed' : 'studying');
@@ -1240,6 +1244,9 @@ function handleAddScheduleItem(e) {
     if (!day) {
       day = { id: generateId(), date: dateStr, items: [] };
       data.schedule.push(day);
+    }
+    if (!Array.isArray(day.items)) {
+      day.items = day.items && typeof day.items === 'object' ? Object.values(day.items) : [];
     }
 
     day.items.push({ id: generateId(), subject, topic, duration: dur, type, done: false, questions, pages, book, books });
@@ -1258,7 +1265,21 @@ function handleAddScheduleItem(e) {
   toggleCustomBookInput(false);
   window._currentSchedBooks = [];
 
+  // Eklenen güne ve ayına odaklan
   window.currentSelectedDayDate = dateStr;
+  try {
+    const targetD = new Date(dateStr + 'T00:00:00');
+    const nowD = new Date();
+    if (window.currentScheduleViewMode === 'month') {
+      currentPeriodOffset = (targetD.getFullYear() - nowD.getFullYear()) * 12 + (targetD.getMonth() - nowD.getMonth());
+    } else if (window.currentScheduleViewMode === 'week') {
+      const diffDays = Math.floor((targetD.getTime() - nowD.getTime()) / (24 * 60 * 60 * 1000));
+      currentPeriodOffset = Math.floor(diffDays / 7);
+    }
+  } catch (err) {
+    console.error('Offset calculation error:', err);
+  }
+
   renderSchedule();
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof _renderTopicStats === 'function') _renderTopicStats();

@@ -1499,18 +1499,21 @@
       <button class="modal-close" onclick="closeModal('add-schedule-item-modal')">×</button>
     </div>
     <form onsubmit="handleAddScheduleItem(event)">
-      <input type="hidden" id="sched-item-date">
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Ders</label>
-          <select id="sched-subject" class="form-input" required onchange="updateSchedTopics()">
-            <option value="">Ders Seçin...</option>
-          </select>
+        <div class="form-group" style="flex: 1.2;">
+          <label class="form-label">📅 Tarih</label>
+          <input id="sched-item-date" type="date" class="form-input" required>
         </div>
-        <div class="form-group">
-          <label class="form-label">Süre (dk)</label>
+        <div class="form-group" style="flex: 0.8;">
+          <label class="form-label">⏱️ Süre (dk)</label>
           <input id="sched-duration" type="number" class="form-input" min="5" value="60">
         </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ders</label>
+        <select id="sched-subject" class="form-input" required onchange="updateSchedTopics()">
+          <option value="">Ders Seçin...</option>
+        </select>
       </div>
       <div class="form-group">
         <div class="flex-between" style="margin-bottom:6px;">
@@ -2011,24 +2014,24 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=234"></script>
-<script src="js/data.js?v=234"></script>
-<script src="topics.js?v=234"></script>
-<script src="js/auth.js?v=234"></script>
-<script src="js/students.js?v=234"></script>
-<script src="js/dashboard.js?v=234"></script>
-<script src="js/resources.js?v=234"></script>
-<script src="js/exams.js?v=234"></script>
-<script src="rankings.js?v=234"></script>
-<script src="js/calculator.js?v=234"></script>
-<script src="js/ai-analysis.js?v=234"></script>
-<script src="js/schedule.js?v=234"></script>
-<script src="js/topics.js?v=234"></script>
-<script src="js/wrong-notes.js?v=234"></script>
-<script src="js/pomodoro.js?v=234"></script>
-<script src="js/report.js?v=234"></script>
-<script src="js/vision.js?v=234"></script>
-<script src="js/app.js?v=234"></script>
+<script src="js/firebase.js?v=235"></script>
+<script src="js/data.js?v=235"></script>
+<script src="topics.js?v=235"></script>
+<script src="js/auth.js?v=235"></script>
+<script src="js/students.js?v=235"></script>
+<script src="js/dashboard.js?v=235"></script>
+<script src="js/resources.js?v=235"></script>
+<script src="js/exams.js?v=235"></script>
+<script src="rankings.js?v=235"></script>
+<script src="js/calculator.js?v=235"></script>
+<script src="js/ai-analysis.js?v=235"></script>
+<script src="js/schedule.js?v=235"></script>
+<script src="js/topics.js?v=235"></script>
+<script src="js/wrong-notes.js?v=235"></script>
+<script src="js/pomodoro.js?v=235"></script>
+<script src="js/report.js?v=235"></script>
+<script src="js/vision.js?v=235"></script>
+<script src="js/app.js?v=235"></script>
 
 
 <script>

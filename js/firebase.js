@@ -10,10 +10,6 @@ let _initialSyncDone = false;
 // Firebase'e kaydet
 function fbSet(key, data) {
   if (window.db) {
-    if (!_initialSyncDone) {
-      console.warn('[Firebase] Ilk senkronizasyon bekleniyor, yazma bekletildi:', key);
-      return;
-    }
     _isWritingLocally = true;
     window.db.ref(`${FIREBASE_ROOT}/${key}`).set(data)
       .catch(e => console.error('[Firebase] write error:', e))
