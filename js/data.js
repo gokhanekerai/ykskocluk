@@ -2,6 +2,42 @@
  * data.js — Merkezi Veri Yönetimi (localStorage + Firebase)
  */
 
+function parseSafeDate(dateStr, timeStr) {
+  if (!timeStr) timeStr = '10:30';
+  if (!dateStr) return null;
+  dateStr = String(dateStr).trim();
+  
+  if (dateStr.includes('.')) {
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const d = parts[0].padStart(2, '0');
+      const m = parts[1].padStart(2, '0');
+      const y = parts[2];
+      dateStr = `${y}-${m}-${d}`;
+    }
+  } else if (dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        dateStr = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+      } else {
+        dateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+    }
+  }
+
+  const time = (timeStr && timeStr.includes(':')) ? timeStr : '10:30';
+  const isoStr = `${dateStr}T${time}:00`;
+  const parsed = new Date(isoStr);
+  if (!isNaN(parsed.getTime())) {
+    return parsed;
+  }
+  
+  const fallback = new Date(dateStr);
+  return isNaN(fallback.getTime()) ? null : fallback;
+}
+window.parseSafeDate = parseSafeDate;
+
 const DEFAULT_STUDENT_DATA = {
   dailyLog: [],       // { id, date, tytAyt, subject, solved, correct, wrong }
   mockLog: [],        // { id, date, type, name, results:{}, nets:{}, totalNet, scores:{} }

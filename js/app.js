@@ -842,9 +842,9 @@ function startCountdown() {
         const data = getStudentData(studentId);
         if (data && data.personalGoal && data.personalGoal.examDate) {
           const timeStr = data.personalGoal.examTime || '10:30';
-          const userExamDate = new Date(`${data.personalGoal.examDate}T${timeStr}:00`);
-          if (!isNaN(userExamDate.getTime())) {
-            yksDate = userExamDate;
+          const parsed = typeof parseSafeDate === 'function' ? parseSafeDate(data.personalGoal.examDate, timeStr) : new Date(`${data.personalGoal.examDate}T${timeStr}:00`);
+          if (parsed && !isNaN(parsed.getTime())) {
+            yksDate = parsed;
           }
         }
       }
@@ -853,9 +853,9 @@ function startCountdown() {
         const globalDate = localStorage.getItem('yks_coach_exam_date');
         const globalTime = localStorage.getItem('yks_coach_exam_time') || '10:30';
         if (globalDate) {
-          const gDate = new Date(`${globalDate}T${globalTime}:00`);
-          if (!isNaN(gDate.getTime())) {
-            yksDate = gDate;
+          const parsedG = typeof parseSafeDate === 'function' ? parseSafeDate(globalDate, globalTime) : new Date(`${globalDate}T${globalTime}:00`);
+          if (parsedG && !isNaN(parsedG.getTime())) {
+            yksDate = parsedG;
           }
         }
       }

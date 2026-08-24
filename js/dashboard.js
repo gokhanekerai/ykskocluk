@@ -245,12 +245,12 @@ function calcCountdown() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const sDate = new Date(startVal + 'T00:00:00');
+  const sDate = (typeof parseSafeDate === 'function' ? parseSafeDate(startVal, '00:00') : new Date(startVal)) || new Date();
   sDate.setHours(0, 0, 0, 0);
   const diff = today.getTime() - sDate.getTime();
   const passed = Math.max(1, Math.floor(diff / 86400000) + 1);
 
-  const eDate = new Date(`${examVal}T${examTimeVal}:00`);
+  const eDate = (typeof parseSafeDate === 'function' ? parseSafeDate(examVal, examTimeVal) : new Date(examVal)) || new Date();
   let remainingDays = 0;
   if (!isNaN(eDate.getTime())) {
     const diffRem = eDate.getTime() - now.getTime();
