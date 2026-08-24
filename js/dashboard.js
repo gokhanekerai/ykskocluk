@@ -339,129 +339,137 @@ function _updateStreak(data, studentId) {
 
 function _renderWeeklyChart(dailyLog) {
   const canvas = document.getElementById('chart-weekly');
-  if (!canvas) return;
+  if (!canvas || typeof canvas.getContext !== 'function' || typeof Chart === 'undefined') return;
 
-  const labels = [];
-  const solvedData = [];
-  const days = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+  try {
+    const labels = [];
+    const solvedData = [];
+    const days = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
 
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const str = formatDateISO(d);
-    labels.push(days[d.getDay()]);
-    const solved = dailyLog
-      .filter(e => e.date === str)
-      .reduce((s, e) => s + (Number(e.solved) || 0), 0);
-    solvedData.push(solved);
-  }
-
-  if (_charts.weekly) _charts.weekly.destroy();
-
-  const chartCtx = canvas.getContext('2d');
-  const barGradient = chartCtx.createLinearGradient(0, 0, 0, 200);
-  barGradient.addColorStop(0, '#00F0FF'); // Halojen Cyan
-  barGradient.addColorStop(1, '#A855F7'); // Halojen Mor
-
-  _charts.weekly = new Chart(chartCtx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Çözülen Soru',
-        data: solvedData,
-        backgroundColor: barGradient,
-        hoverBackgroundColor: '#00F5A0',
-        borderColor: '#00F0FF',
-        borderWidth: 1,
-        borderRadius: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 15, 25, 0.92)',
-          titleColor: '#00F0FF',
-          bodyColor: '#ffffff',
-          borderColor: 'rgba(0, 240, 255, 0.3)',
-          borderWidth: 1,
-          padding: 10,
-          cornerRadius: 8,
-          callbacks: {
-            label: (ctx) => ` Çözülen: ${formatNumber(ctx.raw)} Soru`
-          }
-        }
-      },
-      scales: {
-        y: { beginAtZero: true, ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } }
-      }
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const str = formatDateISO(d);
+      labels.push(days[d.getDay()]);
+      const solved = dailyLog
+        .filter(e => e.date === str)
+        .reduce((s, e) => s + (Number(e.solved) || 0), 0);
+      solvedData.push(solved);
     }
-  });
+
+    if (_charts.weekly) _charts.weekly.destroy();
+
+    const chartCtx = canvas.getContext('2d');
+    const barGradient = chartCtx.createLinearGradient(0, 0, 0, 200);
+    barGradient.addColorStop(0, '#00F0FF'); // Halojen Cyan
+    barGradient.addColorStop(1, '#A855F7'); // Halojen Mor
+
+    _charts.weekly = new Chart(chartCtx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Çözülen Soru',
+          data: solvedData,
+          backgroundColor: barGradient,
+          hoverBackgroundColor: '#00F5A0',
+          borderColor: '#00F0FF',
+          borderWidth: 1,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 15, 25, 0.92)',
+            titleColor: '#00F0FF',
+            bodyColor: '#ffffff',
+            borderColor: 'rgba(0, 240, 255, 0.3)',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: (ctx) => ` Çözülen: ${formatNumber(ctx.raw)} Soru`
+            }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  } catch(err) {
+    console.warn('Weekly chart render error:', err);
+  }
 }
 
 function _renderMockNetChart(mockLog) {
   const canvas = document.getElementById('chart-mocks');
-  if (!canvas) return;
+  if (!canvas || typeof canvas.getContext !== 'function' || typeof Chart === 'undefined') return;
 
-  const sorted = [...mockLog].sort((a, b) => a.date.localeCompare(b.date)).slice(-10);
-  const labels = sorted.map(m => m.name?.substring(0, 15) || m.type);
-  const netData = sorted.map(m => Number(m.totalNet) || 0);
+  try {
+    const sorted = [...mockLog].sort((a, b) => a.date.localeCompare(b.date)).slice(-10);
+    const labels = sorted.map(m => m.name?.substring(0, 15) || m.type);
+    const netData = sorted.map(m => Number(m.totalNet) || 0);
 
-  if (_charts.mocks) _charts.mocks.destroy();
+    if (_charts.mocks) _charts.mocks.destroy();
 
-  const lineCtx = canvas.getContext('2d');
-  const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 200);
-  lineGradient.addColorStop(0, 'rgba(0, 240, 255, 0.35)');
-  lineGradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+    const lineCtx = canvas.getContext('2d');
+    const lineGradient = lineCtx.createLinearGradient(0, 0, 0, 200);
+    lineGradient.addColorStop(0, 'rgba(0, 240, 255, 0.35)');
+    lineGradient.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
 
-  _charts.mocks = new Chart(lineCtx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Toplam Net',
-        data: netData,
-        borderColor: '#00F0FF',
-        borderWidth: 3,
-        backgroundColor: lineGradient,
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: '#00F0FF',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 6,
-        pointHoverRadius: 8,
-        pointHoverBackgroundColor: '#00F5A0'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 15, 25, 0.92)',
-          titleColor: '#00F0FF',
-          bodyColor: '#ffffff',
-          borderColor: 'rgba(0, 240, 255, 0.3)',
-          borderWidth: 1,
-          padding: 10,
-          cornerRadius: 8,
-          callbacks: {
-            label: (ctx) => ` Toplam Net: ${Number(ctx.raw).toFixed(2)} Net`
-          }
-        }
+    _charts.mocks = new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Toplam Net',
+          data: netData,
+          borderColor: '#00F0FF',
+          borderWidth: 3,
+          backgroundColor: lineGradient,
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#00F0FF',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: '#00F5A0'
+        }]
       },
-      scales: {
-        y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-        x: { ticks: { color: '#94a3b8', font: { size: 11 }, maxRotation: 30 }, grid: { display: false } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 15, 25, 0.92)',
+            titleColor: '#00F0FF',
+            bodyColor: '#ffffff',
+            borderColor: 'rgba(0, 240, 255, 0.3)',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+            callbacks: {
+              label: (ctx) => ` Toplam Net: ${Number(ctx.raw).toFixed(2)} Net`
+            }
+          }
+        },
+        scales: {
+          y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          x: { ticks: { color: '#94a3b8', font: { size: 11 }, maxRotation: 30 }, grid: { display: false } }
+        }
       }
-    }
-  });
+    });
+  } catch(err) {
+    console.warn('Mock chart render error:', err);
+  }
 }
 
 function editWeeklyGoal() {
