@@ -7,19 +7,50 @@ let _charts = {};
 function renderDashboard() {
   const student = window.activeStudent;
   if (!student) {
-    _el('goal-uni', e => e.textContent = '—');
+    _el('goal-uni', e => e.textContent = 'Hedef belirlenmedi');
     _el('goal-prof', e => e.textContent = '—');
     _el('goal-rank', e => e.textContent = '—');
     _el('dash-streak', e => e.textContent = '0');
     _el('dash-streak-label', e => e.textContent = 'Henüz öğrenci yok');
-    _el('dash-week-solved', e => e.textContent = '0 Soru');
-    _el('dash-week-pct', e => e.textContent = '%0');
-    _el('dash-week-badge', e => e.textContent = 'Öğrenci Yok');
-    _el('dash-exam-count', e => e.textContent = '0');
-    _el('dash-topic-pct', e => e.textContent = '%0');
-    _el('dash-task-count', e => e.textContent = '0/0');
-    _el('dash-wrong-count', e => e.textContent = '0');
-    _el('dash-reading-pages', e => e.textContent = '0');
+    _el('dash-week-solved', e => {
+      e.style.fontSize = '24px';
+      e.innerHTML = '<span style="font-weight:900; color:#00F0FF;">0 Soru</span>';
+    });
+    _el('dash-solved-label', e => e.textContent = 'GÜNLÜK HEDEF & TOPLAM');
+    _el('dash-schedule-stat', e => e.textContent = '0/0');
+    _el('dash-total-mock', e => e.textContent = '0');
+    _el('dash-books-done', e => e.textContent = '0/0');
+    _el('dash-topics-done', e => {
+      e.style.fontSize = '18px';
+      e.innerHTML = `
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px;">
+          <span style="font-size:12px; color:var(--text-muted); font-weight:800;">TYT:</span>
+          <span style="font-size:26px; font-weight:900; color:#00F0FF;">0<span style="font-size:13px; font-weight:700; color:var(--text-muted);">/85</span></span>
+        </div>
+        <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:4px;">
+          <span style="font-size:12px; color:var(--text-muted); font-weight:800;">AYT:</span>
+          <span style="font-size:26px; font-weight:900; color:#c084fc;">0<span style="font-size:13px; font-weight:700; color:var(--text-muted);">/88</span></span>
+        </div>
+      `;
+    });
+    _el('dash-pomo-time', e => {
+      e.style.fontSize = '15px';
+      e.innerHTML = `
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:3px;">
+          <span style="font-size:11px; color:var(--text-muted); font-weight:800;">Hedef:</span>
+          <span style="font-size:20px; font-weight:900; color:#00F0FF;">0 dk</span>
+        </div>
+        <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:3px; margin-bottom:3px;">
+          <span style="font-size:11px; color:var(--text-muted); font-weight:800;">Bugün:</span>
+          <span style="font-size:20px; font-weight:900; color:#00F5A0;">0 dk</span>
+        </div>
+        <div style="display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.06); padding-top:3px;">
+          <span style="font-size:11px; color:var(--text-muted); font-weight:800;">Toplam:</span>
+          <span style="font-size:17px; font-weight:900; color:#FFE600;">0 dk</span>
+        </div>
+      `;
+    });
+    _el('dash-target-gap-container', e => e.innerHTML = '');
     _el('recent-exams-list', e => e.innerHTML = '<p class="empty-msg" style="text-align:center; padding:20px; color:var(--text-muted);">Henüz kayıtlı öğrenci bulunmuyor.</p>');
     _el('dash-tasks-list', e => e.innerHTML = '<p class="empty-msg" style="text-align:center; padding:20px; color:var(--text-muted);">Henüz kayıtlı öğrenci bulunmuyor.</p>');
     if (_charts['weekly']) { _charts['weekly'].destroy(); delete _charts['weekly']; }
