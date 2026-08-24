@@ -8,11 +8,16 @@ let pomodoroSecondsLeft = 25 * 60;
 let pomodoroTotalSeconds = 25 * 60;
 let pomodoroIsRunning = false;
 let pomodoroIsPaused = false;
-let pomodoroMode = 'pomodoro'; // 'pomodoro' (25m), 'deep' (45m), 'shortBreak' (5m), 'longBreak' (15m), 'custom'
+let pomodoroMode = 'pomodoro'; // 'pomodoro' (25m), 'deep' (45m), 'shortBreak' (5m), 'longBreak' (15m), 'custom', 'stopwatch'
 let pomodoroSelectedSubject = '';
 let pomodoroSelectedType = 'TYT';
 let pomodoroSessionStartTime = null;
 let pomodoroElapsedTime = 0; // for stopwatch or elapsed seconds
+
+// Arka plan ve ekran kilitlenmesi için Timestamp Referansları
+let pomodoroTargetEndTime = null;
+let pomodoroStartTime = null;
+let pomodoroWakeLock = null;
 
 // Ses efekti (Web Audio API ile basit ve temiz bip/zil sesi)
 function playTone(freq = 587.33, duration = 0.5) {
@@ -33,10 +38,63 @@ function playTone(freq = 587.33, duration = 0.5) {
   }
 }
 
+// Ekran Uykusunu Engelleme (Wake Lock API)
+async function _requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && pomodoroIsRunning && !pomodoroIsPaused) {
+      pomodoroWakeLock = await navigator.wakeLock.request('screen');
+      pomodoroWakeLock.addEventListener('release', () => {
+        pomodoroWakeLock = null;
+      });
+    }
+  } catch (e) {
+    // Wake lock desteklenmiyorsa sessizce geç
+  }
+}
+
+function _releaseWakeLock() {
+  if (pomodoroWakeLock) {
+    try { pomodoroWakeLock.release(); } catch(e){}
+    pomodoroWakeLock = null;
+  }
+}
+
+// Tarayıcı Bildirimi İzni & Gönderimi
+function _requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function _sendPomodoroNotification() {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification('🎉 Süre Doldu! Pomodoro Tamamlandı', {
+        body: `${pomodoroSelectedSubject || 'Odaklanma'} seansın bitti. Harika iş çıkardın! Soru ve sonuçlarını girmek için tıkla.`,
+        icon: 'app-icon-192-v3.png'
+      });
+    } catch (e) {}
+  }
+}
+
 function initPomodoro() {
   _renderPomodoroUI();
   _updatePomodoroDisplay();
   populatePomodoroSubjects();
+
+  // Ekran açıldığında veya sekmeye geri dönüldüğünde süreyi anında gerçek zamana eşitle
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && pomodoroIsRunning && !pomodoroIsPaused) {
+      _syncPomodoroTimerFromTimestamp();
+      _requestWakeLock();
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    if (pomodoroIsRunning && !pomodoroIsPaused) {
+      _syncPomodoroTimerFromTimestamp();
+    }
+  });
 }
 
 function populatePomodoroSubjects() {
@@ -77,11 +135,15 @@ function setPomodoroMode(mode) {
 
   pomodoroSecondsLeft = pomodoroTotalSeconds;
   pomodoroElapsedTime = 0;
+  pomodoroTargetEndTime = null;
+  pomodoroStartTime = null;
   _updatePomodoroDisplay();
 }
 
 function startPomodoro() {
   if (pomodoroIsRunning && !pomodoroIsPaused) return;
+
+  _requestNotificationPermission();
 
   const subjSelect = document.getElementById('pomo-subject-select');
   pomodoroSelectedSubject = subjSelect ? subjSelect.value : '';
@@ -92,42 +154,70 @@ function startPomodoro() {
   pomodoroIsPaused = false;
   if (!pomodoroSessionStartTime) pomodoroSessionStartTime = new Date();
 
+  const now = Date.now();
+  if (pomodoroMode === 'stopwatch') {
+    pomodoroStartTime = now - (pomodoroElapsedTime * 1000);
+  } else {
+    pomodoroTargetEndTime = now + (pomodoroSecondsLeft * 1000);
+    pomodoroStartTime = now - (pomodoroElapsedTime * 1000);
+  }
+
   _toggleStartButtons(true);
+  _requestWakeLock();
   playTone(523.25, 0.2); // C5 start sound
 
   clearInterval(pomodoroTimer);
   pomodoroTimer = setInterval(() => {
-    if (pomodoroMode === 'stopwatch') {
-      pomodoroElapsedTime++;
-      pomodoroSecondsLeft = pomodoroElapsedTime;
-    } else {
-      pomodoroSecondsLeft--;
-      pomodoroElapsedTime++;
-      if (pomodoroSecondsLeft <= 0) {
-        clearInterval(pomodoroTimer);
-        pomodoroIsRunning = false;
-        pomodoroIsPaused = false;
-        _onPomodoroComplete();
-        return;
-      }
-    }
-    _updatePomodoroDisplay();
+    _syncPomodoroTimerFromTimestamp();
   }, 1000);
+}
+
+// Gerçek Zamanlı Timestamp Senkronizasyonu (Ekran kapansa dahi süreyi doğru tutar)
+function _syncPomodoroTimerFromTimestamp() {
+  if (!pomodoroIsRunning || pomodoroIsPaused) return;
+
+  const now = Date.now();
+
+  if (pomodoroMode === 'stopwatch') {
+    pomodoroElapsedTime = Math.max(0, Math.floor((now - pomodoroStartTime) / 1000));
+    pomodoroSecondsLeft = pomodoroElapsedTime;
+  } else {
+    const msLeft = pomodoroTargetEndTime - now;
+    pomodoroSecondsLeft = Math.max(0, Math.ceil(msLeft / 1000));
+    pomodoroElapsedTime = Math.max(0, Math.floor((now - pomodoroStartTime) / 1000));
+
+    if (pomodoroSecondsLeft <= 0) {
+      clearInterval(pomodoroTimer);
+      pomodoroIsRunning = false;
+      pomodoroIsPaused = false;
+      _releaseWakeLock();
+      _sendPomodoroNotification();
+      _onPomodoroComplete();
+      return;
+    }
+  }
+
+  _updatePomodoroDisplay();
 }
 
 function pausePomodoro() {
   if (!pomodoroIsRunning || pomodoroIsPaused) return;
   clearInterval(pomodoroTimer);
+  _syncPomodoroTimerFromTimestamp();
   pomodoroIsPaused = true;
+  _releaseWakeLock();
   _toggleStartButtons(false, true);
 }
 
 function resetPomodoro() {
   clearInterval(pomodoroTimer);
+  _releaseWakeLock();
   pomodoroIsRunning = false;
   pomodoroIsPaused = false;
   pomodoroSessionStartTime = null;
   pomodoroElapsedTime = 0;
+  pomodoroTargetEndTime = null;
+  pomodoroStartTime = null;
   pomodoroSecondsLeft = pomodoroTotalSeconds;
   _toggleStartButtons(false);
   _updatePomodoroDisplay();
@@ -135,6 +225,7 @@ function resetPomodoro() {
 }
 
 function finishPomodoroEarly() {
+  _syncPomodoroTimerFromTimestamp();
   if (pomodoroElapsedTime < 60) {
     if (confirm('Seans henüz 1 dakikayı doldurmadı. İptal etmek istiyor musunuz?')) {
       resetPomodoro();
@@ -143,6 +234,7 @@ function finishPomodoroEarly() {
   }
   if (confirm('Odak seansını şu anki süresiyle tamamlayıp soru girişine geçmek istiyor musunuz?')) {
     clearInterval(pomodoroTimer);
+    _releaseWakeLock();
     pomodoroIsRunning = false;
     pomodoroIsPaused = false;
     _onPomodoroComplete();
@@ -443,23 +535,21 @@ function extendPomodoroTime(extraMins = 15) {
   closeModal('pomodoro-completion-modal');
   pomodoroTotalSeconds = extraMins * 60;
   pomodoroSecondsLeft = pomodoroTotalSeconds;
+  pomodoroElapsedTime = 0;
   pomodoroIsRunning = true;
   pomodoroIsPaused = false;
+
+  const now = Date.now();
+  pomodoroTargetEndTime = now + (pomodoroSecondsLeft * 1000);
+  pomodoroStartTime = now;
+
   _toggleStartButtons(true);
+  _requestWakeLock();
   _updatePomodoroDisplay();
   
   clearInterval(pomodoroTimer);
   pomodoroTimer = setInterval(() => {
-    pomodoroSecondsLeft--;
-    pomodoroElapsedTime++;
-    if (pomodoroSecondsLeft <= 0) {
-      clearInterval(pomodoroTimer);
-      pomodoroIsRunning = false;
-      pomodoroIsPaused = false;
-      _onPomodoroComplete();
-      return;
-    }
-    _updatePomodoroDisplay();
+    _syncPomodoroTimerFromTimestamp();
   }, 1000);
   
   showToast(`⏱️ +${extraMins} dakika ek süre eklendi, odaklanmaya devam! 🚀`, 'info');
