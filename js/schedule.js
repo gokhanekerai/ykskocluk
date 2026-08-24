@@ -262,14 +262,15 @@ function _renderWeekView(container, schedule, wrongLog) {
     const doneCount = items.filter(it => it.done).length;
     const isAllDone = items.length > 0 && doneCount === items.length;
 
-    let dotClass = '';
-    if (items.length > 0) dotClass = isAllDone ? 'dot-done' : 'dot-active';
-
     html += `
       <button class="week-pill-btn ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''}" onclick="selectScheduleDay('${dStr}')">
         <div class="week-pill-name">${DAYS_SHORT[idx]}</div>
         <div class="week-pill-num">${dObj.getDate()}</div>
-        ${dotClass ? `<div class="week-pill-dot ${dotClass}"></div>` : '<div class="week-pill-dot empty"></div>'}
+        ${items.length > 0 ? `
+          <div class="week-pill-badge" style="font-size:9px; font-weight:800; padding:1px 4px; border-radius:4px; ${isAllDone ? 'background:rgba(16,185,129,0.3); color:#34d399;' : 'background:rgba(168,85,247,0.3); color:#c084fc;'}">
+            ${doneCount}/${items.length}
+          </div>
+        ` : '<div class="week-pill-dot empty"></div>'}
       </button>
     `;
   });
@@ -322,8 +323,8 @@ function _renderWeekView(container, schedule, wrongLog) {
                   <input type="checkbox" class="task-check" ${item.done ? 'checked' : ''}
                          onchange="toggleScheduleItem('${dStr}', '${item.id}', this.checked)">
                   <div style="flex:1; min-width:0;">
-                    <div class="week-task-subject">${_escapeHtml(item.subject)}</div>
-                    <div class="week-task-topic" title="${_escapeHtml(item.topic)}">${_escapeHtml(item.topic)}</div>
+                    <div class="week-task-subject">${_escapeHtml(item.subject || '')}</div>
+                    <div class="week-task-topic" title="${_escapeHtml(item.topic || '')}">${_escapeHtml(item.topic || '')}</div>
                     <div class="week-task-meta">
                       <span>⏱️ ${item.duration || 60} dk</span>
                       ${item.questions ? `<span>• ✏️ ${item.questions} S</span>` : ''}
@@ -354,8 +355,45 @@ function _renderWeekView(container, schedule, wrongLog) {
   html += '</div>'; // .week-columns-grid
 
   // Mobilde seçili günün detay paneli
-  html += '<div class="mobile-only" style="margin-top:16px;">';
+  html += '<div class="mobile-only" style="margin-top:16px; width:100%;">';
   html += _renderSelectedDayCardHtml(schedule, wrongLog, window.currentSelectedDayDate);
+
+  // Eğer bu haftanın diğer günlerinde görev varsa ve seçili gün değilse, haftalık diğer günleri de listele
+  const otherDaysWithTasks = weekDates
+    .map(dObj => formatDateISO(dObj))
+    .filter(dStr => dStr !== window.currentSelectedDayDate)
+    .filter(dStr => {
+      const dData = schedule.find(s => s.date === dStr);
+      return dData && Array.isArray(dData.items) && dData.items.length > 0;
+    });
+
+  if (otherDaysWithTasks.length > 0) {
+    html += `
+      <div class="card" style="margin-top:16px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); padding:14px; border-radius:12px; width:100%;">
+        <div style="font-size:13px; font-weight:800; color:var(--text); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <span>🗓️</span> Bu Haftadaki Diğer Görevler:
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${otherDaysWithTasks.map(dStr => {
+            const dObj = new Date(dStr + 'T00:00:00');
+            const dayName = DAYS[dObj.getDay() === 0 ? 6 : dObj.getDay() - 1];
+            const dData = schedule.find(s => s.date === dStr);
+            const items = dData?.items || [];
+            const doneCount = items.filter(it => it.done).length;
+            return `
+              <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.06); padding:10px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="selectScheduleDay('${dStr}')">
+                <div>
+                  <div style="font-weight:700; font-size:12.5px; color:#c084fc;">📅 ${dayName} (${dObj.getDate()} ${MONTHS[dObj.getMonth()]})</div>
+                  <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${items.map(i => _escapeHtml(i.topic || i.subject || '')).join(' • ')}</div>
+                </div>
+                <span style="font-size:11px; font-weight:700; background:rgba(168,85,247,0.15); color:#c084fc; padding:3px 8px; border-radius:6px;">${doneCount}/${items.length} →</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
   html += '</div>';
 
   html += '</div>'; // .calendar-week-container

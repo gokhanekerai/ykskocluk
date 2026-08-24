@@ -1433,12 +1433,21 @@ body.student-role .student-readonly { pointer-events: none; opacity: 0.7; }
   display: none !important;
 }
 .desktop-only {
-  display: initial;
+  display: block;
+}
+span.desktop-only {
+  display: inline;
 }
 
 @media (max-width: 768px) {
   .mobile-only {
-    display: flex !important;
+    display: block !important;
+  }
+  span.mobile-only {
+    display: inline !important;
+  }
+  div.mobile-only {
+    display: block !important;
   }
   .desktop-only {
     display: none !important;
