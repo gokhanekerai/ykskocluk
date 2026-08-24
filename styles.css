@@ -687,10 +687,29 @@ html.needs-login .login-overlay { display: flex !important; }
 .progress-fill.amber  { background: var(--warning); }
 .progress-fill.danger { background: var(--danger); }
 
-/*  Dashboard Charts  */
+/*  Dashboard & Module Grids & Charts  */
+.grid-2,
+.exams-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
 .chart-wrapper {
   position: relative;
-  height: 180px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 220px;
+  box-sizing: border-box;
+}
+
+.chart-wrapper canvas,
+.card canvas,
+canvas {
+  max-width: 100% !important;
+  display: block;
 }
 
 /* Hedef banner */
@@ -2172,6 +2191,49 @@ span.desktop-only {
   .form-input, select.form-input {
     font-size: 15px !important; /* iOS zoom engelleme */
     padding: 10px 12px !important;
+  }
+
+  /* ── Mobilde Grafikler & Kartlar Kusursuz Tek Sütun ── */
+  .grid-2,
+  .exams-charts-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .chart-wrapper {
+    height: 210px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #tab-daily .chart-wrapper {
+    height: 220px !important;
+  }
+
+  .exams-charts-grid .card > div {
+    height: 210px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+  }
+
+  #tab-calculator .card,
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #exam-analysis-subjects-container {
+    grid-template-columns: 1fr !important;
   }
 }
 
