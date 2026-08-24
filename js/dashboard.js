@@ -220,31 +220,32 @@ function renderDashboard() {
 function openCountdownModal() {
   const data = getStudentData(window.activeStudent);
   const g = data.personalGoal || {};
-  document.getElementById('cd-start-date').value = g.startDate || '';
-  document.getElementById('cd-exam-date').value = g.examDate || '';
+  const sInp = document.getElementById('cd-start-date');
+  const eInp = document.getElementById('cd-exam-date');
+  if (sInp) sInp.value = g.startDate || '2026-08-17';
+  if (eInp) eInp.value = g.examDate || '2027-06-12';
   calcCountdown();
   openModal('countdown-modal');
 }
 
 function calcCountdown() {
   let startVal = document.getElementById('cd-start-date')?.value;
-  const examVal = document.getElementById('cd-exam-date')?.value;
+  let examVal = document.getElementById('cd-exam-date')?.value;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   if (!startVal) startVal = '2026-08-17';
+  if (!examVal) examVal = '2027-06-12';
+
   const sDate = new Date(startVal.includes('T') ? startVal : startVal + 'T00:00:00');
   sDate.setHours(0, 0, 0, 0);
   const diff = today.getTime() - sDate.getTime();
   const passed = Math.max(1, Math.floor(diff / 86400000) + 1);
 
-  let remaining = 0;
-  if (examVal) {
-    const eDate = new Date(examVal.includes('T') ? examVal : examVal + 'T00:00:00');
-    eDate.setHours(0, 0, 0, 0);
-    const diffRem = eDate.getTime() - today.getTime();
-    remaining = Math.max(0, Math.floor(diffRem / 86400000));
-  }
+  const eDate = new Date(examVal.includes('T') ? examVal : examVal + 'T00:00:00');
+  eDate.setHours(0, 0, 0, 0);
+  const diffRem = eDate.getTime() - today.getTime();
+  const remaining = Math.max(0, Math.floor(diffRem / 86400000));
 
   const passedEl = document.getElementById('cd-passed-days');
   if (passedEl) passedEl.textContent = passed;
@@ -252,19 +253,17 @@ function calcCountdown() {
   if (remEl) remEl.textContent = remaining;
 }
 
-
-
 function handleSaveCountdown(e) {
   if (e) e.preventDefault();
   const data = getStudentData(window.activeStudent);
   if (!data.personalGoal) data.personalGoal = {};
-  data.personalGoal.startDate = document.getElementById('cd-start-date').value;
-  data.personalGoal.examDate = document.getElementById('cd-exam-date').value;
+  data.personalGoal.startDate = document.getElementById('cd-start-date')?.value || '2026-08-17';
+  data.personalGoal.examDate = document.getElementById('cd-exam-date')?.value || '2027-06-12';
   saveStudentData(window.activeStudent, data);
-  showToast('Sayaç bilgileri kaydedildi!', 'success');
+  showToast('Sayaç ve hedef tarihleri kaydedildi!', 'success');
   closeModal('countdown-modal');
 
-  if (window.updateGlobalCountdown) window.updateGlobalCountdown();
+  if (typeof window.updateGlobalCountdown === 'function') window.updateGlobalCountdown();
   renderDashboard();
 }
 
