@@ -131,11 +131,19 @@ function _applySession(user) {
 }
 
 function showLoginScreen() {
-  document.getElementById('login-screen')?.classList.remove('hidden');
+  const el = document.getElementById('login-screen');
+  if (el) {
+    el.classList.remove('hidden');
+    el.style.display = 'flex';
+  }
 }
 
 function hideLoginScreen() {
-  document.getElementById('login-screen')?.classList.add('hidden');
+  const el = document.getElementById('login-screen');
+  if (el) {
+    el.classList.add('hidden');
+    el.style.display = 'none';
+  }
 }
 
 function showLoginError(msg) {
