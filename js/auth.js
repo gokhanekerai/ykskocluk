@@ -8,12 +8,16 @@ function initAuth() {
   const sessionKey = localStorage.getItem('yks_coach_session');
   const users = getUsers();
 
-  if (sessionKey && users[sessionKey]) {
-    _applySession(users[sessionKey]);
-    hideLoginScreen();
-  } else {
-    showLoginScreen();
+  if (sessionKey) {
+    const user = users[sessionKey] || Object.values(users).find(u => u && (u.username === sessionKey || u.id === sessionKey));
+    if (user) {
+      _applySession(user);
+      hideLoginScreen();
+      return true;
+    }
   }
+  showLoginScreen();
+  return false;
 }
 
 function handleLogin(e) {
@@ -35,7 +39,7 @@ function handleLogin(e) {
   const user = users[key];
   if (user.password !== password) { showLoginError('Şifre hatalı.'); return; }
 
-  localStorage.setItem('yks_coach_session', key);
+  localStorage.setItem('yks_coach_session', user.id || key);
   _applySession(user);
   hideLoginScreen();
   showToast(`Hoş geldiniz, ${user.name}!`, 'success');
@@ -43,6 +47,7 @@ function handleLogin(e) {
 
 function logout() {
   localStorage.removeItem('yks_coach_session');
+  localStorage.removeItem('yks_coach_active_tab');
   currentUser = null;
   window.currentUser = null;
   showLoginScreen();
@@ -57,6 +62,7 @@ function logout() {
 function _applySession(user) {
   currentUser = user;
   window.currentUser = user;
+  localStorage.setItem('yks_coach_session', user.id || user.username);
 
   const isCoachRole = user.role === 'coach' || user.role === 'supercoach';
   const isSuperCoachRole = user.role === 'supercoach' || user.username === 'gokhan' || user.username === 'koc';
@@ -94,13 +100,20 @@ function _applySession(user) {
     window.switchStudent(user.id, true);
   } else {
     const visibleStudents = typeof getVisibleStudents === 'function' ? getVisibleStudents(user) : [];
-    const isCurrentActiveVisible = visibleStudents.some(s => s.key === window.activeStudent);
-    const targetStudentId = isCurrentActiveVisible ? window.activeStudent : (visibleStudents[0]?.key || 'kaan');
+    const savedStudent = localStorage.getItem('yks_coach_active_student');
+    const isSavedVisible = visibleStudents.some(s => s.key === savedStudent || s.id === savedStudent);
+    const targetStudentId = isSavedVisible ? savedStudent : (visibleStudents[0]?.key || 'kaan');
     window.switchStudent(targetStudentId, true);
   }
 
   if (typeof renderStudentSelector === 'function') {
     renderStudentSelector();
+  }
+
+  // Kullanıcının bulunduğu sekmeyi geri yükle
+  const savedTab = localStorage.getItem('yks_coach_active_tab') || 'dashboard';
+  if (typeof switchTab === 'function') {
+    switchTab(savedTab);
   }
 }
 

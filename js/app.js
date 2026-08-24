@@ -43,10 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── Öğrenci Geçişi ────────────────────────────────────────────────────────────
 
 function switchStudent(studentId, force = false) {
+  if (!studentId) return;
   if (!force && activeStudent === studentId) return;
 
   activeStudent = studentId;
   window.activeStudent = studentId;
+  localStorage.setItem('yks_coach_active_student', studentId);
 
   // Sidebar buton durumunu güncelle
   if (typeof renderStudentSelector === 'function') {
@@ -67,8 +69,10 @@ function switchStudent(studentId, force = false) {
 // ─── Tab Geçişi ────────────────────────────────────────────────────────────────
 
 function switchTab(tabId) {
+  if (!tabId) tabId = 'dashboard';
   activeTab        = tabId;
   window.activeTab = tabId;
+  localStorage.setItem('yks_coach_active_tab', tabId);
 
   // Tüm sekmeleri gizle
   document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
