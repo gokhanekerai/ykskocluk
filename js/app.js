@@ -20,7 +20,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initAuth();
   initFirebaseSync(() => {
-    if (window.currentUser) renderCurrentTab();
+    if (window.currentUser) {
+      renderCurrentTab();
+      if (typeof renderSchedule === 'function') {
+        renderSchedule();
+      }
+      if (typeof renderDashboard === 'function') {
+        renderDashboard();
+      }
+    }
   });
 
   // Enter tuşu ile form gönder
