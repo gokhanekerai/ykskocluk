@@ -52,7 +52,7 @@ function _renderWrongList(wrongLog) {
     return;
   }
 
-  const isCoach = window.currentUser && window.currentUser.role === 'coach';
+  const isCoach = typeof window.isCoach === 'function' ? window.isCoach() : (window.currentUser && (window.currentUser.role === 'coach' || window.currentUser.role === 'supercoach'));
 
   container.innerHTML = list.map(e => `
     <div class="wrong-card ${e.reviewed ? 'reviewed' : ''}">

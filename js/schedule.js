@@ -13,6 +13,14 @@ function _escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
+function _isCoachUser() {
+  if (typeof window.isCoach === 'function') {
+    return window.isCoach();
+  }
+  const u = window.currentUser || (typeof currentUser !== 'undefined' ? currentUser : null);
+  return !!(u && (u.role === 'coach' || u.role === 'supercoach'));
+}
+
 window.currentScheduleViewMode = window.innerWidth < 768 ? 'week' : 'month'; // 'month' | 'week' | 'day'
 let currentPeriodOffset = 0;
 window.currentSelectedDayDate = getTodayStr();
@@ -97,7 +105,7 @@ function renderSchedule() {
   // Koç butonları görünürlüğü
   const coachActions = document.getElementById('schedule-coach-actions');
   if (coachActions) {
-    coachActions.style.display = (window.currentUser && window.currentUser.role === 'coach') ? 'flex' : 'none';
+    coachActions.style.display = _isCoachUser() ? 'flex' : 'none';
   }
 }
 
@@ -199,8 +207,10 @@ function _renderMonthView(container, schedule, wrongLog) {
       if (items.length > 3) {
         chipsHtml += `<div class="month-task-more">+${items.length - 3} görev daha</div>`;
       }
-    } else {
+    } else if (_isCoachUser()) {
       chipsHtml = `<div class="month-task-empty desktop-only" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')">+ Görev Ekle</div>`;
+    } else {
+      chipsHtml = '';
     }
 
     let badgeHtml = '';
@@ -313,7 +323,7 @@ function _renderWeekView(container, schedule, wrongLog) {
     const doneCount = items.filter(it => it.done).length;
     const isAllDone = items.length > 0 && doneCount === items.length;
 
-    const isCoach = (window.currentUser && window.currentUser.role === 'coach');
+    const isCoach = _isCoachUser();
 
     html += `
       <div class="week-day-column ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" id="wcol-${dStr}">
@@ -327,18 +337,25 @@ function _renderWeekView(container, schedule, wrongLog) {
             ${items.length > 0 ? `
               <span class="week-day-badge ${isAllDone ? 'done' : ''}">${doneCount}/${items.length}</span>
             ` : ''}
-            <button class="btn-icon-sm" style="color:var(--primary); font-size:14px;" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')" title="Bu güne görev ekle">➕</button>
+            ${isCoach ? `<button class="btn-icon-sm" style="color:var(--primary); font-size:14px;" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')" title="Bu güne görev ekle">➕</button>` : ''}
           </div>
         </div>
 
         <!-- Görev Listesi -->
         <div class="week-day-tasks-list">
-          ${items.length === 0 ? `
-            <div class="week-empty-day" onclick="openAddScheduleItem('${dStr}')">
-              <span>+</span>
-              <p>Görev Ata</p>
-            </div>
-          ` : items.map(item => {
+          ${items.length === 0 ? (
+            isCoach ? `
+              <div class="week-empty-day" onclick="openAddScheduleItem('${dStr}')">
+                <span>+</span>
+                <p>Görev Ata</p>
+              </div>
+            ` : `
+              <div class="week-empty-day student-empty" style="cursor:default; border-style:dashed; opacity:0.5; padding:18px 8px;">
+                <span style="font-size:16px;">📌</span>
+                <p style="margin-top:4px; font-size:11px; color:var(--text-muted);">Görev yok</p>
+              </div>
+            `
+          ) : items.map(item => {
             const icon = {
               'konu çalışma': '📖', 'soru çözme': '✏️', 'deneme': '📝', 'tekrar': '🔁', 'video': '🎬'
             }[item.type] || '📌';
@@ -359,8 +376,8 @@ function _renderWeekView(container, schedule, wrongLog) {
                   </div>
                   ${isCoach ? `
                     <div class="week-task-actions">
-                      <button class="btn-icon-xs" onclick="openEditScheduleItem('${dStr}','${item.id}')" title="Düzenle">✏️</button>
-                      <button class="btn-icon-xs text-danger" onclick="deleteScheduleItem('${dStr}','${item.id}')" title="Sil">🗑️</button>
+                      <button class="btn-icon-xs" onclick="openEditScheduleItem('${dStr}','${item.id}')" title="Görevi Düzenle">✏️</button>
+                      <button class="btn-icon-xs text-danger" onclick="deleteScheduleItem('${dStr}','${item.id}')" title="Görevi Sil">🗑️</button>
                     </div>
                   ` : ''}
                 </div>
@@ -370,11 +387,13 @@ function _renderWeekView(container, schedule, wrongLog) {
         </div>
 
         <!-- Kolon Altı Buton -->
-        <div class="week-day-footer">
-          <button class="btn btn-sm btn-secondary week-add-btn" onclick="openAddScheduleItem('${dStr}')">
-            + Görev Ekle
-          </button>
-        </div>
+        ${isCoach ? `
+          <div class="week-day-footer">
+            <button class="btn btn-sm btn-secondary week-add-btn" onclick="openAddScheduleItem('${dStr}')">
+              + Görev Ekle
+            </button>
+          </div>
+        ` : ''}
       </div>
     `;
   });
@@ -463,7 +482,7 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
   const dayData = schedule.find(s => s.date === dateStr);
   const items = dayData?.items || [];
   const doneCount = items.filter(it => it.done).length;
-  const isCoach = (window.currentUser && window.currentUser.role === 'coach');
+  const isCoach = _isCoachUser();
 
   let html = `
     <div class="card selected-day-panel" style="margin-top: 16px; border: 1px solid rgba(139,92,246,0.3); background: linear-gradient(145deg, rgba(26,26,38,0.95) 0%, rgba(18,18,28,0.98) 100%);">
@@ -483,12 +502,14 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
         </div>
 
         <div class="selected-day-panel-actions">
-          <button class="btn btn-sm btn-accent" onclick="openWrongPoolForCurrentDay()" title="Yanlış havuzundan görev ekle">
-            📋 Yanlış Havuzu
-          </button>
-          <button class="btn btn-sm btn-primary" onclick="openAddScheduleItem('${dateStr}')">
-            + Görev Ekle
-          </button>
+          ${isCoach ? `
+            <button class="btn btn-sm btn-accent" onclick="openWrongPoolForCurrentDay()" title="Yanlış havuzundan görev ekle">
+              📋 Yanlış Havuzu
+            </button>
+            <button class="btn btn-sm btn-primary" onclick="openAddScheduleItem('${dateStr}')">
+              + Görev Ekle
+            </button>
+          ` : ''}
         </div>
       </div>
 
@@ -501,10 +522,12 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
       <div class="selected-day-empty-box">
         <div style="font-size:32px; margin-bottom:8px;">🎯</div>
         <div style="font-weight:700; font-size:15px; color:var(--text); margin-bottom:4px;">Bu gün için henüz bir görev eklenmemiş</div>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">Öğrenciye bu gün çalışacağı konuları veya soru hedeflerini atayabilirsiniz.</div>
-        <button class="btn btn-primary" onclick="openAddScheduleItem('${dateStr}')">
-          + Bu Güne Görev Ata
-        </button>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">${isCoach ? 'Öğrenciye bu gün çalışacağı konuları veya soru hedeflerini atayabilirsiniz.' : 'Bugün için planlanmış bir çalışma göreviniz bulunmuyor.'}</div>
+        ${isCoach ? `
+          <button class="btn btn-primary" onclick="openAddScheduleItem('${dateStr}')">
+            + Bu Güne Görev Ata
+          </button>
+        ` : ''}
       </div>
     `;
   } else {
@@ -574,8 +597,12 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
 
           ${isCoach ? `
             <div class="selected-day-task-actions">
-              <button class="btn-icon-sm" style="color:var(--primary);" onclick="openEditScheduleItem('${dateStr}','${item.id}')" title="Düzenle">✏️</button>
-              <button class="btn-icon-sm text-danger" onclick="deleteScheduleItem('${dateStr}','${item.id}')" title="Sil">🗑️</button>
+              <button class="btn btn-xs btn-edit-task" onclick="openEditScheduleItem('${dateStr}','${item.id}')" title="Görevi Düzenle">
+                <span>✏️</span> Düzenle
+              </button>
+              <button class="btn btn-xs btn-delete-task" onclick="deleteScheduleItem('${dateStr}','${item.id}')" title="Görevi Sil">
+                <span>🗑️</span>
+              </button>
             </div>
           ` : ''}
         </div>
@@ -596,6 +623,11 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
 function _renderWrongPoolBanner(wrongLog) {
   const bannerEl = document.getElementById('schedule-wrong-pool-bar');
   if (!bannerEl) return;
+
+  if (!_isCoachUser()) {
+    bannerEl.innerHTML = '';
+    return;
+  }
 
   const pending = (wrongLog || []).filter(w => !w.reviewed);
   if (!pending.length) {
@@ -879,19 +911,27 @@ function cancelTaskCompletion() {
 }
 
 function deleteScheduleItem(dateStr, itemId) {
+  if (!_isCoachUser()) {
+    showToast('Görev silme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
   const data = getStudentData(window.activeStudent);
   const day  = (data.schedule || []).find(s => s.date === dateStr);
   if (!day) return;
 
   const item = (day.items || []).find(i => i.id === itemId);
-  day.items = day.items.filter(i => i.id !== itemId);
+  day.items = (day.items || []).filter(i => i.id !== itemId);
   if (day.items.length === 0) {
     data.schedule = data.schedule.filter(s => s.date !== dateStr);
   }
 
   if (item) {
     _syncScheduleWithTopicStatus(data, item.subject, item.topic, 'revert_from_completed');
+    if (Array.isArray(data.dailyLog)) {
+      data.dailyLog = data.dailyLog.filter(e => e.taskId !== itemId);
+    }
   }
 
   saveStudentData(window.activeStudent, data);
@@ -899,6 +939,7 @@ function deleteScheduleItem(dateStr, itemId) {
   if (typeof renderDashboard === 'function') renderDashboard();
   if (typeof _renderTopicStats === 'function') _renderTopicStats();
   if (typeof renderTopics === 'function') renderTopics();
+  if (typeof renderDailyLog === 'function') renderDailyLog();
   if (typeof checkNotifications === 'function') checkNotifications();
   showToast('Görev silindi.', 'info');
 }
@@ -1120,6 +1161,11 @@ function toggleCustomBookInput(show) {
 }
 
 function openAddScheduleItem(dateStr) {
+  if (!_isCoachUser()) {
+    showToast('Görev ekleme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   editingScheduleContext = null;
   if (!dateStr) dateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
   document.getElementById('sched-item-date').value = dateStr;
@@ -1147,17 +1193,30 @@ function openAddScheduleItem(dateStr) {
 }
 
 function openEditScheduleItem(dateStr, itemId) {
+  if (!_isCoachUser()) {
+    showToast('Görev düzenleme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   const data = getStudentData(window.activeStudent);
   const day = (data.schedule || []).find(s => s.date === dateStr);
   if (!day) return;
   const item = (day.items || []).find(i => i.id === itemId);
   if (!item) return;
 
-  editingScheduleContext = { dateStr, itemId, done: item.done };
+  editingScheduleContext = { 
+    dateStr, 
+    itemId, 
+    done: item.done || false,
+    completedResult: item.completedResult || null,
+    item: { ...item }
+  };
 
-  document.getElementById('sched-item-date').value = dateStr;
+  const dateInput = document.getElementById('sched-item-date');
+  if (dateInput) dateInput.value = dateStr;
+
   const title = document.getElementById('schedule-modal-title');
-  if (title) title.textContent = '📝 Görevi Düzenle';
+  if (title) title.textContent = '📝 Görevi Düzenle / Güncelle';
   const btn = document.getElementById('schedule-submit-btn');
   if (btn) btn.textContent = 'Güncelle';
 
@@ -1165,10 +1224,25 @@ function openEditScheduleItem(dateStr, itemId) {
 
   const subjSelect = document.getElementById('sched-subject');
   if (subjSelect) {
+    let matched = false;
+    // 1. Tam eşleşme ara
     for (let i = 0; i < subjSelect.options.length; i++) {
-      if (subjSelect.options[i].value.includes(item.subject) || subjSelect.options[i].text === item.subject) {
+      if (subjSelect.options[i].value === item.subject) {
         subjSelect.selectedIndex = i;
+        matched = true;
         break;
+      }
+    }
+    // 2. Kısmi eşleşme ara
+    if (!matched) {
+      for (let i = 0; i < subjSelect.options.length; i++) {
+        const optVal = subjSelect.options[i].value;
+        const optText = subjSelect.options[i].text;
+        if (optText === item.subject || optVal.endsWith(' ' + item.subject) || item.subject.endsWith(' ' + optText) || optVal.includes(item.subject)) {
+          subjSelect.selectedIndex = i;
+          matched = true;
+          break;
+        }
       }
     }
   }
@@ -1202,10 +1276,10 @@ function openEditScheduleItem(dateStr, itemId) {
   if (typeEl) typeEl.value = item.type || 'konu çalışma';
 
   const qEl = document.getElementById('sched-questions');
-  if (qEl) qEl.value = item.questions ?? '';
+  if (qEl) qEl.value = (item.questions !== undefined && item.questions !== null && item.questions !== 0) ? item.questions : '';
 
   const pEl = document.getElementById('sched-pages');
-  if (pEl) pEl.value = item.pages ?? '';
+  if (pEl) pEl.value = (item.pages !== undefined && item.pages !== null && item.pages !== 0) ? item.pages : '';
 
   // Çoklu kaynakları doldur
   window._currentSchedBooks = _getTaskBooks(item);
@@ -1246,6 +1320,11 @@ function updateSchedTopics() {
 function handleAddScheduleItem(e) {
   if (e) e.preventDefault();
 
+  if (!_isCoachUser()) {
+    showToast('Görev ekleme ve düzenleme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   const dateStr = document.getElementById('sched-item-date')?.value || window.currentSelectedDayDate;
   const subject = document.getElementById('sched-subject')?.value.trim() || '';
 
@@ -1277,6 +1356,7 @@ function handleAddScheduleItem(e) {
     const oldDateStr = editingScheduleContext.dateStr;
     const oldItemId = editingScheduleContext.itemId;
     const isDone = editingScheduleContext.done || false;
+    const prevItem = editingScheduleContext.item || {};
 
     // Eski günden çıkar
     const oldDay = data.schedule.find(s => s.date === oldDateStr);
@@ -1296,13 +1376,31 @@ function handleAddScheduleItem(e) {
     if (!Array.isArray(targetDay.items)) {
       targetDay.items = targetDay.items && typeof targetDay.items === 'object' ? Object.values(targetDay.items) : [];
     }
-    targetDay.items.push({ id: oldItemId, subject, topic, duration: dur, type, done: isDone, questions, pages, book, books });
+
+    const updatedItem = {
+      ...prevItem,
+      id: oldItemId,
+      subject,
+      topic,
+      duration: dur,
+      type,
+      done: isDone,
+      questions,
+      pages,
+      book,
+      books
+    };
+    if (editingScheduleContext.completedResult) {
+      updatedItem.completedResult = editingScheduleContext.completedResult;
+    }
+
+    targetDay.items.push(updatedItem);
 
     _syncScheduleWithTopicStatus(data, subject, topic, isDone ? 'completed' : 'studying');
 
     editingScheduleContext = null;
     saveStudentData(window.activeStudent, data);
-    showToast('Görev güncellendi & Konu durumu senkronize edildi!', 'success');
+    showToast('Görev başarıyla güncellendi!', 'success');
   } else {
     let day = data.schedule.find(s => s.date === dateStr);
     if (!day) {
@@ -1351,8 +1449,12 @@ function handleAddScheduleItem(e) {
   if (typeof checkNotifications === 'function') checkNotifications();
 }
 
-
 function clearWeekSchedule() {
+  if (!_isCoachUser()) {
+    showToast('Programı temizleme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   if (!confirm('Seçili dönemin tüm programı silinecek. Emin misiniz?')) return;
 
   const data = getStudentData(window.activeStudent);
@@ -1461,6 +1563,11 @@ function toggleWrongReviewFromSchedule(wrongId, subject, topic) {
 }
 
 function openWrongPoolModal() {
+  if (!_isCoachUser()) {
+    showToast('Yanlış havuzu inceleme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   const data = getStudentData(window.activeStudent);
   const wrongLog = data.wrongLog || [];
   const pending = wrongLog.filter(w => !w.reviewed);
@@ -1524,6 +1631,11 @@ function openAddTaskForCurrentDay() {
 }
 
 function addTopicToScheduleAsReview(subject, topic, targetDate = null) {
+  if (!_isCoachUser()) {
+    showToast('Görev ekleme yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   const data = getStudentData(window.activeStudent);
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
@@ -1552,6 +1664,11 @@ function addTopicToScheduleAsReview(subject, topic, targetDate = null) {
 }
 
 function autoAssignWrongReviewsToSchedule() {
+  if (!_isCoachUser()) {
+    showToast('Otomatik görev dağıtma yetkisi yalnızca koçlara aittir.', 'warning');
+    return;
+  }
+
   const data = getStudentData(window.activeStudent);
   const wrongLog = data.wrongLog || [];
   const pending = wrongLog.filter(w => !w.reviewed);
@@ -1670,3 +1787,4 @@ window.calcCompBlank                  = calcCompBlank;
 window.handleTaskCompletionSubmit     = handleTaskCompletionSubmit;
 window.completeTaskWithoutQuestions   = completeTaskWithoutQuestions;
 window.cancelTaskCompletion           = cancelTaskCompletion;
+window._isCoachUser                   = _isCoachUser;

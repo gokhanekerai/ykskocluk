@@ -2087,6 +2087,48 @@ span.desktop-only {
   display: flex;
   gap: 6px;
   align-items: center;
+  margin-left: auto;
+}
+
+.btn-edit-task {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+  color: #c084fc !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+  padding: 4px 9px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.btn-edit-task:hover {
+  background: rgba(139, 92, 246, 0.3) !important;
+  border-color: #a855f7 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.btn-delete-task {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.btn-delete-task:hover {
+  background: rgba(239, 68, 68, 0.28) !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
 }
 
 /* ═══════════════════════════════════════════════════════════
