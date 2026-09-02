@@ -1581,6 +1581,30 @@
         "wrong": 4
       },
       {
+        "id": "log_kaan_30_mat",
+        "date": "2026-08-30",
+        "tytAyt": "TYT",
+        "subject": "Matematik",
+        "solved": 68,
+        "correct": 56,
+        "wrong": 12,
+        "blank": 0,
+        "timeSpent": 60,
+        "notes": "Oran-Orantı & Problemlere Giriş"
+      },
+      {
+        "id": "log_kaan_30_turk",
+        "date": "2026-08-30",
+        "tytAyt": "TYT",
+        "subject": "Türkçe",
+        "solved": 40,
+        "correct": 35,
+        "wrong": 5,
+        "blank": 0,
+        "timeSpent": 45,
+        "notes": "Paragrafta Anlam"
+      },
+      {
         "correct": 42,
         "date": "2026-09-01",
         "id": "mtisfd4mfj35p",
@@ -2065,6 +2089,43 @@
             "subject": "TYT Matematik",
             "topic": "Oran-Orantı",
             "type": "video"
+          }
+        ]
+      },
+      {
+        "id": "sched_kaan_2026_08_30",
+        "date": "2026-08-30",
+        "items": [
+          {
+            "id": "item_k_2026_08_30_0",
+            "subject": "TYT Matematik",
+            "topic": "Oran-Orantı",
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası",
+              "345 TYT Matematik"
+            ],
+            "questions": 70,
+            "pages": 10,
+            "duration": 60,
+            "done": true,
+            "type": "video"
+          },
+          {
+            "id": "item_k_2026_08_30_1",
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "book": "Hız Yayınları Paragraf, 345 SIFIR RİSK PARAGRAF",
+            "books": [
+              "Hız Yayınları Paragraf",
+              "345 SIFIR RİSK PARAGRAF"
+            ],
+            "questions": 40,
+            "pages": 8,
+            "duration": 45,
+            "done": true,
+            "type": "soru çözme"
           }
         ]
       },
