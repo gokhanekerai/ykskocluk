@@ -1462,13 +1462,52 @@ function clearWeekSchedule() {
     return;
   }
 
-  if (!confirm('Seçili dönemin tüm programı silinecek. Emin misiniz?')) return;
-
   const data = getStudentData(window.activeStudent);
-  data.schedule = [];
+  if (!data.schedule || !data.schedule.length) {
+    showToast('Temizlenecek program bulunamadı.', 'info');
+    return;
+  }
+
+  // Aktif görünümdeki tarihleri bul (Haftalık görünümde sadece o haftayı, aylıkta o ayı)
+  let datesToClear = [];
+  const now = new Date();
+
+  if (window.currentScheduleViewMode === 'week') {
+    const baseDate = new Date(now);
+    baseDate.setDate(now.getDate() + (currentPeriodOffset * 7));
+    const dayOfWk = baseDate.getDay();
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() - (dayOfWk === 0 ? 6 : dayOfWk - 1));
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      datesToClear.push(formatDateISO(d));
+    }
+  } else if (window.currentScheduleViewMode === 'day') {
+    datesToClear.push(window.currentSelectedDayDate || getTodayStr());
+  } else {
+    // Aylık görünüm
+    const viewDate = new Date(now.getFullYear(), now.getMonth() + currentPeriodOffset, 1);
+    const y = viewDate.getFullYear();
+    const m = viewDate.getMonth();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    for (let i = 1; i <= daysInMonth; i++) {
+      const d = new Date(y, m, i);
+      datesToClear.push(formatDateISO(d));
+    }
+  }
+
+  const label = window.currentScheduleViewMode === 'week' ? 'seçili haftanın' : (window.currentScheduleViewMode === 'day' ? 'seçili günün' : 'seçili ayın');
+  if (!confirm(`Yalnızca ${label} görevleri temizlenecek. Geçmiş ve diğer tarihler korunacak. Emin misiniz?`)) return;
+
+  const datesSet = new Set(datesToClear);
+  // Sadece o döneme ait günleri boşalt, diğer dönemlerdeki görevlere dokunma
+  data.schedule = data.schedule.filter(s => !datesSet.has(s.date));
+
   saveStudentData(window.activeStudent, data);
   renderSchedule();
-  showToast('Program temizlendi.', 'info');
+  showToast(`${label.toUpperCase()} görevleri temizlendi. Geçmiş korundu.`, 'info');
 }
 
 // ─── YANLIŞ DEFTERİ ENTEGRASYONU ─────────────────────────────────────────────

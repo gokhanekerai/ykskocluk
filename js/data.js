@@ -178,8 +178,29 @@ function getStudentData(studentId) {
 }
 
 function saveStudentData(studentId, data) {
-  if (!studentId) return;
+  if (!studentId || !data) return;
   const key = `yks_coach_${studentId}`;
+
+  // KORUMA: Eğer hafızada dolu veriler varken boş veya hasarlı bir nesne kaydedilmeye çalışılırsa engelle
+  try {
+    const existingStr = localStorage.getItem(key);
+    if (existingStr) {
+      const existing = JSON.parse(existingStr);
+      const exSchedCount = Array.isArray(existing.schedule) ? existing.schedule.length : 0;
+      const newSchedCount = Array.isArray(data.schedule) ? data.schedule.length : 0;
+      const exDailyCount = Array.isArray(existing.dailyLog) ? existing.dailyLog.length : 0;
+      const newDailyCount = Array.isArray(data.dailyLog) ? data.dailyLog.length : 0;
+
+      // Anormal toplu silinme koruması: eğer 3'ten fazla kayıt varken aniden 0'a düşüyorsa ve bu bilinçli bir işlem değilse uyar/engelle
+      if (exDailyCount >= 5 && newDailyCount === 0) {
+        console.warn(`[KORUMA] ${studentId} için dailyLog aniden boşaldı, işlem iptal edildi.`);
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('[saveStudentData] Koruma kontrolü hatası:', err);
+  }
+
   localStorage.setItem(key, JSON.stringify(data));
   if (typeof fbSet === 'function') fbSet(key, data);
 }
