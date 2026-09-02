@@ -1461,6 +1461,126 @@
         "wrong": 2
       },
       {
+        "blank": 0,
+        "correct": 56,
+        "date": "2026-08-24",
+        "id": "log_kaan_24_mat",
+        "notes": "Köklü Sayılar soru çözümü",
+        "solved": 68,
+        "subject": "Matematik",
+        "timeSpent": 60,
+        "tytAyt": "TYT",
+        "wrong": 12
+      },
+      {
+        "blank": 0,
+        "correct": 35,
+        "date": "2026-08-24",
+        "id": "log_kaan_24_turk",
+        "notes": "Paragrafta Anlam",
+        "solved": 40,
+        "subject": "Türkçe",
+        "timeSpent": 45,
+        "tytAyt": "TYT",
+        "wrong": 5
+      },
+      {
+        "blank": 0,
+        "correct": 58,
+        "date": "2026-08-25",
+        "id": "log_kaan_25_mat",
+        "notes": "Üslü Sayılar soru bankası",
+        "solved": 70,
+        "subject": "Matematik",
+        "timeSpent": 60,
+        "tytAyt": "TYT",
+        "wrong": 12
+      },
+      {
+        "blank": 0,
+        "correct": 36,
+        "date": "2026-08-25",
+        "id": "log_kaan_25_turk",
+        "notes": "Paragrafta Anlam",
+        "solved": 40,
+        "subject": "Türkçe",
+        "timeSpent": 45,
+        "tytAyt": "TYT",
+        "wrong": 4
+      },
+      {
+        "blank": 0,
+        "correct": 53,
+        "date": "2026-08-27",
+        "id": "log_kaan_27_mat",
+        "notes": "Çarpanlara Ayırma",
+        "solved": 66,
+        "subject": "Matematik",
+        "timeSpent": 60,
+        "tytAyt": "TYT",
+        "wrong": 13
+      },
+      {
+        "blank": 0,
+        "correct": 34,
+        "date": "2026-08-27",
+        "id": "log_kaan_27_turk",
+        "notes": "Paragrafta Anlam",
+        "solved": 40,
+        "subject": "Türkçe",
+        "timeSpent": 45,
+        "tytAyt": "TYT",
+        "wrong": 6
+      },
+      {
+        "blank": 0,
+        "correct": 57,
+        "date": "2026-08-28",
+        "id": "log_kaan_28_mat",
+        "notes": "Oran-Orantı",
+        "solved": 70,
+        "subject": "Matematik",
+        "timeSpent": 60,
+        "tytAyt": "TYT",
+        "wrong": 13
+      },
+      {
+        "blank": 0,
+        "correct": 37,
+        "date": "2026-08-28",
+        "id": "log_kaan_28_turk",
+        "notes": "Paragrafta Anlam",
+        "solved": 40,
+        "subject": "Türkçe",
+        "timeSpent": 45,
+        "tytAyt": "TYT",
+        "wrong": 3
+      },
+      {
+        "blank": 0,
+        "correct": 54,
+        "date": "2026-08-29",
+        "id": "log_kaan_29_mat",
+        "notes": "Oran-Orantı tarama",
+        "solved": 65,
+        "subject": "Matematik",
+        "timeSpent": 60,
+        "tytAyt": "TYT",
+        "wrong": 11
+      },
+      {
+        "blank": 0,
+        "correct": 36,
+        "date": "2026-08-29",
+        "id": "log_kaan_29_turk",
+        "notes": "Paragrafta Anlam",
+        "solved": 40,
+        "subject": "Türkçe",
+        "timeSpent": 45,
+        "tytAyt": "TYT",
+        "wrong": 4
+      },
+      {
         "correct": 42,
         "date": "2026-09-01",
         "id": "mtisfd4mfj35p",
@@ -1674,6 +1794,320 @@
         ]
       },
       {
+        "date": "2026-08-24",
+        "id": "sched_kaan_2026_08_24",
+        "items": [
+          {
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 16,
+              "solved": 20,
+              "wrong": 4
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_24_0",
+            "pages": 10,
+            "questions": 30,
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "type": "konu çalışma"
+          },
+          {
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası",
+              "345 TYT Matematik"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 55,
+              "solved": 69,
+              "wrong": 14
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_24_1",
+            "pages": 3,
+            "questions": 70,
+            "subject": "TYT Matematik",
+            "topic": "Köklü Sayılar",
+            "type": "video"
+          }
+        ]
+      },
+      {
+        "date": "2026-08-25",
+        "id": "sched_kaan_2026_08_25",
+        "items": [
+          {
+            "book": "345 SIFIR RİSK PARAGRAF, Hız Yayınları Paragraf",
+            "books": [
+              "345 SIFIR RİSK PARAGRAF",
+              "Hız Yayınları Paragraf"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 15,
+              "solved": 20,
+              "wrong": 5
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_25_0",
+            "pages": 5,
+            "questions": 20,
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "type": "soru çözme"
+          },
+          {
+            "book": "Matematik Video Ders Kitabı, rehber matematik youtube",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "rehber matematik youtube"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 16,
+              "solved": 20,
+              "wrong": 4
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_25_1",
+            "pages": 5,
+            "questions": 30,
+            "subject": "TYT Matematik",
+            "topic": "Üslü Sayılar",
+            "type": "video"
+          },
+          {
+            "book": "Rehber Matematik Soru Bankası",
+            "books": [
+              "Rehber Matematik Soru Bankası"
+            ],
+            "completedResult": {
+              "blank": 10,
+              "correct": 0,
+              "solved": 10,
+              "wrong": 0
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_25_2",
+            "pages": 2,
+            "questions": 10,
+            "subject": "TYT Matematik",
+            "topic": "Üslü Sayılar",
+            "type": "soru çözme"
+          },
+          {
+            "book": "345 TYT Matematik",
+            "books": [
+              "345 TYT Matematik"
+            ],
+            "completedResult": {
+              "blank": 40,
+              "correct": 0,
+              "solved": 40,
+              "wrong": 0
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_25_3",
+            "pages": 5,
+            "questions": 40,
+            "subject": "TYT Matematik",
+            "topic": "Üslü Sayılar",
+            "type": "soru çözme"
+          }
+        ]
+      },
+      {
+        "date": "2026-08-27",
+        "id": "sched_kaan_2026_08_27",
+        "items": [
+          {
+            "book": "Hız Yayınları Paragraf, 345 SIFIR RİSK PARAGRAF",
+            "books": [
+              "Hız Yayınları Paragraf",
+              "345 SIFIR RİSK PARAGRAF"
+            ],
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_27_0",
+            "pages": 5,
+            "questions": 20,
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "type": "konu çalışma"
+          },
+          {
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik, rehber matematik youtube",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası",
+              "345 TYT Matematik",
+              "rehber matematik youtube"
+            ],
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_27_1",
+            "pages": 16,
+            "questions": 80,
+            "subject": "TYT Matematik",
+            "topic": "Çarpanlara Ayırma",
+            "type": "video"
+          }
+        ]
+      },
+      {
+        "date": "2026-08-28",
+        "id": "sched_kaan_2026_08_28",
+        "items": [
+          {
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik, rehber matematik youtube",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası",
+              "345 TYT Matematik",
+              "rehber matematik youtube"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 32,
+              "solved": 43,
+              "wrong": 11
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_28_0",
+            "pages": 15,
+            "questions": 80,
+            "subject": "TYT Matematik",
+            "topic": "Oran-Orantı",
+            "type": "video"
+          },
+          {
+            "book": "Hız Yayınları Paragraf, 345 SIFIR RİSK PARAGRAF",
+            "books": [
+              "Hız Yayınları Paragraf",
+              "345 SIFIR RİSK PARAGRAF"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 20,
+              "solved": 20,
+              "wrong": 0
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_28_1",
+            "pages": 5,
+            "questions": 20,
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "type": "soru çözme"
+          }
+        ]
+      },
+      {
+        "date": "2026-08-29",
+        "id": "sched_kaan_2026_08_29",
+        "items": [
+          {
+            "book": "Hız Yayınları Paragraf, 345 SIFIR RİSK PARAGRAF",
+            "books": [
+              "Hız Yayınları Paragraf",
+              "345 SIFIR RİSK PARAGRAF"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 16,
+              "solved": 20,
+              "wrong": 4
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_29_0",
+            "pages": 4,
+            "questions": 20,
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "type": "soru çözme"
+          },
+          {
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik, rehber matematik youtube",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası",
+              "345 TYT Matematik",
+              "rehber matematik youtube"
+            ],
+            "completedResult": {
+              "blank": 0,
+              "correct": 45,
+              "solved": 55,
+              "wrong": 10
+            },
+            "done": true,
+            "duration": 60,
+            "id": "item_k_2026_08_29_1",
+            "pages": 15,
+            "questions": 80,
+            "subject": "TYT Matematik",
+            "topic": "Oran-Orantı",
+            "type": "video"
+          }
+        ]
+      },
+      {
+        "date": "2026-08-31",
+        "id": "mtjwbhl710s5w",
+        "items": [
+          {
+            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik, rehber matematik youtube",
+            "books": [
+              "Matematik Video Ders Kitabı",
+              "Rehber Matematik Soru Bankası",
+              "345 TYT Matematik",
+              "rehber matematik youtube"
+            ],
+            "done": false,
+            "duration": 60,
+            "id": "mtjwbhl74w0vb",
+            "pages": 0,
+            "questions": 50,
+            "subject": "TYT Matematik",
+            "topic": "Sayı & Kesir Problemleri",
+            "type": "video"
+          },
+          {
+            "book": "Hız Yayınları Paragraf, 345 SIFIR RİSK PARAGRAF, Türkçe Basiskele bld",
+            "books": [
+              "Hız Yayınları Paragraf",
+              "345 SIFIR RİSK PARAGRAF",
+              "Türkçe Basiskele bld"
+            ],
+            "done": false,
+            "duration": 60,
+            "id": "mtjwc6c2xtmea",
+            "pages": 0,
+            "questions": 40,
+            "subject": "TYT Türkçe",
+            "topic": "Paragrafta Anlam",
+            "type": "konu çalışma"
+          }
+        ]
+      },
+      {
         "date": "2026-09-01",
         "id": "mtinctaemdquv",
         "items": [
@@ -1746,45 +2180,6 @@
             "subject": "TYT Türkçe",
             "topic": "Paragrafta Anlam",
             "type": "video"
-          }
-        ]
-      },
-      {
-        "date": "2026-08-31",
-        "id": "mtjwbhl710s5w",
-        "items": [
-          {
-            "book": "Matematik Video Ders Kitabı, Rehber Matematik Soru Bankası, 345 TYT Matematik, rehber matematik youtube",
-            "books": [
-              "Matematik Video Ders Kitabı",
-              "Rehber Matematik Soru Bankası",
-              "345 TYT Matematik",
-              "rehber matematik youtube"
-            ],
-            "done": false,
-            "duration": 60,
-            "id": "mtjwbhl74w0vb",
-            "pages": 0,
-            "questions": 50,
-            "subject": "TYT Matematik",
-            "topic": "Sayı & Kesir Problemleri",
-            "type": "video"
-          },
-          {
-            "book": "Hız Yayınları Paragraf, 345 SIFIR RİSK PARAGRAF, Türkçe Basiskele bld",
-            "books": [
-              "Hız Yayınları Paragraf",
-              "345 SIFIR RİSK PARAGRAF",
-              "Türkçe Basiskele bld"
-            ],
-            "done": false,
-            "duration": 60,
-            "id": "mtjwc6c2xtmea",
-            "pages": 0,
-            "questions": 40,
-            "subject": "TYT Türkçe",
-            "topic": "Paragrafta Anlam",
-            "type": "konu çalışma"
           }
         ]
       }
