@@ -11,6 +11,15 @@ let _initialSyncDone = false;
 function fbSet(key, data) {
   if (window.db) {
     _isWritingLocally = true;
+
+    // Firebase RTDB boş array'leri ([]) saklamaz; açıkça kaldır
+    const arrayKeys = ['wrongLog', 'dailyLog', 'mockLog', 'tasks', 'books', 'schedule', 'aiAnalyses'];
+    arrayKeys.forEach(ak => {
+      if (data && Array.isArray(data[ak]) && data[ak].length === 0) {
+        window.db.ref(`${FIREBASE_ROOT}/${key}/${ak}`).remove().catch(() => {});
+      }
+    });
+
     window.db.ref(`${FIREBASE_ROOT}/${key}`).set(data)
       .catch(e => console.error('[Firebase] write error:', e))
       .finally(() => {

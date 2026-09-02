@@ -195,6 +195,19 @@ function handleDailyDateRangeChange(val) {
       dateInput.style.display = 'none';
     }
   }
+
+  // Grafik aralığını filtreye senkronize et
+  if (val === 'last7') {
+    dailyTrendRange = 7;
+    dailyTrendOffset = 0;
+  } else if (val === 'last30') {
+    dailyTrendRange = 30;
+    dailyTrendOffset = 0;
+  } else if (val === 'all') {
+    dailyTrendRange = 'all';
+    dailyTrendOffset = 0;
+  }
+
   renderDailyLog();
 }
 
@@ -217,6 +230,9 @@ function resetDailyFilters() {
   
   const subjEl = document.getElementById('daily-filter-subject');
   if (subjEl) subjEl.value = 'all';
+
+  dailyTrendRange = 'all';
+  dailyTrendOffset = 0;
 
   renderDailyLog();
   showToast('Filtreler sıfırlandı (Son 2 gün)', 'info');
@@ -331,9 +347,39 @@ function renderDailyLog() {
   _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filterType, filterSubj);
 }
 
-let dailyTrendOffset = 0; // 0 = son 7 gün (bugüne kadar), 1 = 1 gün önce biten 7 gün, vs.
+let dailyTrendOffset = 0; // 0 = bugüne kadar, 1 = 1 gün önce biten aralık, vs.
+let dailyTrendRange  = 'all'; // '7', '14', '30' veya 'all' (Tüm geçmişi eksiksiz göstermek için varsayılan 'all')
+
+function setDailyTrendRange(range) {
+  dailyTrendRange = range;
+  dailyTrendOffset = 0;
+
+  // Buton stillerini güncelle
+  ['7', '14', '30', 'all'].forEach(r => {
+    const btn = document.getElementById(`btn-trend-range-${r}`);
+    if (btn) {
+      if (String(range) === r) {
+        btn.style.background = 'var(--primary)';
+        btn.style.color = '#000';
+        btn.style.fontWeight = '800';
+        btn.classList.add('active');
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.fontWeight = '700';
+        btn.classList.remove('active');
+      }
+    }
+  });
+
+  renderDailyLog();
+}
 
 function changeDailyTrendOffset(delta) {
+  if (dailyTrendRange === 'all') {
+    dailyTrendRange = 7;
+  }
+
   const data = getStudentData(window.activeStudent);
   const startDateStr = data.personalGoal?.startDate || '2026-08-17';
   const startD = new Date(startDateStr + 'T00:00:00');
@@ -446,7 +492,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
     });
   }
 
-  // Sağdaki Grafik: Günlük Kaydırılabilir 7 Günlük Çizgi Grafik (Başlangıç Tarihi ve Bugün ile Sınırlı)
+  // Sağdaki Grafik: Günlük Kaydırılabilir / Tüm Zamanlar Çizgi Grafik (Başlangıç Tarihi ve Bugün ile Sınırlı)
   const ctxTrend = document.getElementById('chart-daily-trend');
   if (ctxTrend) {
     const labels = [];
@@ -458,23 +504,53 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
 
     const logData = data.dailyLog || [];
     const startDateStr = data.personalGoal?.startDate || '2026-08-17';
-    const startLimitD = new Date(startDateStr + 'T00:00:00');
+    let earliestDateStr = startDateStr;
+    logData.forEach(e => {
+      if (e.date && e.date < earliestDateStr) earliestDateStr = e.date;
+    });
+    const startLimitD = new Date(earliestDateStr + 'T00:00:00');
     const todayD = new Date(getTodayStr() + 'T00:00:00');
 
-    // Bitiş tarihi: Bugün - dailyTrendOffset
-    const endWindowDate = new Date(todayD);
-    endWindowDate.setDate(endWindowDate.getDate() - dailyTrendOffset);
-
+    let windowDates = [];
     let windowStartStr = '';
-    const windowEndStr = formatDateISO(endWindowDate);
+    let windowEndStr = '';
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(endWindowDate);
-      d.setDate(d.getDate() - i);
+    if (dailyTrendRange === 'all') {
+      // Başlangıçtan bugüne kadar tüm günler eksiksiz
+      const cur = new Date(startLimitD);
+      while (cur <= todayD) {
+        windowDates.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
+      }
+      if (!windowDates.length) windowDates.push(new Date(todayD));
+      windowStartStr = formatDateISO(windowDates[0]);
+      windowEndStr = formatDateISO(windowDates[windowDates.length - 1]);
+    } else {
+      const numDays = parseInt(dailyTrendRange, 10) || 7;
+      const endWindowDate = new Date(todayD);
+      endWindowDate.setDate(endWindowDate.getDate() - dailyTrendOffset);
+      windowEndStr = formatDateISO(endWindowDate);
+
+      for (let i = numDays - 1; i >= 0; i--) {
+        const d = new Date(endWindowDate);
+        d.setDate(d.getDate() - i);
+        windowDates.push(d);
+      }
+      windowStartStr = formatDateISO(windowDates[0]);
+    }
+
+    const isMultiWeek = windowDates.length > 10;
+
+    for (let i = 0; i < windowDates.length; i++) {
+      const d = windowDates[i];
       const str = formatDateISO(d);
-      if (i === 6) windowStartStr = str;
 
-      const dayLabel = [`${d.getDate()}`, days[d.getDay()]];
+      let dayLabel;
+      if (isMultiWeek) {
+        dayLabel = `${d.getDate()} ${monthsShort[d.getMonth()]}`;
+      } else {
+        dayLabel = [`${d.getDate()}`, days[d.getDay()]];
+      }
       labels.push(dayLabel);
 
       const matchingEntries = logData.filter(e => {
@@ -500,26 +576,50 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
       wrongData.push(wrong);
     }
 
+    // Buton aktiflik durumlarını güncelle
+    ['7', '14', '30', 'all'].forEach(r => {
+      const btn = document.getElementById(`btn-trend-range-${r}`);
+      if (btn) {
+        if (String(dailyTrendRange) === r) {
+          btn.style.background = 'var(--primary)';
+          btn.style.color = '#000';
+          btn.style.fontWeight = '800';
+          btn.classList.add('active');
+        } else {
+          btn.style.background = 'transparent';
+          btn.style.color = 'var(--text-muted)';
+          btn.style.fontWeight = '700';
+          btn.classList.remove('active');
+        }
+      }
+    });
+
     // Başlık etiketini ve buton durumlarını güncelle
     const rangeLabelEl = document.getElementById('chart-trend-range-label');
     if (rangeLabelEl) {
-      if (dailyTrendOffset === 0) {
-        rangeLabelEl.textContent = `📅 ${formatDate(windowStartStr)} - ${formatDate(windowEndStr)} • (Son 7 Gün)`;
+      if (dailyTrendRange === 'all') {
+        rangeLabelEl.textContent = `📅 ${formatDate(windowStartStr)} - ${formatDate(windowEndStr)} • (Tüm Zamanlar)`;
+      } else if (dailyTrendOffset === 0) {
+        rangeLabelEl.textContent = `📅 ${formatDate(windowStartStr)} - ${formatDate(windowEndStr)} • (Son ${dailyTrendRange} Gün)`;
       } else {
         rangeLabelEl.textContent = `📅 ${formatDate(windowStartStr)} - ${formatDate(windowEndStr)} • (${dailyTrendOffset} Gün Önce)`;
       }
     }
 
     const btnNext = document.getElementById('btn-trend-next');
-    if (btnNext) btnNext.disabled = (dailyTrendOffset <= 0);
+    if (btnNext) btnNext.disabled = (dailyTrendRange === 'all' || dailyTrendOffset <= 0);
 
     const btnToday = document.getElementById('btn-trend-today');
-    if (btnToday) btnToday.style.opacity = (dailyTrendOffset === 0) ? '0.5' : '1';
+    if (btnToday) btnToday.style.opacity = (dailyTrendRange === 'all' || dailyTrendOffset === 0) ? '0.5' : '1';
 
     const btnPrev = document.getElementById('btn-trend-prev');
     if (btnPrev) {
-      const windowStartD = new Date(windowStartStr + 'T00:00:00');
-      btnPrev.disabled = (windowStartD <= startLimitD);
+      if (dailyTrendRange === 'all') {
+        btnPrev.disabled = true;
+      } else {
+        const windowStartD = new Date(windowStartStr + 'T00:00:00');
+        btnPrev.disabled = (windowStartD <= startLimitD);
+      }
     }
 
     const chartCtx = ctxTrend.getContext('2d');
@@ -544,10 +644,10 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             pointBackgroundColor: '#00F0FF',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 1.5,
-            pointRadius: 4.5,
+            pointRadius: isMultiWeek ? 3 : 4.5,
             pointHoverRadius: 6.5,
             datalabels: {
-              display: (context) => (context.dataset.data[context.dataIndex] > 0),
+              display: (context) => (context.dataset.data[context.dataIndex] > 0 && (!isMultiWeek || windowDates.length <= 16 || context.dataset.data[context.dataIndex] >= 40)),
               anchor: 'end',
               align: 'top',
               offset: 4,
@@ -572,7 +672,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             pointBackgroundColor: '#00F5A0',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 1.5,
-            pointRadius: 3.5,
+            pointRadius: isMultiWeek ? 2.5 : 3.5,
             pointHoverRadius: 5.5,
             datalabels: {
               display: false
@@ -589,7 +689,7 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             pointBackgroundColor: '#FF0055',
             pointBorderColor: '#ffffff',
             pointBorderWidth: 1.5,
-            pointRadius: 3.5,
+            pointRadius: isMultiWeek ? 2.5 : 3.5,
             pointHoverRadius: 5.5,
             datalabels: {
               display: false
@@ -632,9 +732,9 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
               title: function(items) {
                 if (!items || !items.length) return '';
                 const idx = items[0].dataIndex;
-                const d = new Date(endWindowDate);
-                d.setDate(d.getDate() - (6 - idx));
-                return `📅 ${d.getDate()} ${monthsShort[d.getMonth()]} (${days[d.getDay()]})`;
+                const d = windowDates[idx];
+                if (!d) return '';
+                return `📅 ${d.getDate()} ${monthsShort[d.getMonth()]} ${d.getFullYear()} (${days[d.getDay()]})`;
               },
               label: function(ctx) {
                 return ` ${ctx.dataset.label}: ${formatNumber(ctx.raw)} Soru`;
@@ -653,11 +753,12 @@ function _renderDailyCharts(data, allTotal, allCorrect, allWrong, allBlank, filt
             ticks: {
               color: '#f8fafc',
               font: { size: 10, weight: '700' },
-              maxRotation: 0,
+              maxRotation: isMultiWeek ? 45 : 0,
               minRotation: 0,
-              autoSkip: false
+              autoSkip: isMultiWeek,
+              maxTicksLimit: 15
             },
-            grid: { display: false }
+            grid: { color: 'rgba(255,255,255,0.03)' }
           }
         }
       }
@@ -986,13 +1087,14 @@ window.handleDailyTypeChange = handleDailyTypeChange;
 window.resetDailyFilters = resetDailyFilters;
 window.changeDailyTrendOffset = changeDailyTrendOffset;
 window.resetDailyTrendOffset = resetDailyTrendOffset;
+window.setDailyTrendRange = setDailyTrendRange;
 
 Object.assign(window, {
   activeStudent, activeTab,
   switchStudent, switchTab, renderCurrentTab,
   renderDailyLog, handleAddDaily, editDailyEntry, openAddDailyModal, deleteDailyEntry,
   handleDailyDateRangeChange, handleDailyTypeChange, resetDailyFilters,
-  changeDailyTrendOffset, resetDailyTrendOffset,
+  changeDailyTrendOffset, resetDailyTrendOffset, setDailyTrendRange,
   openModal, closeModal, closeAllModals,
   initTheme, toggleTheme,
   startCountdown, showToast, toggleSidebar

@@ -409,6 +409,32 @@ function _updateStreak(data, studentId) {
   }
 }
 
+let dashChartRange = 'all';
+
+function setDashboardChartRange(range) {
+  dashChartRange = range;
+  ['7', '14', '30', 'all'].forEach(r => {
+    const btn = document.getElementById(`btn-dash-chart-${r}`);
+    if (btn) {
+      if (String(range) === r) {
+        btn.style.background = 'var(--primary)';
+        btn.style.color = '#000';
+        btn.style.fontWeight = '800';
+        btn.classList.add('active');
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.fontWeight = '700';
+        btn.classList.remove('active');
+      }
+    }
+  });
+
+  const data = getStudentData(window.activeStudent);
+  _renderWeeklyChart(data.dailyLog || []);
+}
+window.setDashboardChartRange = setDashboardChartRange;
+
 function _renderWeeklyChart(dailyLog) {
   const canvas = document.getElementById('chart-weekly');
   if (!canvas || typeof canvas.getContext !== 'function' || typeof Chart === 'undefined') return;
@@ -417,16 +443,58 @@ function _renderWeeklyChart(dailyLog) {
     const labels = [];
     const solvedData = [];
     const days = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+    const monthsShort = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+    const studentData = getStudentData(window.activeStudent);
+    const startDateStr = studentData.personalGoal?.startDate || '2026-08-17';
+    let earliestDateStr = startDateStr;
+    (dailyLog || []).forEach(e => {
+      if (e.date && e.date < earliestDateStr) earliestDateStr = e.date;
+    });
+
+    const startLimitD = new Date(earliestDateStr + 'T00:00:00');
+    const todayD = new Date(getTodayStr() + 'T00:00:00');
+
+    let windowDates = [];
+    if (dashChartRange === 'all') {
+      const cur = new Date(startLimitD);
+      while (cur <= todayD) {
+        windowDates.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
+      }
+      if (!windowDates.length) windowDates.push(new Date(todayD));
+    } else {
+      const numDays = parseInt(dashChartRange, 10) || 7;
+      for (let i = numDays - 1; i >= 0; i--) {
+        const d = new Date(todayD);
+        d.setDate(d.getDate() - i);
+        windowDates.push(d);
+      }
+    }
+
+    const isMultiWeek = windowDates.length > 10;
+
+    for (let i = 0; i < windowDates.length; i++) {
+      const d = windowDates[i];
       const str = formatDateISO(d);
-      labels.push(days[d.getDay()]);
-      const solved = dailyLog
+      if (isMultiWeek) {
+        labels.push(`${d.getDate()} ${monthsShort[d.getMonth()]}`);
+      } else {
+        labels.push(days[d.getDay()]);
+      }
+      const solved = (dailyLog || [])
         .filter(e => e.date === str)
         .reduce((s, e) => s + (Number(e.solved) || 0), 0);
       solvedData.push(solved);
+    }
+
+    const titleEl = document.getElementById('dash-weekly-chart-title');
+    if (titleEl) {
+      if (dashChartRange === 'all') {
+        titleEl.textContent = `📈 Tüm Zamanlar Soru Dağılımı`;
+      } else {
+        titleEl.textContent = `📈 Son ${dashChartRange} Gün (Çözülen Soru)`;
+      }
     }
 
     if (_charts.weekly) _charts.weekly.destroy();
@@ -470,7 +538,16 @@ function _renderWeeklyChart(dailyLog) {
         },
         scales: {
           y: { beginAtZero: true, ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } }
+          x: {
+            ticks: {
+              color: '#94a3b8',
+              font: { size: 11 },
+              maxRotation: isMultiWeek ? 45 : 0,
+              autoSkip: isMultiWeek,
+              maxTicksLimit: 14
+            },
+            grid: { display: false }
+          }
         }
       }
     });
@@ -482,6 +559,27 @@ function _renderWeeklyChart(dailyLog) {
 function _renderMockNetChart(mockLog) {
   const canvas = document.getElementById('chart-mocks');
   if (!canvas || typeof canvas.getContext !== 'function' || typeof Chart === 'undefined') return;
+
+  const parent = canvas.parentElement;
+  if (!mockLog || !mockLog.length) {
+    if (_charts.mocks) _charts.mocks.destroy();
+    if (parent) {
+      let note = parent.querySelector('.mock-empty-note');
+      if (!note) {
+        note = document.createElement('div');
+        note.className = 'mock-empty-note';
+        note.style.cssText = 'position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; color:var(--text-muted); font-size:13px; text-align:center; pointer-events:none; background:rgba(20,20,30,0.5); border-radius:8px;';
+        note.innerHTML = '<span style="font-size:26px; margin-bottom:6px;">📊</span><span>Henüz girilmiş bir deneme sınavı bulunmuyor.</span>';
+        parent.appendChild(note);
+      }
+    }
+    return;
+  } else {
+    if (parent) {
+      const note = parent.querySelector('.mock-empty-note');
+      if (note) note.remove();
+    }
+  }
 
   try {
     const sorted = [...mockLog].sort((a, b) => a.date.localeCompare(b.date)).slice(-10);
@@ -852,6 +950,7 @@ function _getNumericalTopicStats(data) {
 
 window.renderDashboard = renderDashboard;
 window.editWeeklyGoal = editWeeklyGoal;
+window.setDashboardChartRange = setDashboardChartRange;
 window._getTodaySolved = _getTodaySolved;
 window._getAllTimeSolved = _getAllTimeSolved;
 window._getDailyQuestionGoal = _getDailyQuestionGoal;

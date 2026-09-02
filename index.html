@@ -314,7 +314,15 @@
         <!-- Grafikler -->
         <div class="grid-2" style="margin-top: 16px;">
           <div class="card">
-            <div class="card-title">📈 Son 7 Gün (Çözülen Soru)</div>
+            <div class="flex-between" style="margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+              <div class="card-title" id="dash-weekly-chart-title">📈 Soru Eğilimi</div>
+              <div class="btn-group" id="dash-chart-range-group" style="display:inline-flex; background:rgba(255,255,255,0.06); border-radius:6px; padding:2px; border:1px solid rgba(255,255,255,0.1);">
+                <button type="button" class="btn-xs" id="btn-dash-chart-7" onclick="setDashboardChartRange(7)" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">7G</button>
+                <button type="button" class="btn-xs" id="btn-dash-chart-14" onclick="setDashboardChartRange(14)" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">14G</button>
+                <button type="button" class="btn-xs" id="btn-dash-chart-30" onclick="setDashboardChartRange(30)" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">30G</button>
+                <button type="button" class="btn-xs active" id="btn-dash-chart-all" onclick="setDashboardChartRange('all')" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:var(--primary); color:#000; cursor:pointer; font-weight:800;">Tümü</button>
+              </div>
+            </div>
             <div class="chart-wrapper"><canvas id="chart-weekly"></canvas></div>
           </div>
           <div class="card">
@@ -378,12 +386,18 @@
             <div class="flex-between" style="margin-bottom: 8px; flex-wrap:wrap; gap:8px;">
               <div>
                 <div class="card-title" style="margin-bottom:2px;">📈 Toplam Çözülen Soru Eğilimi</div>
-                <div id="chart-trend-range-label" style="font-size:11.5px; color:#00F0FF; font-weight:700;">Son 7 Gün</div>
+                <div id="chart-trend-range-label" style="font-size:11.5px; color:#00F0FF; font-weight:700;">Tüm Zamanlar</div>
               </div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <button id="btn-trend-prev" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(1)" title="1 Gün Geriye Kaydır" style="padding:4px 9px; font-size:12px; font-weight:700;">◀ Geri</button>
-                <button id="btn-trend-today" type="button" class="btn btn-sm btn-secondary" onclick="resetDailyTrendOffset()" title="Bugüne Dön" style="padding:4px 8px; font-size:11.5px;">Bugün</button>
-                <button id="btn-trend-next" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(-1)" title="1 Gün İleriye Kaydır" style="padding:4px 9px; font-size:12px; font-weight:700;" disabled>İleri ▶</button>
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <div class="btn-group" id="trend-range-btn-group" style="display:inline-flex; background:rgba(255,255,255,0.06); border-radius:6px; padding:2px; border:1px solid rgba(255,255,255,0.1);">
+                  <button type="button" class="btn-xs btn-range" id="btn-trend-range-7" onclick="setDailyTrendRange(7)" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">7G</button>
+                  <button type="button" class="btn-xs btn-range" id="btn-trend-range-14" onclick="setDailyTrendRange(14)" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">14G</button>
+                  <button type="button" class="btn-xs btn-range" id="btn-trend-range-30" onclick="setDailyTrendRange(30)" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">30G</button>
+                  <button type="button" class="btn-xs btn-range active" id="btn-trend-range-all" onclick="setDailyTrendRange('all')" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:var(--primary); color:#000; cursor:pointer; font-weight:800;">Tümü</button>
+                </div>
+                <button id="btn-trend-prev" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(1)" title="Geriye Kaydır" style="padding:4px 8px; font-size:11.5px; font-weight:700;">◀ Geri</button>
+                <button id="btn-trend-today" type="button" class="btn btn-sm btn-secondary" onclick="resetDailyTrendOffset()" title="Bugüne Dön" style="padding:4px 8px; font-size:11px;">Bugün</button>
+                <button id="btn-trend-next" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(-1)" title="İleriye Kaydır" style="padding:4px 8px; font-size:11.5px; font-weight:700;" disabled>İleri ▶</button>
               </div>
             </div>
             <div class="chart-wrapper" style="height: 265px; position: relative;"><canvas id="chart-daily-trend"></canvas></div>
@@ -2079,24 +2093,24 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=266"></script>
-<script src="js/data.js?v=266"></script>
-<script src="topics.js?v=266"></script>
-<script src="js/auth.js?v=266"></script>
-<script src="js/students.js?v=266"></script>
-<script src="js/dashboard.js?v=266"></script>
-<script src="js/resources.js?v=266"></script>
-<script src="js/exams.js?v=266"></script>
-<script src="rankings.js?v=266"></script>
-<script src="js/calculator.js?v=266"></script>
-<script src="js/ai-analysis.js?v=266"></script>
-<script src="js/schedule.js?v=266"></script>
-<script src="js/topics.js?v=266"></script>
-<script src="js/wrong-notes.js?v=266"></script>
-<script src="js/pomodoro.js?v=266"></script>
-<script src="js/report.js?v=266"></script>
-<script src="js/vision.js?v=266"></script>
-<script src="js/app.js?v=266"></script>
+<script src="js/firebase.js?v=267"></script>
+<script src="js/data.js?v=267"></script>
+<script src="topics.js?v=267"></script>
+<script src="js/auth.js?v=267"></script>
+<script src="js/students.js?v=267"></script>
+<script src="js/dashboard.js?v=267"></script>
+<script src="js/resources.js?v=267"></script>
+<script src="js/exams.js?v=267"></script>
+<script src="rankings.js?v=267"></script>
+<script src="js/calculator.js?v=267"></script>
+<script src="js/ai-analysis.js?v=267"></script>
+<script src="js/schedule.js?v=267"></script>
+<script src="js/topics.js?v=267"></script>
+<script src="js/wrong-notes.js?v=267"></script>
+<script src="js/pomodoro.js?v=267"></script>
+<script src="js/report.js?v=267"></script>
+<script src="js/vision.js?v=267"></script>
+<script src="js/app.js?v=267"></script>
 
 
 <script>

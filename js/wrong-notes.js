@@ -74,7 +74,7 @@ function _renderWrongList(wrongLog) {
           <button class="btn-sm ${e.reviewed ? '' : 'btn-primary'}" style="font-size:11px; padding:4px 8px;" onclick="toggleWrongReview('${e.id}')">
             ${e.reviewed ? '✅ Tekrar Edildi' : '🔁 Tekrar Et'}
           </button>
-          <button class="btn-sm btn-danger coach-only" style="padding:4px 6px;" onclick="deleteWrongEntry('${e.id}')" title="Sil">🗑️</button>
+          <button class="btn-sm btn-danger" style="padding:4px 6px;" onclick="deleteWrongEntry('${e.id}')" title="Sil">🗑️</button>
         </div>
       </div>
       <div class="wrong-body">
@@ -218,10 +218,22 @@ function toggleWrongReview(id) {
 }
 
 function deleteWrongEntry(id) {
-  const data  = getStudentData(window.activeStudent);
-  data.wrongLog = data.wrongLog.filter(e => e.id !== id);
+  const data = getStudentData(window.activeStudent);
+  data.wrongLog = (data.wrongLog || []).filter(e => e.id !== id);
   saveStudentData(window.activeStudent, data);
+
+  // Firebase RTDB'den de açıkça kaldır
+  if (window.db && window.activeStudent) {
+    const wrongRef = window.db.ref(`${FIREBASE_ROOT}/yks_coach_${window.activeStudent}/wrongLog`);
+    if (data.wrongLog.length === 0) {
+      wrongRef.remove().catch(e => console.error('[Firebase] wrongLog remove error:', e));
+    } else {
+      wrongRef.set(data.wrongLog).catch(e => console.error('[Firebase] wrongLog set error:', e));
+    }
+  }
+
   renderWrongNotes();
+  if (typeof renderSchedule === 'function') renderSchedule();
   showToast('Kayıt silindi.', 'info');
 }
 
