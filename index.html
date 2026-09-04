@@ -1536,6 +1536,22 @@
       <button class="modal-close" onclick="closeModal('add-schedule-item-modal')">×</button>
     </div>
     <form onsubmit="handleAddScheduleItem(event)">
+      <!-- Öğrenci Seçimi (Toplu Görev Atama) -->
+      <div id="sched-students-assignment-group" class="form-group" style="margin-bottom: 14px; background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 10px 12px;">
+        <div class="flex-between" style="margin-bottom: 8px; align-items: center;">
+          <label class="form-label" style="margin-bottom:0; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px; font-size: 13px;">
+            👥 Görev Atanacak Öğrenciler
+          </label>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn-xs btn-secondary" onclick="toggleAllSchedStudents(true)" style="font-size: 11px; padding: 3px 8px; cursor: pointer;">Tümünü Seç</button>
+            <button type="button" class="btn-xs btn-secondary" onclick="selectOnlyActiveSchedStudent()" style="font-size: 11px; padding: 3px 8px; cursor: pointer;">Sadece Aktif</button>
+          </div>
+        </div>
+        <div id="sched-students-list" class="sched-students-list">
+          <!-- Dinamik Öğrenci Checkbox'ları -->
+        </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group" style="flex: 1.2;">
           <label class="form-label">📅 Tarih</label>
@@ -2093,24 +2109,24 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=269"></script>
-<script src="js/data.js?v=269"></script>
-<script src="topics.js?v=269"></script>
-<script src="js/auth.js?v=269"></script>
-<script src="js/students.js?v=269"></script>
-<script src="js/dashboard.js?v=269"></script>
-<script src="js/resources.js?v=269"></script>
-<script src="js/exams.js?v=269"></script>
-<script src="rankings.js?v=269"></script>
-<script src="js/calculator.js?v=269"></script>
-<script src="js/ai-analysis.js?v=269"></script>
-<script src="js/schedule.js?v=269"></script>
-<script src="js/topics.js?v=269"></script>
-<script src="js/wrong-notes.js?v=269"></script>
-<script src="js/pomodoro.js?v=269"></script>
-<script src="js/report.js?v=269"></script>
-<script src="js/vision.js?v=269"></script>
-<script src="js/app.js?v=269"></script>
+<script src="js/firebase.js?v=270"></script>
+<script src="js/data.js?v=270"></script>
+<script src="topics.js?v=270"></script>
+<script src="js/auth.js?v=270"></script>
+<script src="js/students.js?v=270"></script>
+<script src="js/dashboard.js?v=270"></script>
+<script src="js/resources.js?v=270"></script>
+<script src="js/exams.js?v=270"></script>
+<script src="rankings.js?v=270"></script>
+<script src="js/calculator.js?v=270"></script>
+<script src="js/ai-analysis.js?v=270"></script>
+<script src="js/schedule.js?v=270"></script>
+<script src="js/topics.js?v=270"></script>
+<script src="js/wrong-notes.js?v=270"></script>
+<script src="js/pomodoro.js?v=270"></script>
+<script src="js/report.js?v=270"></script>
+<script src="js/vision.js?v=270"></script>
+<script src="js/app.js?v=270"></script>
 
 
 <script>

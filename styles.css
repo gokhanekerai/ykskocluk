@@ -2477,3 +2477,71 @@ span.desktop-only {
   box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   GÖREV ATAMA — ÇOKLU ÖĞRENCİ SEÇİMİ STİLLERİ
+   ═══════════════════════════════════════════════════════════ */
+.sched-students-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  max-height: 130px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.sched-student-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s ease;
+}
+
+.sched-student-check-item:hover {
+  border-color: var(--primary);
+  background: rgba(0, 240, 255, 0.08);
+}
+
+.sched-student-check-item input[type="checkbox"] {
+  accent-color: var(--primary);
+  cursor: pointer;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+}
+
+.sched-student-check-item.selected {
+  border-color: var(--primary);
+  background: rgba(0, 240, 255, 0.12);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.15);
+}
+
+.s-avatar-sm {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #0a0e1a;
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sched-student-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+

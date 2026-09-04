@@ -1167,6 +1167,75 @@ function toggleCustomBookInput(show) {
   }
 }
 
+// ─── ÇOKLU ÖĞRENCİ SEÇİMİ (TOPLU GÖREV ATAMA) ─────────────────────────────────
+
+function _populateSchedStudentsPicker() {
+  const container = document.getElementById('sched-students-list');
+  const group = document.getElementById('sched-students-assignment-group');
+  if (!container || !group) return;
+
+  const visibleStudents = typeof getVisibleStudents === 'function' ? getVisibleStudents() : [];
+  if (visibleStudents.length === 0) {
+    group.style.display = 'none';
+    return;
+  }
+
+  group.style.display = 'block';
+
+  let html = '';
+  visibleStudents.forEach(u => {
+    const key = u.key || u.id;
+    const isCurrent = key === window.activeStudent;
+    html += `
+      <label class="sched-student-check-item ${isCurrent ? 'selected' : ''}" id="sched-student-lbl-${key}">
+        <input type="checkbox" name="sched_target_student" value="${key}" ${isCurrent ? 'checked' : ''} onchange="handleSchedStudentCheckboxChange(this, '${key}')">
+        <span class="s-avatar-sm">${u.avatar || (u.name ? u.name.charAt(0).toUpperCase() : 'Ö')}</span>
+        <span class="sched-student-name" title="${u.name} (${u.branch || 'YKS'})">${u.name}</span>
+      </label>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function handleSchedStudentCheckboxChange(checkbox, key) {
+  const lbl = document.getElementById(`sched-student-lbl-${key}`);
+  if (lbl) {
+    if (checkbox.checked) {
+      lbl.classList.add('selected');
+    } else {
+      lbl.classList.remove('selected');
+    }
+  }
+}
+
+function toggleAllSchedStudents(selectAll) {
+  const checkboxes = document.querySelectorAll('input[name="sched_target_student"]');
+  checkboxes.forEach(cb => {
+    cb.checked = !!selectAll;
+    const key = cb.value;
+    const lbl = document.getElementById(`sched-student-lbl-${key}`);
+    if (lbl) {
+      if (selectAll) lbl.classList.add('selected');
+      else lbl.classList.remove('selected');
+    }
+  });
+}
+
+function selectOnlyActiveSchedStudent() {
+  const checkboxes = document.querySelectorAll('input[name="sched_target_student"]');
+  checkboxes.forEach(cb => {
+    const isCurrent = cb.value === window.activeStudent;
+    cb.checked = isCurrent;
+    const key = cb.value;
+    const lbl = document.getElementById(`sched-student-lbl-${key}`);
+    if (lbl) {
+      if (isCurrent) lbl.classList.add('selected');
+      else lbl.classList.remove('selected');
+    }
+  });
+}
+
 function openAddScheduleItem(dateStr) {
   if (!_isCoachUser()) {
     showToast('Görev ekleme yetkisi yalnızca koçlara aittir.', 'warning');
@@ -1181,6 +1250,9 @@ function openAddScheduleItem(dateStr) {
   if (title) title.textContent = '📅 Görev Ekle';
   const btn = document.getElementById('schedule-submit-btn');
   if (btn) btn.textContent = 'Ekle';
+
+  // Öğrenci listesi seçicisini hazırla ve göster
+  _populateSchedStudentsPicker();
 
   _populateSchedSubjectSelect();
   
@@ -1219,6 +1291,10 @@ function openEditScheduleItem(dateStr, itemId) {
     item: { ...item }
   };
 
+  // Düzenleme modunda çoklu öğrenci atama kutusunu gizle
+  const studentGroup = document.getElementById('sched-students-assignment-group');
+  if (studentGroup) studentGroup.style.display = 'none';
+
   const dateInput = document.getElementById('sched-item-date');
   if (dateInput) dateInput.value = dateStr;
 
@@ -1252,28 +1328,28 @@ function openEditScheduleItem(dateStr, itemId) {
         }
       }
     }
-  }
-
-  updateSchedTopics();
-
-  const topicSelect = document.getElementById('sched-topic');
-  let topicFound = false;
-  if (topicSelect) {
-    for (let i = 0; i < topicSelect.options.length; i++) {
-      if (topicSelect.options[i].value === item.topic) {
-        topicSelect.selectedIndex = i;
-        topicFound = true;
-        break;
+    if (matched) {
+      updateSchedTopics();
+      const topicSelect = document.getElementById('sched-topic');
+      let topicFound = false;
+      if (topicSelect) {
+        for (let i = 0; i < topicSelect.options.length; i++) {
+          if (topicSelect.options[i].value === item.topic) {
+            topicSelect.selectedIndex = i;
+            topicFound = true;
+            break;
+          }
+        }
+      }
+      if (!topicFound && item.topic) {
+        if (topicSelect) topicSelect.value = '__custom__';
+        toggleCustomTopicInput(true);
+        const customInput = document.getElementById('sched-custom-topic');
+        if (customInput) customInput.value = item.topic;
+      } else {
+        toggleCustomTopicInput(false);
       }
     }
-  }
-
-  if (!topicFound && item.topic) {
-    toggleCustomTopicInput(true);
-    const customInput = document.getElementById('sched-custom-topic');
-    if (customInput) customInput.value = item.topic;
-  } else {
-    toggleCustomTopicInput(false);
   }
 
   const durEl = document.getElementById('sched-duration');
@@ -1409,22 +1485,63 @@ function handleAddScheduleItem(e) {
     saveStudentData(window.activeStudent, data);
     showToast('Görev başarıyla güncellendi!', 'success');
   } else {
-    let day = data.schedule.find(s => s.date === dateStr);
-    if (!day) {
-      day = { id: generateId(), date: dateStr, items: [] };
-      data.schedule.push(day);
+    // Hedef Öğrencileri Belirle (Çoklu Seçim)
+    const checkedBoxes = document.querySelectorAll('input[name="sched_target_student"]:checked');
+    let targetStudentKeys = [];
+    if (checkedBoxes.length > 0) {
+      targetStudentKeys = Array.from(checkedBoxes).map(cb => cb.value);
+    } else {
+      targetStudentKeys = [window.activeStudent];
     }
-    if (!Array.isArray(day.items)) {
-      day.items = day.items && typeof day.items === 'object' ? Object.values(day.items) : [];
+
+    if (targetStudentKeys.length === 0) {
+      showToast('Lütfen görevin atanacağı en az bir öğrenci seçin.', 'warning');
+      return;
     }
 
-    day.items.push({ id: generateId(), subject, topic, duration: dur, type, done: false, questions, pages, book, books });
-    data.hasNewTasks = true;
+    let successCount = 0;
+    targetStudentKeys.forEach(sKey => {
+      try {
+        const sData = getStudentData(sKey);
+        if (!Array.isArray(sData.schedule)) sData.schedule = [];
 
-    _syncScheduleWithTopicStatus(data, subject, topic, 'studying');
+        let day = sData.schedule.find(s => s.date === dateStr);
+        if (!day) {
+          day = { id: generateId(), date: dateStr, items: [] };
+          sData.schedule.push(day);
+        }
+        if (!Array.isArray(day.items)) {
+          day.items = day.items && typeof day.items === 'object' ? Object.values(day.items) : [];
+        }
 
-    saveStudentData(window.activeStudent, data);
-    showToast(`Görev eklendi! "${topic}" konusu "Çalışılıyor" durumuna alındı 🟡`, 'success');
+        day.items.push({
+          id: generateId(),
+          subject,
+          topic,
+          duration: dur,
+          type,
+          done: false,
+          questions,
+          pages,
+          book,
+          books: [...books]
+        });
+        sData.hasNewTasks = true;
+
+        _syncScheduleWithTopicStatus(sData, subject, topic, 'studying');
+
+        saveStudentData(sKey, sData);
+        successCount++;
+      } catch (err) {
+        console.error(`[handleAddScheduleItem] ${sKey} için görev eklenirken hata:`, err);
+      }
+    });
+
+    if (targetStudentKeys.length > 1) {
+      showToast(`Görev ${successCount} öğrencinin programına başarıyla tanımlandı! 🚀`, 'success');
+    } else {
+      showToast(`Görev eklendi! "${topic}" konusu "Çalışılıyor" durumuna alındı 🟡`, 'success');
+    }
   }
 
   closeModal('add-schedule-item-modal');
@@ -1834,3 +1951,7 @@ window.handleTaskCompletionSubmit     = handleTaskCompletionSubmit;
 window.completeTaskWithoutQuestions   = completeTaskWithoutQuestions;
 window.cancelTaskCompletion           = cancelTaskCompletion;
 window._isCoachUser                   = _isCoachUser;
+window._populateSchedStudentsPicker   = _populateSchedStudentsPicker;
+window.handleSchedStudentCheckboxChange = handleSchedStudentCheckboxChange;
+window.toggleAllSchedStudents         = toggleAllSchedStudents;
+window.selectOnlyActiveSchedStudent   = selectOnlyActiveSchedStudent;
