@@ -5,6 +5,7 @@
 
 let _reportActionEditing = false;
 let _reportPasteAiOpen = false;
+let _reportInspectionOpen = false;
 
 // ─── Mizaç ve AI Yardımcıları ──────────────────────────────────────────────────
 
@@ -477,15 +478,16 @@ function openCoachReportModal() {
             </span>
           </div>
           <div class="no-print" style="display:flex; gap:6px;">
-            <button type="button" class="btn btn-sm" onclick="openCoachReportModal()" style="font-size:11px; padding:3px 8px; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-weight:700;" title="Programı yenile">
-              🔄 Yenile
+            <button type="button" class="btn btn-sm" onclick="toggleScheduleInspection('${studentId}')" style="font-size:11.5px; padding:4px 12px; background:rgba(0,240,255,0.15); color:#00F0FF; border:1px solid rgba(0,240,255,0.4); font-weight:800;" title="Gün gün inceleyin, düzenleyin ve onaylayın">
+              ${_reportInspectionOpen ? '✕ İncelemeyi Kapat' : '🔍 Gün Gün İncele & Onayla'}
             </button>
-            <button type="button" class="btn btn-sm" onclick="generateScheduleFromGoals('${studentId}')" style="font-size:11px; padding:4px 12px; font-weight:800; background:linear-gradient(135deg, #10b981, #00F0FF); color:#000; border:none; box-shadow:0 0 12px rgba(16,185,129,0.4);" title="Bu 7 günlük programı öğrencinin takvimine ve görevlendirme listesine işler">
-              🚀 Bu Programı Takvime (Görevlere) İşle
+            <button type="button" class="btn btn-sm" onclick="generateScheduleFromGoals('${studentId}')" style="font-size:11.5px; padding:4px 12px; font-weight:800; background:linear-gradient(135deg, #10b981, #00F0FF); color:#000; border:none; box-shadow:0 0 12px rgba(16,185,129,0.4);" title="Programı doğrudan onaylayıp öğrencinin takvimine işler">
+              ✅ Hızlı Onayla & Takvime Ekle
             </button>
           </div>
         </div>
 
+        <!-- 7 Günlük Önizleme Kartları -->
         <div class="report-week-grid">
           ${weeklyPlanDays.map(d => `
             <div class="report-day-card" style="${d.isHighlight ? 'border-color:rgba(0,240,255,0.4); background:rgba(0,240,255,0.05);' : ''}">
@@ -508,6 +510,57 @@ function openCoachReportModal() {
             </div>
           `).join('')}
         </div>
+
+        <!-- Gün Gün Ayrıntılı İnceleme ve Düzenleme / Onaylama Paneli -->
+        ${_reportInspectionOpen ? `
+          <div class="report-inspection-box no-print">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px dashed rgba(16,185,129,0.3); padding-bottom:8px;">
+              <div>
+                <strong style="color:#10b981; font-size:14px;">🔍 Haftalık Programı İnceleyin, İstemediğiniz Görevleri Çıkarın veya Değiştirin:</strong>
+                <div style="font-size:12px; color:var(--text-muted);">İşaretli olan görevler onaylandığında öğrencinin takvimine ve görevlendirme listesine işlenecektir.</div>
+              </div>
+              <button type="button" class="btn btn-sm" onclick="toggleScheduleInspection('${studentId}')" style="font-size:11px; padding:2px 8px;">✕ Kapat</button>
+            </div>
+
+            <form id="report-schedule-approval-form">
+              ${weeklyPlanDays.map((d, dIdx) => `
+                <div class="inspection-day-card">
+                  <div class="inspection-day-head">
+                    <span>🗓️ ${d.day} <span style="font-size:11px; color:var(--text-muted); font-weight:normal;">(${d.badge})</span></span>
+                  </div>
+                  <div class="inspection-tasks-list">
+                    ${d.tasks.map((t, tIdx) => `
+                      <div class="inspection-task-item">
+                        <input type="checkbox" id="task_chk_${dIdx}_${tIdx}" name="task_include_${dIdx}_${tIdx}" checked style="width:18px; height:18px; cursor:pointer;" title="Bu görevi ekle/çıkar">
+                        <input type="text" id="task_subj_${dIdx}_${tIdx}" class="form-input" style="font-size:12px; font-weight:700; padding:4px 8px;" value="${escapeHtml(t.subj)}">
+                        <input type="text" id="task_topic_${dIdx}_${tIdx}" class="form-input" style="font-size:12px; padding:4px 8px;" value="${escapeHtml(t.topic)}" placeholder="Konu / Görev Notu...">
+                        <div style="display:flex; align-items:center; gap:4px;">
+                          <input type="number" id="task_dur_${dIdx}_${tIdx}" class="form-input" style="font-size:12px; padding:4px 6px; text-align:center; width:55px;" value="${parseInt(t.dur)||35}">
+                          <span style="font-size:10px; color:var(--text-muted);">dk</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:4px;">
+                          <input type="number" id="task_q_${dIdx}_${tIdx}" class="form-input" style="font-size:12px; padding:4px 6px; text-align:center; width:55px;" value="${t.q||0}">
+                          <span style="font-size:10px; color:var(--text-muted);">Soru</span>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:12px; border-top:1px dashed rgba(16,185,129,0.3);">
+                <span style="font-size:12.5px; color:#10b981; font-weight:700;">✨ Yalnızca onay verdiğiniz görevler takvime eklenecektir.</span>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" class="btn btn-sm btn-secondary" onclick="toggleScheduleInspection('${studentId}')">✕ İptal</button>
+                  <button type="button" class="btn btn-sm" onclick="saveApprovedScheduleFromInspection('${studentId}')" style="font-size:12.5px; padding:6px 18px; font-weight:800; background:linear-gradient(135deg, #10b981, #00F0FF); color:#000; border:none; box-shadow:0 0 14px rgba(16,185,129,0.4);">
+                    ✅ Onayla ve Öğrencinin Takvimine Ekle
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        ` : ''}
+
       </div>
 
       <!-- Koçun Haftalık Değerlendirmesi & Tavsiyeleri -->
@@ -871,6 +924,87 @@ function generateScheduleFromGoals(studentId) {
   }
 }
 
+function toggleScheduleInspection(studentId) {
+  _reportInspectionOpen = !_reportInspectionOpen;
+  openCoachReportModal();
+}
+
+function saveApprovedScheduleFromInspection(studentId) {
+  studentId = studentId || window.activeStudent || 'kaan';
+  const data = getStudentData(studentId);
+  const users = getUsers();
+  const student = users[studentId] || { name: studentId === 'kaan' ? 'Kaan' : 'Çağan' };
+
+  // Bu haftanın Pazartesi'sini bul
+  const now = new Date();
+  const dayOfWk = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (dayOfWk === 0 ? 6 : dayOfWk - 1));
+
+  if (!Array.isArray(data.schedule)) data.schedule = [];
+
+  let addedTaskCount = 0;
+
+  for (let dIdx = 0; dIdx < 7; dIdx++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + dIdx);
+    const dateStr = d.toISOString().split('T')[0];
+
+    let existingDay = data.schedule.find(s => s.date === dateStr);
+    if (!existingDay) {
+      existingDay = { id: (typeof generateId === 'function' ? generateId() : 'day_' + Date.now() + '_' + dIdx), date: dateStr, items: [] };
+      data.schedule.push(existingDay);
+    }
+    if (!Array.isArray(existingDay.items)) {
+      existingDay.items = existingDay.items && typeof existingDay.items === 'object' ? Object.values(existingDay.items) : [];
+    }
+
+    // Formdan gelen görevleri tara
+    for (let tIdx = 0; tIdx < 10; tIdx++) {
+      const chk = document.getElementById(`task_chk_${dIdx}_${tIdx}`);
+      if (!chk) continue;
+      if (chk.checked) {
+        const subjEl = document.getElementById(`task_subj_${dIdx}_${tIdx}`);
+        const topicEl = document.getElementById(`task_topic_${dIdx}_${tIdx}`);
+        const durEl = document.getElementById(`task_dur_${dIdx}_${tIdx}`);
+        const qEl = document.getElementById(`task_q_${dIdx}_${tIdx}`);
+
+        const subj = subjEl ? subjEl.value.trim() : 'Genel';
+        const topic = topicEl ? topicEl.value.trim() : 'Çalışma';
+        const dur = durEl ? (parseInt(durEl.value) || 35) : 35;
+        const q = qEl ? (parseInt(qEl.value) || 0) : 0;
+
+        const isAlreadyAdded = existingDay.items.some(i => i.topic === topic && i.subject === subj);
+        if (!isAlreadyAdded) {
+          existingDay.items.push({
+            id: (typeof generateId === 'function' ? generateId() : 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
+            subject: subj,
+            topic: topic,
+            duration: dur,
+            type: q > 0 ? 'question' : (subj.includes('Deneme') ? 'mock' : 'study'),
+            done: false,
+            questions: q,
+            note: 'Koç Onaylı Haftalık Program'
+          });
+          addedTaskCount++;
+        }
+      }
+    }
+  }
+
+  data.hasNewTasks = true;
+  saveStudentData(studentId, data);
+
+  _reportInspectionOpen = false;
+  if (typeof closeModal === 'function') closeModal('coach-report-modal');
+
+  showToast(`✅ İncelediğiniz ve onayladığınız ${addedTaskCount} görev ${student.name}'in takvimine başarıyla eklendi!`, 'success');
+
+  if (typeof switchTab === 'function') {
+    switchTab('schedule');
+  }
+}
+
 window.openCoachReportModal           = openCoachReportModal;
 window.generateDeepCoachingPromptText = generateDeepCoachingPromptText;
 window.copyDeepCoachingPrompt         = copyDeepCoachingPrompt;
@@ -883,3 +1017,6 @@ window.autoGenerateMizacGoals         = autoGenerateMizacGoals;
 window.printCoachReport              = printCoachReport;
 window.copyWhatsAppReportSummary     = copyWhatsAppReportSummary;
 window.generateScheduleFromGoals      = generateScheduleFromGoals;
+window.toggleScheduleInspection       = toggleScheduleInspection;
+window.saveApprovedScheduleFromInspection = saveApprovedScheduleFromInspection;
+

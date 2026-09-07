@@ -2961,4 +2961,53 @@ span.desktop-only {
   font-weight: 600;
 }
 
+/* ── Gün Gün İnceleme ve Onaylama Paneli ── */
+.report-inspection-box {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.inspection-day-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.inspection-day-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #00F0FF;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inspection-task-item {
+  display: grid;
+  grid-template-columns: 24px 130px 1fr 80px 80px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .inspection-task-item {
+    grid-template-columns: 24px 1fr;
+    gap: 6px;
+  }
+}
+  font-weight: 600;
+}
+
 
