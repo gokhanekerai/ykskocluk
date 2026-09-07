@@ -972,44 +972,6 @@ function generateScheduleFromGoals(studentId) {
     });
   });
 
-  if (!Array.isArray(data.schedule)) data.schedule = [];
-
-  let addedTaskCount = 0;
-
-  weekDays.forEach((dayInfo, dIdx) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + dayInfo.offset);
-    const dateStr = d.toISOString().split('T')[0];
-
-    const dayTasks = templatePlan[dIdx] || [];
-    let existingDay = data.schedule.find(s => s.date === dateStr);
-
-    if (!existingDay) {
-      existingDay = { id: (typeof generateId === 'function' ? generateId() : 'day_' + Date.now() + '_' + dIdx), date: dateStr, items: [] };
-      data.schedule.push(existingDay);
-    }
-    if (!Array.isArray(existingDay.items)) {
-      existingDay.items = existingDay.items && typeof existingDay.items === 'object' ? Object.values(existingDay.items) : [];
-    }
-
-    dayTasks.forEach(task => {
-      const isAlreadyAdded = existingDay.items.some(i => i.topic === task.topic && i.subject === task.subject);
-      if (!isAlreadyAdded) {
-        existingDay.items.push({
-          id: (typeof generateId === 'function' ? generateId() : 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
-          subject: task.subject,
-          topic: task.topic,
-          duration: task.duration,
-          type: task.type,
-          done: false,
-          questions: task.questions || 0,
-          note: task.note || ''
-        });
-        addedTaskCount++;
-      }
-    });
-  });
-
   data.hasNewTasks = true;
   saveStudentData(studentId, data);
 
