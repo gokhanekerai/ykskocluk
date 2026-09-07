@@ -98,12 +98,28 @@ function getSmartTopic(studentId, section, subject, defaultTopic) {
 
 function get7DayScheduleFromGoals(studentId, actionItems) {
   studentId = studentId || window.activeStudent || 'kaan';
+  const data = getStudentData(studentId);
   const isCagan = studentId === 'cagan';
   const focusDur = isCagan ? '35 dk' : '45 dk';
 
-  // Rapordaki hedeflerden soru kotalarını dinamik oku (hedefte belirtilmişse onu kullan, yoksa mizaç dengesine göre ayarla)
-  const qRutin = extractQuestionCountFromGoal(actionItems?.[0], isCagan ? 30 : 35);
-  const qAlan  = extractQuestionCountFromGoal(actionItems?.[1], isCagan ? 30 : 35);
+  // 1. Öğrencinin rapordaki son 7 günlük soru çözüm ortalaması
+  const today = new Date();
+  const weekDates = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    weekDates.push(d.toISOString().split('T')[0]);
+  }
+  const recentDaily = (data.dailyLog || []).filter(d => weekDates.includes(d.date));
+  const totalSolved = recentDaily.reduce((s, d) => s + (d.solved || 0), 0);
+  const avgDaily = totalSolved > 0 ? Math.round(totalSolved / 7) : (isCagan ? 60 : 100);
+
+  // 2. Rapordaki hedeflerden soru kotalarını dinamik oku (Hedefte belirtilmişse onu al, yoksa rapordaki ortalamaya göre belirle)
+  const defaultRutinQ = isCagan ? Math.max(25, Math.round(avgDaily * 0.45)) : Math.max(35, Math.round(avgDaily * 0.4));
+  const defaultAlanQ  = isCagan ? Math.max(25, Math.round(avgDaily * 0.45)) : Math.max(35, Math.round(avgDaily * 0.4));
+
+  const qRutin = extractQuestionCountFromGoal(actionItems?.[0], defaultRutinQ);
+  const qAlan  = extractQuestionCountFromGoal(actionItems?.[1], defaultAlanQ);
 
   const aytFizikTopic = getSmartTopic(studentId, 'AYT', 'Fizik', 'Vektörler & Bağıl Hareket');
   const aytKimyaTopic = getSmartTopic(studentId, 'AYT', 'Kimya', 'Gazlar & Sıvı Çözeltiler');
