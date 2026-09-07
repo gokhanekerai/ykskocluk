@@ -1,10 +1,148 @@
 /**
  * report.js — Canlı Renkli Koçluk Raporu, DISC Mizaç Analizi & Derin AI Entegrasyonu
- * Kaan ve Çağan için özel pedagojik koçluk karnesi ve görüşme tutanağı
+ * Kaan ve Çağan için özel pedagojik koçluk karnesi, görüşme tutanağı ve otomatik 7 günlük program üretici
  */
 
 let _reportActionEditing = false;
 let _reportPasteAiOpen = false;
+
+// ─── Mizaç ve AI Yardımcıları ──────────────────────────────────────────────────
+
+function getMizacTailoredGoals(studentId) {
+  if (studentId === 'cagan') {
+    return [
+      'TYT Matematik & Paragraf: Günlük 30 soru odaklı rutin (35 dk blok + 10 dk mola kuralı).',
+      'AYT Fizik / Fen: Zayıf konulardan şematik kavram haritası ve 30 soru derinleşme.',
+      'Yanlış Defteri & Deneme: Hataları B/D/İ (Bilgi/Dikkat/İşlem) etiketleriyle kapatma ve hafta sonu turlama denemesi.'
+    ];
+  } else {
+    // Kaan (veya genel)
+    return [
+      'TYT Matematik: Günlük 35 soru problem & rutin (2.5 dk kuralı, inatlaşma yok).',
+      'AYT Fen & Matematik: Zayıf tespit edilen 1 ana konudan soru bankası taraması (45 dk blok).',
+      'Deneme Stratejisi: Hafta sonu TYT/AYT denemesinde 2 turlu turlama taktiği ve Yanlış Defteri analizi.'
+    ];
+  }
+}
+
+function autoGenerateMizacGoals(studentId) {
+  studentId = studentId || window.activeStudent || 'kaan';
+  const goals = getMizacTailoredGoals(studentId);
+  const data = getStudentData(studentId);
+  data.meetingActionItems = goals;
+  saveStudentData(studentId, data);
+  showToast('✨ Öğrencinin DISC mizacına ve verilerine göre 3 ana hedef otomatik oluşturuldu!', 'success');
+  openCoachReportModal();
+}
+
+function parseActionItemsFromAIText(text) {
+  if (!text) return null;
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const items = [];
+  
+  let inActionSection = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.includes('EYLEM PLANI') || line.includes('ÖNÜMÜZDEKİ HAFTA İÇİN') || line.includes('EYLEM HEDEFLERİ') || line.includes('2. 🎯') || line.includes('2.')) {
+      if (line.toLowerCase().includes('plan') || line.toLowerCase().includes('hedef') || line.toLowerCase().includes('ödev') || line.toLowerCase().includes('eylem')) {
+        inActionSection = true;
+        continue;
+      }
+    }
+    if (inActionSection && (line.includes('3. 🗣️') || line.includes('GÖRÜŞMEDE ÖĞRENCİYE') || line.includes('MOTİVASYON') || line.includes('3. 💬') || line.includes('3.'))) {
+      if (line.toLowerCase().includes('görüşme') || line.toLowerCase().includes('cümle') || line.toLowerCase().includes('motivasyon') || line.toLowerCase().includes('tavsiye')) {
+        break;
+      }
+    }
+    if (inActionSection) {
+      const match = line.match(/^(\d+[\.\)]|\-|\*|•)\s*(.+)/);
+      if (match && match[2].length > 5) {
+        let cleanText = match[2].replace(/\*\*/g, '').replace(/^[•\-\*]\s*/, '').trim();
+        items.push(cleanText);
+        if (items.length >= 3) break;
+      }
+    }
+  }
+
+  return items.length >= 2 ? items.slice(0, 3) : null;
+}
+
+function get7DayScheduleFromGoals(studentId, actionItems) {
+  studentId = studentId || window.activeStudent || 'kaan';
+  const isCagan = studentId === 'cagan';
+  const focusDur = isCagan ? 35 : 45;
+
+  const act1 = actionItems[0] || 'TYT Matematik & Problem Rutini';
+  const act2 = actionItems[1] || 'AYT Fen & Zayıf Konu Derinleşmesi';
+  const act3 = actionItems[2] || 'Turlama Taktiğiyle Genel Deneme';
+
+  return [
+    {
+      day: 'Pazartesi',
+      badge: 'Rutin & Temel',
+      tasks: [
+        { subj: 'TYT Matematik', topic: `Rutin: ${act1.substring(0, 36)}...`, dur: `${focusDur} dk`, q: isCagan ? 30 : 35, type: 'Soru' },
+        { subj: 'AYT Fizik', topic: `Hedef Odak: ${act2.substring(0, 36)}...`, dur: `${focusDur} dk`, q: 25, type: 'Konu' },
+        { subj: 'Rehberlik', topic: 'Yanlış Defteri & Hata Analizi', dur: '25 dk', q: 0, type: 'Analiz' }
+      ]
+    },
+    {
+      day: 'Salı',
+      badge: 'Hız & Alan',
+      tasks: [
+        { subj: 'TYT Türkçe', topic: 'Paragraf & Hızlı Okuma Rutini', dur: `${focusDur} dk`, q: 25, type: 'Soru' },
+        { subj: 'AYT Kimya', topic: `Soru Bankası: ${act2.substring(0, 36)}...`, dur: `${focusDur} dk`, q: 30, type: 'Soru' },
+        { subj: 'TYT Matematik', topic: 'Temel Kavramlar & Hız Testi', dur: `${focusDur} dk`, q: 30, type: 'Soru' }
+      ]
+    },
+    {
+      day: 'Çarşamba',
+      badge: 'Derinleşme',
+      tasks: [
+        { subj: 'TYT Matematik', topic: `Rutin: ${act1.substring(0, 36)}...`, dur: `${focusDur} dk`, q: isCagan ? 30 : 35, type: 'Soru' },
+        { subj: 'AYT Biyoloji', topic: 'Kavram Şeması & Nokta Soru Taraması', dur: `${focusDur} dk`, q: 30, type: 'Konu' },
+        { subj: 'Rehberlik', topic: 'Zor Soru & Yanlış Defteri Kapanışı', dur: '30 dk', q: 0, type: 'Analiz' }
+      ]
+    },
+    {
+      day: 'Perşembe',
+      badge: 'Geometri & AYT',
+      tasks: [
+        { subj: 'TYT Geometri', topic: 'Üçgenler & Görme Egzersizleri', dur: `${focusDur} dk`, q: 25, type: 'Soru' },
+        { subj: 'AYT Matematik', topic: `Hedef Odak: ${act2.substring(0, 36)}...`, dur: `${focusDur} dk`, q: 35, type: 'Konu' },
+        { subj: 'AYT Fen', topic: 'Karma Branş Testi', dur: `${focusDur} dk`, q: 30, type: 'Soru' }
+      ]
+    },
+    {
+      day: 'Cuma',
+      badge: 'Haftalık Kapanış',
+      tasks: [
+        { subj: 'TYT Matematik', topic: 'Süreli Branş Rutini (2.5 Dk Sınırı)', dur: `${focusDur} dk`, q: 30, type: 'Soru' },
+        { subj: 'AYT Fen', topic: 'Haftalık Zayıf Konu Soru Taraması', dur: `${focusDur} dk`, q: 35, type: 'Soru' },
+        { subj: 'Rehberlik', topic: 'Deneme Öncesi Strateji & Turlama Provası', dur: '20 dk', q: 0, type: 'Strateji' }
+      ]
+    },
+    {
+      day: 'Cumartesi',
+      badge: '🎯 Deneme Günü',
+      isHighlight: true,
+      tasks: [
+        { subj: 'Deneme Sınavı', topic: `🎯 ${act3.substring(0, 42)}...`, dur: '165 dk', q: 120, type: 'Deneme' },
+        { subj: 'Rehberlik', topic: 'Deneme Analizi & Yanlış Defterine Kayıt', dur: '45 dk', q: 0, type: 'Analiz' }
+      ]
+    },
+    {
+      day: 'Pazar',
+      badge: 'Alan & Kapanış',
+      tasks: [
+        { subj: 'AYT Deneme', topic: 'AYT Branş Denemesi / Alan Testi', dur: `${focusDur * 2} dk`, q: 80, type: 'Deneme' },
+        { subj: 'Koçluk', topic: 'Haftalık Koçluk Değerlendirmesi & Kapanış', dur: '30 dk', q: 0, type: 'Koçluk' }
+      ]
+    }
+  ];
+}
+
+// ─── Ana Koçluk Raporu Modalı ──────────────────────────────────────────────────
 
 function openCoachReportModal() {
   const studentId = window.activeStudent || 'kaan';
@@ -94,12 +232,11 @@ function openCoachReportModal() {
     .join(', ') || 'Kayıtlı açık yok';
 
   // 7. Eylem Planı (Haftalık 3 Ana Hedef / Action Items)
-  const defaultActions = [
-    'TYT Matematik: Günlük 25 soru paragraf/problem rutinine eksiksiz uyulacak.',
-    'AYT Fen: Zayıf tespit edilen 1 ana konudan soru bankası taraması tamamlanacak.',
-    'Deneme Stratejisi: Turlama taktiği uygulanarak takılınan sorularda süre kaybı önlenecek.'
-  ];
+  const defaultActions = getMizacTailoredGoals(studentId);
   const actionItems = data.meetingActionItems && data.meetingActionItems.length ? data.meetingActionItems : defaultActions;
+
+  // 7 Günlük Örnek Program Listesi
+  const weeklyPlanDays = get7DayScheduleFromGoals(studentId, actionItems);
 
   // 8. Koç Notu
   const coachNote = data.coachWeeklyNote || (personality.discPrimary 
@@ -142,12 +279,12 @@ function openCoachReportModal() {
           <button type="button" class="btn btn-sm" onclick="togglePasteAIPanel('${studentId}')" style="font-size:11px; padding:2px 8px;">✕ Kapat</button>
         </div>
         <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
-          Gemini'den gelen cevabı aşağıdaki alana yapıştırıp <strong>"✨ Rapora İşle"</strong> butonuna basın:
+          Gemini'den gelen cevabı yapıştırın. Sistem <strong>hem değerlendirme notunu hem de 3 eylem hedefini</strong> otomatik olarak algılayıp rapora işleyecektir:
         </p>
         <textarea id="inline-paste-ai-textarea" class="form-input" rows="6" placeholder="Gemini veya ChatGPT'den kopyaladığınız metni buraya yapıştırın (Ctrl + V)..." style="width:100%; font-size:13px; line-height:1.5; background:rgba(0,0,0,0.4); border:1px solid rgba(168,85,247,0.3); border-radius:8px; padding:10px; color:#fff;"></textarea>
         <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
           <button type="button" class="btn btn-sm btn-secondary" onclick="pasteFromClipboardInline()">📋 Panodan Yapıştır</button>
-          <button type="button" class="btn btn-sm btn-accent" onclick="saveInlinePastedAIResponse('${studentId}')" style="font-weight:800; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff;">✨ Rapora İşle & Kaydet</button>
+          <button type="button" class="btn btn-sm btn-accent" onclick="saveInlinePastedAIResponse('${studentId}')" style="font-weight:800; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff;">✨ Rapora & Hedeflere Otomatik İşle</button>
         </div>
       </div>
 
@@ -296,11 +433,16 @@ function openCoachReportModal() {
 
       <!-- Görüşme Tutanağı & Haftalık Eylem Planı (Action Items) -->
       <div class="report-section-box" style="border-left: 4px solid #00F0FF;">
-        <div class="report-section-head" style="color:#00F0FF; display:flex; justify-content:space-between; align-items:center;">
+        <div class="report-section-head" style="color:#00F0FF; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <span>🎯 Görüşme Tutanağı & Haftalık Eylem Planı (Öncelikli 3 Hedef)</span>
-          <button type="button" class="btn btn-sm no-print" onclick="toggleActionItemEditing('${studentId}')" style="font-size:11px; padding:3px 10px; background:rgba(0,240,255,0.15); color:#00F0FF; border:1px solid rgba(0,240,255,0.4); font-weight:700;">
-            ${_reportActionEditing ? '✕ İptal' : '✏️ Hedefleri Düzenle'}
-          </button>
+          <div class="no-print" style="display:flex; gap:6px;">
+            <button type="button" class="btn btn-sm" onclick="autoGenerateMizacGoals('${studentId}')" style="font-size:11px; padding:3px 8px; background:rgba(0,240,255,0.12); color:#00F0FF; border:1px solid rgba(0,240,255,0.3); font-weight:700;" title="Öğrencinin mizaç ve sınav verilerine göre 3 hedefi otomatik doldurur">
+              ✨ Mizaçtan Hedef Üret
+            </button>
+            <button type="button" class="btn btn-sm" onclick="toggleActionItemEditing('${studentId}')" style="font-size:11px; padding:3px 10px; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); font-weight:700;">
+              ${_reportActionEditing ? '✕ İptal' : '✏️ Hedefleri Düzenle'}
+            </button>
+          </div>
         </div>
 
         ${_reportActionEditing ? `
@@ -322,12 +464,50 @@ function openCoachReportModal() {
               </div>
             `).join('')}
           </div>
-          <div class="no-print" style="margin-top:12px; padding-top:10px; border-top:1px dashed rgba(0,240,255,0.2); display:flex; justify-content:flex-end;">
-            <button type="button" class="btn btn-sm" onclick="generateScheduleFromGoals('${studentId}')" style="background:linear-gradient(135deg, rgba(0,240,255,0.2), rgba(16,185,129,0.2)); color:#00F0FF; border:1px solid #00F0FF; font-weight:800; display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 10px rgba(0,240,255,0.2);">
-              <span>📅</span> Bu Hedefleri Haftalık Görevlendirmeye Aktar & Program Oluştur
+        `}
+      </div>
+
+      <!-- 📅 Mizaç Odaklı Örnek Haftalık Çalışma Programı (7 Günlük Rota) -->
+      <div class="report-section-box" style="border-left: 4px solid #10b981;">
+        <div class="report-section-head" style="color:#10b981; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>📅 Mizaç Odaklı Örnek Haftalık Çalışma Programı (7 Günlük Rota)</span>
+            <span style="font-size:11px; padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-weight:700;">
+              ${studentId === 'cagan' ? '35 Dk Blok' : '45-50 Dk Blok'}
+            </span>
+          </div>
+          <div class="no-print" style="display:flex; gap:6px;">
+            <button type="button" class="btn btn-sm" onclick="openCoachReportModal()" style="font-size:11px; padding:3px 8px; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-weight:700;" title="Programı yenile">
+              🔄 Yenile
+            </button>
+            <button type="button" class="btn btn-sm" onclick="generateScheduleFromGoals('${studentId}')" style="font-size:11px; padding:4px 12px; font-weight:800; background:linear-gradient(135deg, #10b981, #00F0FF); color:#000; border:none; box-shadow:0 0 12px rgba(16,185,129,0.4);" title="Bu 7 günlük programı öğrencinin takvimine ve görevlendirme listesine işler">
+              🚀 Bu Programı Takvime (Görevlere) İşle
             </button>
           </div>
-        `}
+        </div>
+
+        <div class="report-week-grid">
+          ${weeklyPlanDays.map(d => `
+            <div class="report-day-card" style="${d.isHighlight ? 'border-color:rgba(0,240,255,0.4); background:rgba(0,240,255,0.05);' : ''}">
+              <div class="report-day-header" style="${d.isHighlight ? 'color:#00F0FF;' : ''}">
+                <div>${d.day}</div>
+                <div style="font-size:9.5px; color:var(--text-muted); font-weight:600;">${d.badge}</div>
+              </div>
+              <div class="report-day-tasks">
+                ${d.tasks.map(t => `
+                  <div class="report-task-mini">
+                    <span class="report-task-subj">${escapeHtml(t.subj)}</span>
+                    <span class="report-task-topic" title="${escapeHtml(t.topic)}">${escapeHtml(t.topic)}</span>
+                    <div class="report-task-meta">
+                      <span>⏱️ ${t.dur}</span>
+                      <span>${t.q > 0 ? `✏️ ${t.q} S` : `📋 ${t.type}`}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
 
       <!-- Koçun Haftalık Değerlendirmesi & Tavsiyeleri -->
@@ -386,10 +566,17 @@ function saveInlinePastedAIResponse(studentId) {
 
   const data = getStudentData(studentId);
   data.coachWeeklyNote = text;
+
+  // AI metninden 3 eylem hedefini otomatik ayıkla ve kaydet
+  const parsedGoals = parseActionItemsFromAIText(text);
+  if (parsedGoals && parsedGoals.length) {
+    data.meetingActionItems = parsedGoals;
+  }
+
   saveStudentData(studentId, data);
 
   _reportPasteAiOpen = false;
-  showToast('✨ AI Koç Değerlendirmesi Rapora Başarıyla İşlendi!', 'success');
+  showToast(parsedGoals ? '✨ AI Koçluk Değerlendirmesi ve 3 Ana Hedef Rapora Otomatik İşlendi!' : '✨ AI Koç Değerlendirmesi Rapora Başarıyla İşlendi!', 'success');
   openCoachReportModal();
 }
 
@@ -526,11 +713,8 @@ function copyWhatsAppReportSummary() {
   const lastAyt = mocks.find(m => m.type === 'AYT');
 
   const coachNote = data.coachWeeklyNote || 'Bu hafta çalışma disiplini ve soru hedefleri gayet başarılı şekilde sürdürüldü.';
-  const actionItems = data.meetingActionItems && data.meetingActionItems.length ? data.meetingActionItems : [
-    'TYT Matematik günlük rutin',
-    'AYT Fen nokta atışı tekrar',
-    'Denemede turlama taktiği'
-  ];
+  const defaultActions = getMizacTailoredGoals(studentId);
+  const actionItems = data.meetingActionItems && data.meetingActionItems.length ? data.meetingActionItems : defaultActions;
 
   const text = `🎓 *YKS KOÇUM — HAFTALIK GELİŞİM VE GÖRÜŞME RAPORU*
 📅 *Tarih:* ${reportDateStr}
@@ -562,18 +746,16 @@ _YKS Koçum Kişiselleştirilmiş Akıllı Sınav Koçluğu Platformu_`;
   }
 }
 
+// ─── Hedefleri Takvime / Görevlendirmeye Otomatik Aktar ────────────────────────
+
 function generateScheduleFromGoals(studentId) {
   studentId = studentId || window.activeStudent || 'kaan';
   const data = getStudentData(studentId);
   const users = getUsers();
   const student = users[studentId] || { name: studentId === 'kaan' ? 'Kaan' : 'Çağan' };
-  const p = student.personality || {};
   
-  const actionItems = data.meetingActionItems && data.meetingActionItems.length ? data.meetingActionItems : [
-    'TYT Matematik: Günlük 25 soru paragraf/problem rutinine eksiksiz uyulacak.',
-    'AYT Fen: Zayıf tespit edilen 1 ana konudan soru bankası taraması tamamlanacak.',
-    'Deneme Stratejisi: Turlama taktiği uygulanarak takılınan sorularda süre kaybı önlenecek.'
-  ];
+  const defaultActions = getMizacTailoredGoals(studentId);
+  const actionItems = data.meetingActionItems && data.meetingActionItems.length ? data.meetingActionItems : defaultActions;
 
   // Bu haftanın Pazartesi'sini bul
   const now = new Date();
@@ -696,7 +878,7 @@ window.pasteFromClipboardInline       = pasteFromClipboardInline;
 window.saveInlinePastedAIResponse     = saveInlinePastedAIResponse;
 window.toggleActionItemEditing        = toggleActionItemEditing;
 window.saveInlineActionItems          = saveInlineActionItems;
+window.autoGenerateMizacGoals         = autoGenerateMizacGoals;
 window.printCoachReport              = printCoachReport;
 window.copyWhatsAppReportSummary     = copyWhatsAppReportSummary;
 window.generateScheduleFromGoals      = generateScheduleFromGoals;
-
