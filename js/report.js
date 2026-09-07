@@ -661,8 +661,9 @@ AKADEMİK & ÇALIŞMA VERİLERİ (SON DURUM):
 ════════════════════════════════════════════════════
 SENDEN İSTENEN YANIT (Lütfen profesyonel bir koç gibi şu başlıklarla yanıt ver):
 1. 💬 MİZAÇ ODAKLI KOÇLUK DEĞERLENDİRMESİ (Öğrencinin DISC yapısına ve verilerine göre 2-3 güçlü paragraf)
-2. 🎯 ÖNÜMÜZDEKİ HAFTA İÇİN 3 NET EYLEM PLANI / ÖDEVİ (Öğrencinin mizaç risklerini aşacak somut ödevler)
-3. 🗣️ GÖRÜŞMEDE ÖĞRENCİYE SÖYLENMESİ GEREKEN KRİTİK KOÇLUK CÜMLESİ & MOTİVASYON TAKTİĞİ`;
+2. 🎯 ÖNÜMÜZDEKİ HAFTA İÇİN 3 NET EYLEM PLANI / ÖDEVİ (Öğrencinin mizaç risklerini aşacak 3 somut hedef)
+3. 📅 7 GÜNLÜK ÖRNEK ÇALIŞMA PROGRAMI (Pazartesi'den Pazar'a ${studentId === 'cagan' ? '35 dk Feynman blokları' : '45 dk odak blokları'} ile gün gün ders, soru sayısı ve konu dağılımı)
+4. 🗣️ GÖRÜŞMEDE ÖĞRENCİYE SÖYLENMESİ GEREKEN KRİTİK KOÇLUK CÜMLESİ & MOTİVASYON TAKTİĞİ`;
 
   return prompt;
 }
