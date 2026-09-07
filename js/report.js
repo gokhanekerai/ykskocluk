@@ -219,29 +219,56 @@ function get7DayScheduleFromGoals(studentId, actionItems) {
 
 // ─── Ana Koçluk Raporu Modalı ──────────────────────────────────────────────────
 
+function ensureCoachReportModalDOM() {
+  let modal = document.getElementById('coach-report-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'coach-report-modal';
+    modal.className = 'modal';
+    modal.style.cssText = 'display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); padding:20px;';
+    modal.innerHTML = `
+      <div class="modal-box modal-xl" style="max-width: 960px; width: 95vw; max-height: 92vh; display: flex; flex-direction: column; padding: 0; background: #0c1322; border: 1px solid rgba(168,85,247,0.3); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+        <div class="modal-header" style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(168,85,247,0.08); display:flex; align-items:center; justify-content:space-between;">
+          <div class="modal-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #c084fc;">
+            <span>🎓</span>
+            <span>Haftalık Öğrenci Gelişim & DISC Koçluk Raporu</span>
+          </div>
+          <button class="modal-close" onclick="closeModal('coach-report-modal')" style="background:none; border:none; color:#fff; font-size:22px; cursor:pointer; padding:4px 10px;">×</button>
+        </div>
+        <div id="coach-report-content" style="overflow-y: auto; flex: 1; padding: 16px 20px 24px;">
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  return document.getElementById('coach-report-content');
+}
+
 function openCoachReportModal() {
-  const studentId = window.activeStudent || 'kaan';
-  const users = getUsers();
-  const student = users[studentId] || { name: 'Öğrenci', branch: 'Sayısal' };
-  const data = getStudentData(studentId);
+  try {
+    const modalBody = ensureCoachReportModalDOM();
+    if (!modalBody) return;
 
-  const modalBody = document.getElementById('coach-report-content');
-  if (!modalBody) return;
+    const studentId = window.activeStudent || 'kaan';
+    const users = (typeof getUsers === 'function' ? getUsers() : {}) || {};
+    const student = users[studentId] || { name: (studentId === 'cagan' ? 'Çağan' : 'Kaan'), branch: 'Sayısal' };
+    const data = (typeof getStudentData === 'function' ? getStudentData(studentId) : {}) || {};
 
-  // 1. Öğrenci & Hedef Bilgileri
-  const goalUni = data.personalGoal?.university || 'Belirlenmedi';
-  const goalProf = data.personalGoal?.profession || '';
-  const goalRank = data.personalGoal?.ranking ? `#${formatNumber(data.personalGoal.ranking)}` : '—';
-  const branch = student.branch || 'Sayısal';
-  const personality = student.personality || {};
+    // 1. Öğrenci & Hedef Bilgileri
+    const goalUni = data.personalGoal?.university || 'Belirlenmedi';
+    const goalProf = data.personalGoal?.profession || '';
+    const rankVal = data.personalGoal?.ranking;
+    const goalRank = rankVal ? `#${typeof formatNumber === 'function' ? formatNumber(rankVal) : rankVal}` : '—';
+    const branch = student.branch || 'Sayısal';
+    const personality = student.personality || {};
 
-  // 2. Son Deneme Bilgileri
-  const mocks = (data.mockLog || []).sort((a,b) => b.date.localeCompare(a.date));
-  const lastTytMock = mocks.find(m => m.type === 'TYT' || (m.results && m.results['TYT Türkçe'] !== undefined));
-  const lastAytMock = mocks.find(m => m.type === 'AYT' || (m.results && m.results['AYT Matematik'] !== undefined));
+    // 2. Son Deneme Bilgileri
+    const mocks = (data.mockLog || []).sort((a,b) => b.date.localeCompare(a.date));
+    const lastTytMock = mocks.find(m => m.type === 'TYT' || (m.results && m.results['TYT Türkçe'] !== undefined));
+    const lastAytMock = mocks.find(m => m.type === 'AYT' || (m.results && m.results['AYT Matematik'] !== undefined));
 
-  const tytNet = lastTytMock ? (lastTytMock.totalNet || 0).toFixed(1) : '—';
-  const aytNet = lastAytMock ? (lastAytMock.totalNet || 0).toFixed(1) : '—';
+    const tytNet = lastTytMock ? (lastTytMock.totalNet || 0).toFixed(1) : '—';
+    const aytNet = lastAytMock ? (lastAytMock.totalNet || 0).toFixed(1) : '—';
 
   // 3. Son 7 Gün Soru Çözüm İstatistikleri
   const today = new Date();
@@ -657,7 +684,21 @@ function openCoachReportModal() {
     </div>
   `;
 
-  openModal('coach-report-modal');
+    if (typeof openModal === 'function') {
+      openModal('coach-report-modal');
+    }
+    const modalEl = document.getElementById('coach-report-modal');
+    if (modalEl) {
+      modalEl.classList.add('open');
+      modalEl.style.display = 'flex';
+      modalEl.style.zIndex = '99999';
+    }
+  } catch (err) {
+    console.error('Koçluk Raporu Hatası:', err);
+    if (typeof showToast === 'function') {
+      showToast('Rapor açılırken hata oluştu: ' + (err.message || err), 'error');
+    }
+  }
 }
 
 // ─── Satır İçi İşlemler ───────────────────────────────────────────────────────
