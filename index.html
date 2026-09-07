@@ -18,12 +18,12 @@
   <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192-v3.png?v=155">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=155">
   <link rel="shortcut icon" href="favicon.ico?v=155">
-  <link rel="stylesheet" href="styles.css?v=328">
+  <link rel="stylesheet" href="styles.css?v=329">
 
   <script>
     // Otomatik Önbellek Yenileme ve Temizleme
     (function() {
-      const APP_VER = '328';
+      const APP_VER = '329';
       const savedVer = localStorage.getItem('yks_app_version');
       if (savedVer !== APP_VER) {
         localStorage.setItem('yks_app_version', APP_VER);
@@ -2200,27 +2200,43 @@
   </div>
 </div>
 
+<!-- ══ KOÇLUK RAPORU MODALI ══ -->
+<div id="coach-report-modal" class="modal">
+  <div class="modal-box modal-xl" style="max-width: 960px; width: 95vw; max-height: 92vh; display: flex; flex-direction: column; padding: 0; background: #0c1322; border: 1px solid rgba(168,85,247,0.3); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+    <div class="modal-header" style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(168,85,247,0.08);">
+      <div class="modal-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #c084fc;">
+        <span>🎓</span>
+        <span>Haftalık Öğrenci Gelişim & DISC Koçluk Raporu</span>
+      </div>
+      <button class="modal-close" onclick="closeModal('coach-report-modal')">×</button>
+    </div>
+    <div id="coach-report-content" style="overflow-y: auto; flex: 1; padding: 16px 20px 24px;">
+      <!-- Dinamik Rapor İçeriği report.js tarafından render edilir -->
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=328"></script>
-<script src="js/data.js?v=328"></script>
-<script src="topics.js?v=328"></script>
-<script src="js/auth.js?v=328"></script>
-<script src="js/students.js?v=328"></script>
-<script src="js/dashboard.js?v=328"></script>
-<script src="js/resources.js?v=328"></script>
-<script src="js/exams.js?v=328"></script>
-<script src="rankings.js?v=328"></script>
-<script src="js/calculator.js?v=328"></script>
-<script src="js/ai-analysis.js?v=328"></script>
-<script src="js/schedule.js?v=328"></script>
-<script src="js/topics.js?v=328"></script>
-<script src="js/wrong-notes.js?v=328"></script>
-<script src="js/pomodoro.js?v=328"></script>
-<script src="js/report.js?v=328"></script>
-<script src="js/vision.js?v=328"></script>
-<script src="js/app.js?v=328"></script>
+<script src="js/firebase.js?v=329"></script>
+<script src="js/data.js?v=329"></script>
+<script src="topics.js?v=329"></script>
+<script src="js/auth.js?v=329"></script>
+<script src="js/students.js?v=329"></script>
+<script src="js/dashboard.js?v=329"></script>
+<script src="js/resources.js?v=329"></script>
+<script src="js/exams.js?v=329"></script>
+<script src="rankings.js?v=329"></script>
+<script src="js/calculator.js?v=329"></script>
+<script src="js/ai-analysis.js?v=329"></script>
+<script src="js/schedule.js?v=329"></script>
+<script src="js/topics.js?v=329"></script>
+<script src="js/wrong-notes.js?v=329"></script>
+<script src="js/pomodoro.js?v=329"></script>
+<script src="js/report.js?v=329"></script>
+<script src="js/vision.js?v=329"></script>
+<script src="js/app.js?v=329"></script>
 
 
 <script>
