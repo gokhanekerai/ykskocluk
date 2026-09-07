@@ -18,11 +18,22 @@
   <link rel="icon" type="image/png" sizes="192x192" href="app-icon-192-v3.png?v=155">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=155">
   <link rel="shortcut icon" href="favicon.ico?v=155">
-  <link rel="stylesheet" href="styles.css?v=270">
+  <link rel="stylesheet" href="styles.css?v=322">
 
   <script>
-    // Giriş ekranı kırpışmasını (flicker) engelle
+    // Otomatik Önbellek Yenileme ve Temizleme
     (function() {
+      const APP_VER = '322';
+      const savedVer = localStorage.getItem('yks_app_version');
+      if (savedVer !== APP_VER) {
+        localStorage.setItem('yks_app_version', APP_VER);
+        if ('caches' in window) {
+          caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+        }
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+        }
+      }
       try {
         var s = localStorage.getItem('yks_coach_session');
         if (!s || s === 'null' || s === 'undefined') {
@@ -1769,24 +1780,106 @@
 
 <!-- Koçluk Raporu & Canlı PDF Modalı -->
 <div id="coach-report-modal" class="modal">
-  <div class="modal-box wide" style="max-width: 880px; padding: 24px;">
-    <div class="modal-header no-print">
-      <div class="modal-title">📄 Haftalık Koçluk Raporu & Gelişim Karnesi</div>
-      <button class="modal-close" onclick="closeModal('coach-report-modal')">×</button>
+  <div class="modal-box wide" style="max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 20px 24px; background: var(--bg-card); border: 1px solid rgba(168,85,247,0.3); border-radius: 16px;">
+    
+    <div class="modal-header no-print" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div class="modal-title" style="color:#c084fc; font-weight:800; font-size:16px;">
+        📄 Haftalık Koçluk Raporu & Görüşme Tutanağı
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button type="button" class="btn btn-sm btn-accent" style="font-weight:700; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff; border:none; box-shadow:0 0 12px rgba(168,85,247,0.4);" onclick="copyDeepCoachingPrompt(window.activeStudent)" title="Tüm veriler + DISC profilini içeren uzman promptunu kopyalar">
+          🧠 AI Koçluk Promptunu Kopyala
+        </button>
+        <button type="button" class="btn btn-sm" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.4); font-weight:700;" onclick="openPasteAIResponseModal(window.activeStudent)">
+          ⚡ AI Yanıtını Aktar
+        </button>
+        <button class="modal-close" onclick="closeModal('coach-report-modal')" style="font-size:22px; margin-left:6px;">×</button>
+      </div>
     </div>
     
     <div id="coach-report-content">
       <!-- Dinamik Rapor Çıktısı -->
     </div>
 
-    <div class="form-actions no-print" style="margin-top: 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div class="form-actions no-print" style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
       <button type="button" class="btn" onclick="closeModal('coach-report-modal')">Kapat</button>
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn btn-accent" style="font-weight:700; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff;" onclick="copyDeepCoachingPrompt(window.activeStudent)">
+          🧠 AI Prompt Kopyala
+        </button>
         <button type="button" class="btn" style="background:#25D366; color:#fff; border:none; font-weight:700;" onclick="copyWhatsAppReportSummary()">
           💬 WhatsApp Özeti Kopyala
         </button>
         <button type="button" class="btn btn-primary" onclick="printCoachReport()">
           🖨️ PDF İndir / Yazdır
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AI YANITINI YAPIŞTIRMA MODALI ══ -->
+<div id="paste-ai-report-modal" class="modal" style="z-index: 10000;">
+  <div class="modal-box wide" style="max-width: 650px; background: var(--bg-card); border: 1px solid rgba(168,85,247,0.4); border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(168,85,247,0.1); display:flex; justify-content:space-between; align-items:center;">
+      <div class="modal-title" style="color: #c084fc; font-weight: 800; font-size: 16px; display:flex; align-items:center; gap:8px;">
+        <span>⚡</span> Gemini / ChatGPT Yanıtını Rapora Aktar
+      </div>
+      <button class="modal-close" onclick="closeModal('paste-ai-report-modal')" style="font-size:22px;">×</button>
+    </div>
+    <div style="padding: 20px;">
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+        Gemini veya ChatGPT'nin verdiği koçluk değerlendirmesini aşağıya yapıştırın. Sistem bunu doğrudan öğrencinin haftalık raporuna ve koçluk notuna işleyecektir:
+      </p>
+      
+      <div style="margin-bottom: 14px;">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="pasteFromClipboardToAIInput()" style="margin-bottom: 8px; display:inline-flex; align-items:center; gap:6px; font-weight:700;">
+          📋 Panodan Otomatik Yapıştır
+        </button>
+        <textarea id="paste-ai-input-text" class="form-input" rows="8" placeholder="Gemini veya ChatGPT'den kopyaladığınız metni buraya yapıştırın (Ctrl + V)..." style="width:100%; font-size:13px; line-height:1.6; resize:vertical; background:rgba(0,0,0,0.3); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px; color:#fff;"></textarea>
+      </div>
+
+      <div class="form-actions" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn" onclick="closeModal('paste-ai-report-modal')">İptal</button>
+        <button type="button" class="btn btn-accent" onclick="savePastedAIResponse()" style="font-weight:800; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff; padding:8px 18px;">
+          ✨ Rapora Aktar ve Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GÖRÜŞME HEDEFLERİ (EYLEM PLANI) DÜZENLEME MODALI ══ -->
+<div id="edit-action-items-modal" class="modal" style="z-index: 10000;">
+  <div class="modal-box" style="max-width: 550px; background: var(--bg-card); border: 1px solid rgba(0,240,255,0.4); border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
+    <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(0,240,255,0.08); display:flex; justify-content:space-between; align-items:center;">
+      <div class="modal-title" style="color: #00F0FF; font-weight: 800; font-size: 15px; display:flex; align-items:center; gap:8px;">
+        <span>🎯</span> Haftalık Görüşme Hedeflerini Belirle (3 Ana Görev)
+      </div>
+      <button class="modal-close" onclick="closeModal('edit-action-items-modal')" style="font-size:22px;">×</button>
+    </div>
+    <div style="padding: 20px;">
+      <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
+        Öğrenciyle bu görüşmede kararlaştırdığınız öncelikli 3 ödevi/hedefi girin:
+      </p>
+      
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label" style="color:#00F0FF; font-weight:700;">1. Ana Hedef / Ödev</label>
+        <input type="text" id="action-target-1" class="form-input" placeholder="Örn: TYT Matematik günlük 25 soru paragraf/problem rutini">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label" style="color:#00F0FF; font-weight:700;">2. Ana Hedef / Ödev</label>
+        <input type="text" id="action-target-2" class="form-input" placeholder="Örn: AYT Fizik İtme-Momentum fasikül taraması tamamlanacak">
+      </div>
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" style="color:#00F0FF; font-weight:700;">3. Ana Hedef / Ödev</label>
+        <input type="text" id="action-target-3" class="form-input" placeholder="Örn: Denemede turlama taktiği uygulanacak, inatlaşılmayacak">
+      </div>
+
+      <div class="form-actions" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn" onclick="closeModal('edit-action-items-modal')">İptal</button>
+        <button type="button" class="btn btn-primary" onclick="saveCustomActionItems()" style="font-weight:800; padding:8px 18px;">
+          💾 Hedefleri Kaydet
         </button>
       </div>
     </div>
@@ -1915,6 +2008,7 @@
     </form>
   </div>
 </div>
+
 
 <!-- Şifre Değiştir Modal -->
 <div id="pwd-modal" class="modal">
@@ -2109,24 +2203,24 @@
 <!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
-<script src="js/firebase.js?v=270"></script>
-<script src="js/data.js?v=270"></script>
-<script src="topics.js?v=270"></script>
-<script src="js/auth.js?v=270"></script>
-<script src="js/students.js?v=270"></script>
-<script src="js/dashboard.js?v=270"></script>
-<script src="js/resources.js?v=270"></script>
-<script src="js/exams.js?v=270"></script>
-<script src="rankings.js?v=270"></script>
-<script src="js/calculator.js?v=270"></script>
-<script src="js/ai-analysis.js?v=270"></script>
-<script src="js/schedule.js?v=270"></script>
-<script src="js/topics.js?v=270"></script>
-<script src="js/wrong-notes.js?v=270"></script>
-<script src="js/pomodoro.js?v=270"></script>
-<script src="js/report.js?v=270"></script>
-<script src="js/vision.js?v=270"></script>
-<script src="js/app.js?v=270"></script>
+<script src="js/firebase.js?v=322"></script>
+<script src="js/data.js?v=322"></script>
+<script src="topics.js?v=322"></script>
+<script src="js/auth.js?v=322"></script>
+<script src="js/students.js?v=322"></script>
+<script src="js/dashboard.js?v=322"></script>
+<script src="js/resources.js?v=322"></script>
+<script src="js/exams.js?v=322"></script>
+<script src="rankings.js?v=322"></script>
+<script src="js/calculator.js?v=322"></script>
+<script src="js/ai-analysis.js?v=322"></script>
+<script src="js/schedule.js?v=322"></script>
+<script src="js/topics.js?v=322"></script>
+<script src="js/wrong-notes.js?v=322"></script>
+<script src="js/pomodoro.js?v=322"></script>
+<script src="js/report.js?v=322"></script>
+<script src="js/vision.js?v=322"></script>
+<script src="js/app.js?v=322"></script>
 
 
 <script>

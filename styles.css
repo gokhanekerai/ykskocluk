@@ -2544,4 +2544,333 @@ span.desktop-only {
   text-overflow: ellipsis;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   KOÇLUK RAPORU & PDF STİLLERİ
+   ═══════════════════════════════════════════════════════════ */
+.report-paper {
+  background: var(--bg-card);
+  color: var(--text);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: inherit;
+}
+
+.report-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.report-header-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(168, 85, 247, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.report-logo {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #00F0FF, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.report-coach-name {
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+.report-date-badge {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.report-student-col {
+  text-align: right;
+}
+
+.report-student-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.report-student-branch {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.report-target-pill {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 12px;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  color: #00F0FF;
+}
+
+/* DISC Mizaç Kutusu */
+.report-disc-box {
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.report-disc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.report-disc-tag {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.3);
+}
+
+.report-disc-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  background: rgba(0,0,0,0.2);
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.disc-lbl {
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* 4'lü Izgara */
+.report-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.report-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.report-card.purple { border-top: 3px solid #a855f7; }
+.report-card.cyan   { border-top: 3px solid #00F0FF; }
+.report-card.green  { border-top: 3px solid #10b981; }
+.report-card.red    { border-top: 3px solid #f87171; }
+
+.report-card-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.report-card-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+  margin: 2px 0;
+}
+
+.report-val {
+  font-size: 20px;
+  font-weight: 900;
+  font-family: monospace;
+}
+
+.report-lbl {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.report-footer-tag {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 6px;
+  margin-top: auto;
+}
+
+/* Bölümler */
+.report-section-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.report-section-head {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.report-progress-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.report-progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Eylem Listesi */
+.report-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-action-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  background: rgba(0, 240, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 2px solid #00F0FF;
+}
+
+.action-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #00F0FF;
+  color: #000;
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.report-footer-brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+/* Print Uyarlaması */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #coach-report-modal,
+  #coach-report-modal * {
+    visibility: visible;
+  }
+  #coach-report-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #fff !important;
+    display: block !important;
+  }
+  .modal-box {
+    max-width: 100% !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .report-paper {
+    background: #fff !important;
+    color: #111 !important;
+    box-shadow: none !important;
+  }
+  .report-header-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #000 !important;
+  }
+  .report-student-name {
+    color: #000 !important;
+  }
+  .report-target-pill {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
+  }
+  .report-disc-box {
+    background: #f1f5f9 !important;
+    color: #000 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .report-disc-details {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .report-card {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #000 !important;
+  }
+  .report-section-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #000 !important;
+  }
+  .report-action-row {
+    background: #f0fdf4 !important;
+    color: #000 !important;
+  }
+}
+
 

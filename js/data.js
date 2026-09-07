@@ -210,8 +210,70 @@ function saveStudentData(studentId, data) {
 const DEFAULT_USERS = {
   gokhan: { id: 'gokhan', username: 'gokhan', name: 'Gökhan EKER', role: 'supercoach', roleTitle: 'YKS Süper Koçu', password: 'koc123', avatar: 'G' },
   koc:    { id: 'koc',    username: 'koc',    name: 'Gökhan EKER', role: 'supercoach', roleTitle: 'YKS Süper Koçu', password: 'koc123', avatar: 'G' },
-  kaan:   { id: 'kaan',  username: 'kaan',   name: 'Kaan',         role: 'student', roleTitle: 'Öğrenci', password: 'kaan123', avatar: 'K', branch: 'Sayısal', coachId: 'gokhan' },
-  cagan:  { id: 'cagan', username: 'cagan',  name: 'Çağan',        role: 'student', roleTitle: 'Öğrenci', password: 'cagan123', avatar: 'Ç', branch: 'Sayısal', coachId: 'gokhan' }
+  kaan:   { 
+    id: 'kaan',  
+    username: 'kaan',   
+    name: 'Kaan',         
+    role: 'student', 
+    roleTitle: 'Öğrenci', 
+    password: 'kaan123', 
+    avatar: 'K', 
+    branch: 'Sayısal', 
+    coachId: 'gokhan',
+    personality: {
+      discPrimary: 'C (Ciddi / Mavi)',
+      discSecondary: 'S (Sadık / Yeşil)',
+      discTypeNatural: 'CS (Ciddi - Sadık)',
+      discTypeAdapted: 'CDI (Ciddi - Dominant)',
+      discScores: { C: 74, S: 65, I: 38, D: 7 },
+      discAdaptedScores: { C: 98, D: 79, I: 67, S: 9 },
+      mbti: 'ESTJ',
+      stressLevel: 'Yüksek (Değişim Stresi)',
+      profileTag: 'Analitik & Mükemmeliyetçi',
+      learningStyle: 'Analitik, Yapılandırılmış ve Şablonlu',
+      focusSpan: '45-50 Dk Blok Odak',
+      strengths: 'Kuralcılık, detay hakimiyeti, analitik düşünme, ciddiyet ve yüksek sorumluluk',
+      risks: 'Hata yapma korkusu, denemelerde bir soruya takılıp kalma, ani program değişikliklerinde stres',
+      coachingRules: [
+        'Haftalık programı adım adım ve saat saat netleştirin, ani değişikliklerden kaçının.',
+        'Denemelerde "Turlama Taktiği"ni şart koşun; takıldığı soruda inat etmemesini sağlayın.',
+        'Hatanın öğrenmenin doğal bir parçası olduğunu sayısal verilerle açıklayın.',
+        'Soyut temenniler yerine somut net/soru hedefleri verin.'
+      ]
+    }
+  },
+  cagan:  { 
+    id: 'cagan', 
+    username: 'cagan',  
+    name: 'Çağan',        
+    role: 'student', 
+    roleTitle: 'Öğrenci', 
+    password: 'cagan123', 
+    avatar: 'Ç', 
+    branch: 'Sayısal', 
+    coachId: 'gokhan',
+    personality: {
+      discPrimary: 'C (Ciddi / Mavi)',
+      discSecondary: 'I (İz Bırakan / Sarı)',
+      discTypeNatural: 'Ci (Ciddi - İz Bırakan)',
+      discTypeAdapted: 'CIs (Ciddi - İz Bırakan - Sadık)',
+      discScores: { C: 87, I: 62, S: 38, D: 3 },
+      discAdaptedScores: { C: 84, I: 82, S: 51, D: 37 },
+      mbti: 'ESTJ (Tutarlılık %100)',
+      stressLevel: 'Düşük (Değişim Stresi)',
+      profileTag: 'Analitik & İletişimci',
+      learningStyle: 'İşitsel, İletişimsel & Sosyal Paylaşımlı',
+      focusSpan: '30-40 Dk Dinamik Seanslar',
+      strengths: 'Yüksek analitik kavrayış, güçlü iletişim, sosyal zeka, takdirle hızla motive olma, esneklik',
+      risks: 'Aşırı özgüvenle soru atlama, dikkat dağınıklığı, sosyal ortamda süre kaybetme',
+      coachingRules: [
+        'Görüşmelerde ona bolca söz hakkı verin, yaptıklarını kendi ağzından anlattırın.',
+        'Başarılarını ve gösterdiği çabayı net şekilde takdir edin (sosyal onayla parlar).',
+        'Değişim stresi düşük olduğu için yeni kaynak/deneme stratejilerini rahatça deneyin.',
+        'Kütüphane veya kontrollü akran çalışma seanslarıyla motivasyonunu yüksek tutun.'
+      ]
+    }
+  }
 };
 
 function getUsers() {
@@ -239,15 +301,17 @@ function getUsers() {
     users.koc = DEFAULT_USERS.koc;
   }
 
-  // Mevcut Kaan ve Çağan'a coachId garantile
+  // Mevcut Kaan ve Çağan'a coachId ve personality garantile
   if (users.kaan) {
     if (!users.kaan.coachId) users.kaan.coachId = 'gokhan';
+    users.kaan.personality = DEFAULT_USERS.kaan.personality;
   } else {
     users.kaan = DEFAULT_USERS.kaan;
   }
 
   if (users.cagan) {
     if (!users.cagan.coachId) users.cagan.coachId = 'gokhan';
+    users.cagan.personality = DEFAULT_USERS.cagan.personality;
   } else {
     users.cagan = DEFAULT_USERS.cagan;
   }
