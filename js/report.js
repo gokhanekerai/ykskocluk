@@ -803,11 +803,10 @@ AKADEMİK & ÇALIŞMA VERİLERİ (SON DURUM):
 • Yanlış Defterinde Tekrar Bekleyen Zayıf Konular: ${wrongTopics}
 
 ════════════════════════════════════════════════════
-SENDEN İSTENEN YANIT (Lütfen profesyonel bir koç gibi şu başlıklarla yanıt ver):
-1. 💬 MİZAÇ ODAKLI KOÇLUK DEĞERLENDİRMESİ (Öğrencinin DISC yapısına ve verilerine göre 2-3 güçlü paragraf)
-2. 🎯 ÖNÜMÜZDEKİ HAFTA İÇİN 3 NET EYLEM PLANI / ÖDEVİ (Öğrencinin mizaç risklerini aşacak 3 somut hedef)
-3. 📅 7 GÜNLÜK ÖRNEK ÇALIŞMA PROGRAMI (Pazartesi'den Pazar'a ${studentId === 'cagan' ? '35 dk Feynman blokları' : '45 dk odak blokları'} ile gün gün ders, soru sayısı ve konu dağılımı)
-4. 🗣️ GÖRÜŞMEDE ÖĞRENCİYE SÖYLENMESİ GEREKEN KRİTİK KOÇLUK CÜMLESİ & MOTİVASYON TAKTİĞİ`;
+SENDEN İSTENEN YANIT (Lütfen hibrit koçluk formatında şu 3 başlıkla yanıt ver):
+1. 💬 MİZAÇ ODAKLI KOÇLUK DEĞERLENDİRMESİ (Öğrencinin DISC yapısına, dikkat/hata risklerine ve son verilerine göre 2-3 güçlü paragraf)
+2. 🎯 ÖNÜMÜZDEKİ HAFTA İÇİN 3 NET EYLEM PLANI / ÖDEVİ (Öğrencinin mizaç risklerini aşacak ve haftalık çalışma programına temel oluşturacak 3 somut hedef)
+3. 🗣️ GÖRÜŞMEDE ÖĞRENCİYE SÖYLENMESİ GEREKEN KRİTİK KOÇLUK CÜMLESİ & MOTİVASYON TAKTİĞİ`;
 
   return prompt;
 }
@@ -902,67 +901,52 @@ function generateScheduleFromGoals(studentId) {
   const defaultActions = getMizacTailoredGoals(studentId);
   const actionItems = data.meetingActionItems && data.meetingActionItems.length ? data.meetingActionItems : defaultActions;
 
+  // Akıllı 7 günlük haftalık plan
+  const weeklyPlanDays = get7DayScheduleFromGoals(studentId, actionItems);
+
   // Bu haftanın Pazartesi'sini bul
   const now = new Date();
   const dayOfWk = now.getDay();
   const monday = new Date(now);
   monday.setDate(now.getDate() - (dayOfWk === 0 ? 6 : dayOfWk - 1));
 
-  const weekDays = [
-    { name: 'Pazartesi', offset: 0 },
-    { name: 'Salı', offset: 1 },
-    { name: 'Çarşamba', offset: 2 },
-    { name: 'Perşembe', offset: 3 },
-    { name: 'Cuma', offset: 4 },
-    { name: 'Cumartesi', offset: 5 },
-    { name: 'Pazar', offset: 6 }
-  ];
+  if (!Array.isArray(data.schedule)) data.schedule = [];
 
-  const focusDur = studentId === 'cagan' ? 35 : 45; // Çağan 35 dk Feynman blokları, Kaan 45-50 dk odak blokları
+  let addedTaskCount = 0;
 
-  // 7 günlük plan şablonu (Rapordaki hedefler ve mizaç odağında)
-  const templatePlan = [
-    // Pazartesi
-    [
-      { subject: 'TYT Matematik', topic: `Rutin: ${actionItems[0] || 'Problem & Paragraf'}`, duration: focusDur, type: 'question', questions: studentId === 'cagan' ? 30 : 35, note: 'Süreli ve odaklı çözüm' },
-      { subject: 'AYT Fizik', topic: `Konu Tekrarı: ${actionItems[1] || 'Zayıf Konu Çalışması'}`, duration: focusDur, type: 'study', questions: 25, note: 'Kavram haritası çıkararak' },
-      { subject: 'Rehberlik / Koçluk', topic: 'Yanlış Defteri & Hata Analizi', duration: 25, type: 'review', questions: 0, note: 'Boş ve yanlışları kategorize et' }
-    ],
-    // Salı
-    [
-      { subject: 'TYT Türkçe', topic: 'Paragraf Rutini & Hızlı Okuma', duration: focusDur, type: 'question', questions: 25, note: 'Turlama taktiğiyle' },
-      { subject: 'AYT Kimya', topic: `Soru Bankası: ${actionItems[1] || 'AYT Kimya Zayıf Konu'}`, duration: focusDur, type: 'question', questions: 30, note: 'Hata yapmaktan korkmadan, süreyle çöz' },
-      { subject: 'TYT Matematik', topic: 'İlk 12 Konu Pekiştirme Testi', duration: focusDur, type: 'question', questions: 30, note: 'Zaman sınırı koyarak' }
-    ],
-    // Çarşamba
-    [
-      { subject: 'TYT Matematik', topic: `Rutin: ${actionItems[0] || 'Problem Rutini'}`, duration: focusDur, type: 'question', questions: studentId === 'cagan' ? 30 : 35, note: 'Tek oturuşta blok çalışma' },
-      { subject: 'AYT Biyoloji', topic: 'Konu Özeti & Soru Taraması', duration: focusDur, type: 'study', questions: 30, note: 'Görsel şemalarla tekrar' },
-      { subject: 'Rehberlik / Koçluk', topic: 'Yanlış Defterindeki Konuların Tekrarı', duration: 30, type: 'review', questions: 0, note: 'Yapılamayan soruları baştan çöz' }
-    ],
-    // Perşembe
-    [
-      { subject: 'TYT Geometri', topic: 'Üçgenler / Özel Teoremler Soru Çözümü', duration: focusDur, type: 'question', questions: 25, note: 'Şekil çizerek analiz' },
-      { subject: 'AYT Matematik', topic: `Hedef Odak: ${actionItems[1] || 'AYT Matematik Fonksiyon/Polinom'}`, duration: focusDur, type: 'study', questions: 35, note: 'Derinleşme ve soru bankası' },
-      { subject: 'AYT Fen', topic: 'Karma Branş Testi', duration: focusDur, type: 'question', questions: 30, note: 'Hız ve doğruluk dengesi' }
-    ],
-    // Cuma
-    [
-      { subject: 'TYT Matematik', topic: 'Süreli Branş Denemesi / Rutin', duration: focusDur, type: 'question', questions: 30, note: 'Takılınan soruyu geçme kuralı (2.5 dk)' },
-      { subject: 'AYT Fen', topic: `Haftalık Tekrar: ${actionItems[1] || 'AYT Fen Zayıf Konu'}`, duration: focusDur, type: 'question', questions: 35, note: 'Haftanın tüm eksiklerini kapatma' },
-      { subject: 'Rehberlik / Koçluk', topic: 'Hafta Sonu Denemesi Öncesi Strateji', duration: 20, type: 'review', questions: 0, note: 'Turlama taktiği zihinsel provası' }
-    ],
-    // Cumartesi
-    [
-      { subject: 'Deneme Sınavı', topic: `🎯 ${actionItems[2] || 'TYT Genel Denemesi (Turlama Taktiği)'}`, duration: 165, type: 'mock', questions: 120, note: 'Mizaç kuralı: İnatlaşma yok, 1. tur ve 2. tur yap' },
-      { subject: 'Rehberlik / Koçluk', topic: 'Deneme Analizi & Yanlış Defterine Ekleme', duration: 45, type: 'review', questions: 0, note: 'Tüm yanlışların videosunu izle ve kaydet' }
-    ],
-    // Pazar
-    [
-      { subject: 'AYT Deneme / Alan Testi', topic: 'AYT Alan Branş Denemesi', duration: focusDur * 2, type: 'mock', questions: 80, note: 'Sakin ve odaklanmış modda' },
-      { subject: 'Rehberlik / Koçluk', topic: 'Haftalık Koçluk Değerlendirmesi & Kapanış', duration: 30, type: 'review', questions: 0, note: 'Haftalık hedeflerin kontrolü ve kutlama' }
-    ]
-  ];
+  weeklyPlanDays.forEach((dayInfo, dIdx) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + dIdx);
+    const dateStr = d.toISOString().split('T')[0];
+
+    const dayTasks = dayInfo.tasks || [];
+    let existingDay = data.schedule.find(s => s.date === dateStr);
+
+    if (!existingDay) {
+      existingDay = { id: (typeof generateId === 'function' ? generateId() : 'day_' + Date.now() + '_' + dIdx), date: dateStr, items: [] };
+      data.schedule.push(existingDay);
+    }
+    if (!Array.isArray(existingDay.items)) {
+      existingDay.items = existingDay.items && typeof existingDay.items === 'object' ? Object.values(existingDay.items) : [];
+    }
+
+    dayTasks.forEach(task => {
+      const isAlreadyAdded = existingDay.items.some(i => i.topic === task.topic && i.subject === task.subj);
+      if (!isAlreadyAdded) {
+        existingDay.items.push({
+          id: (typeof generateId === 'function' ? generateId() : 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
+          subject: task.subj,
+          topic: task.topic,
+          duration: parseInt(task.dur) || 35,
+          type: task.q > 0 ? 'question' : (task.subj.includes('Deneme') ? 'mock' : 'study'),
+          done: false,
+          questions: task.q || 0,
+          note: 'Koç Onaylı Mizaç Programı'
+        });
+        addedTaskCount++;
+      }
+    });
+  });
 
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
