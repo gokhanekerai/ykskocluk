@@ -9,17 +9,27 @@ let _reportInspectionOpen = false;
 
 // ─── Mizaç ve AI Yardımcıları ──────────────────────────────────────────────────
 
+function extractQuestionCountFromGoal(text, fallback) {
+  if (!text) return fallback;
+  const match = text.match(/(\d+)\s*(?:soru|adet|q)/i);
+  if (match) {
+    const num = parseInt(match[1]);
+    if (num >= 5 && num <= 300) return num;
+  }
+  return fallback;
+}
+
 function getMizacTailoredGoals(studentId) {
   if (studentId === 'cagan') {
     return [
-      'TYT Matematik & Paragraf: Günlük 30 soru odaklı rutin (35 dk blok + 10 dk mola kuralı).',
-      'AYT Fizik / Fen: Zayıf konulardan şematik kavram haritası ve 30 soru derinleşme.',
+      'TYT Matematik & Paragraf: Odaklı soru ve problem rutini (35 dk blok + 10 dk mola kuralı).',
+      'AYT Fizik / Fen: Zayıf konulardan şematik kavram haritası ve derinleşme testleri.',
       'Yanlış Defteri & Deneme: Hataları B/D/İ (Bilgi/Dikkat/İşlem) etiketleriyle kapatma ve hafta sonu turlama denemesi.'
     ];
   } else {
     // Kaan (veya genel)
     return [
-      'TYT Matematik: Günlük 35 soru problem & rutin (2.5 dk kuralı, inatlaşma yok).',
+      'TYT Matematik: Günlük problem & rutin soru çalışması (2.5 dk kuralı, inatlaşma yok).',
       'AYT Fen & Matematik: Zayıf tespit edilen 1 ana konudan soru bankası taraması (45 dk blok).',
       'Deneme Stratejisi: Hafta sonu TYT/AYT denemesinde 2 turlu turlama taktiği ve Yanlış Defteri analizi.'
     ];
@@ -89,7 +99,11 @@ function getSmartTopic(studentId, section, subject, defaultTopic) {
 function get7DayScheduleFromGoals(studentId, actionItems) {
   studentId = studentId || window.activeStudent || 'kaan';
   const isCagan = studentId === 'cagan';
-  const focusDur = isCagan ? 35 : 45;
+  const focusDur = isCagan ? '35 dk' : '45 dk';
+
+  // Rapordaki hedeflerden soru kotalarını dinamik oku (hedefte belirtilmişse onu kullan, yoksa mizaç dengesine göre ayarla)
+  const qRutin = extractQuestionCountFromGoal(actionItems?.[0], isCagan ? 30 : 35);
+  const qAlan  = extractQuestionCountFromGoal(actionItems?.[1], isCagan ? 30 : 35);
 
   const aytFizikTopic = getSmartTopic(studentId, 'AYT', 'Fizik', 'Vektörler & Bağıl Hareket');
   const aytKimyaTopic = getSmartTopic(studentId, 'AYT', 'Kimya', 'Gazlar & Sıvı Çözeltiler');
@@ -97,138 +111,91 @@ function get7DayScheduleFromGoals(studentId, actionItems) {
   const aytMatTopic   = getSmartTopic(studentId, 'AYT', 'Matematik', 'Polinomlar & 2. Dereceden Denklemler');
   const tytGeoTopic   = getSmartTopic(studentId, 'TYT', 'Geometri', 'Üçgende Açılar & Özel Üçgenler');
 
+  function makeDay(dayName, tasks, isHighlight = false) {
+    const totalQ = tasks.reduce((sum, t) => sum + (t.q || 0), 0);
+    const badge = isHighlight ? '🎯 Deneme Günü' : (totalQ > 0 ? `${totalQ} Soru` : 'Analiz & Rehberlik');
+    return {
+      day: dayName,
+      badge: badge,
+      isHighlight: isHighlight,
+      tasks: tasks
+    };
+  }
+
   if (isCagan) {
-    // 🎯 Çağan Mizaç Profili (Ci / ESTJ): Günlük 60 Kaliteli Soru (30 + 30) + 35 Dk Odak Bloğu + B/D/İ Analizi
+    // 🎯 Çağan Mizaç Profili (Ci / ESTJ): Dinamik Soru Kotası + 35 Dk Odak Bloğu + B/D/İ Analizi
     return [
-      {
-        day: 'Pazartesi',
-        badge: '60 Soru (30+30)',
-        tasks: [
-          { subj: 'TYT Matematik', topic: 'Sayı & Kesir Problemleri (Rutin)', dur: '35 dk', q: 30, type: 'Soru' },
-          { subj: 'AYT Fizik', topic: `${aytFizikTopic} (Konu & Test)`, dur: '35 dk', q: 30, type: 'Konu' },
-          { subj: 'Rehberlik', topic: 'Yanlış Defteri & B/D/İ Hata Analizi', dur: '25 dk', q: 0, type: 'Analiz' }
-        ]
-      },
-      {
-        day: 'Salı',
-        badge: '60 Soru (30+30)',
-        tasks: [
-          { subj: 'TYT Türkçe', topic: 'Paragrafta Anlam & Hızlı Okuma', dur: '35 dk', q: 30, type: 'Soru' },
-          { subj: 'AYT Kimya', topic: `${aytKimyaTopic} (Soru Bankası)`, dur: '35 dk', q: 30, type: 'Soru' },
-          { subj: 'Rehberlik', topic: 'Kavram Haritası & Formül Kontrolü', dur: '25 dk', q: 0, type: 'Tekrar' }
-        ]
-      },
-      {
-        day: 'Çarşamba',
-        badge: '60 Soru (30+30)',
-        tasks: [
-          { subj: 'TYT Matematik', topic: 'Yaş & İşçi Problemleri (Süreli)', dur: '35 dk', q: 30, type: 'Soru' },
-          { subj: 'AYT Biyoloji', topic: `${aytBiyoTopic} (Kavram Şeması)`, dur: '35 dk', q: 30, type: 'Konu' },
-          { subj: 'Rehberlik', topic: 'Zor Soru & Yanlış Defteri Kapanışı', dur: '25 dk', q: 0, type: 'Analiz' }
-        ]
-      },
-      {
-        day: 'Perşembe',
-        badge: '60 Soru (30+30)',
-        tasks: [
-          { subj: 'TYT Geometri', topic: `${tytGeoTopic} (Görme Egzersizi)`, dur: '35 dk', q: 25, type: 'Soru' },
-          { subj: 'AYT Matematik', topic: `${aytMatTopic} (Derinleşme)`, dur: '35 dk', q: 35, type: 'Konu' },
-          { subj: 'Rehberlik', topic: 'İşlem Hatası & Dikkat Defteri Kontrolü', dur: '25 dk', q: 0, type: 'Analiz' }
-        ]
-      },
-      {
-        day: 'Cuma',
-        badge: '60 Soru (30+30)',
-        tasks: [
-          { subj: 'TYT Matematik', topic: 'Süreli Branş Rutini (2.5 Dk Kuralı)', dur: '35 dk', q: 30, type: 'Soru' },
-          { subj: 'AYT Fen', topic: 'Haftalık Zayıf Konu Soru Taraması', dur: '35 dk', q: 30, type: 'Soru' },
-          { subj: 'Rehberlik', topic: 'Deneme Öncesi Turlama Stratejisi Provası', dur: '20 dk', q: 0, type: 'Strateji' }
-        ]
-      },
-      {
-        day: 'Cumartesi',
-        badge: '🎯 Deneme Günü',
-        isHighlight: true,
-        tasks: [
-          { subj: 'Deneme Sınavı', topic: '🎯 Genel TYT Denemesi (165 Dk - 2 Tur Turlama)', dur: '165 dk', q: 120, type: 'Deneme' },
-          { subj: 'Rehberlik', topic: 'Deneme Analizi & Yanlış Defterine Kayıt', dur: '45 dk', q: 0, type: 'Analiz' }
-        ]
-      },
-      {
-        day: 'Pazar',
-        badge: 'Alan & Kapanış',
-        tasks: [
-          { subj: 'AYT Deneme', topic: 'AYT Sayısal Branş Taraması (Mat-Fen)', dur: '70 dk', q: 80, type: 'Deneme' },
-          { subj: 'Koçluk', topic: 'Haftalık Koçluk Değerlendirmesi & Kapanış', dur: '30 dk', q: 0, type: 'Koçluk' }
-        ]
-      }
+      makeDay('Pazartesi', [
+        { subj: 'TYT Matematik', topic: 'Sayı & Kesir Problemleri (Rutin)', dur: focusDur, q: qRutin, type: 'Soru' },
+        { subj: 'AYT Fizik', topic: `${aytFizikTopic} (Konu & Test)`, dur: focusDur, q: qAlan, type: 'Konu' },
+        { subj: 'Rehberlik', topic: 'Yanlış Defteri & B/D/İ Hata Analizi', dur: '25 dk', q: 0, type: 'Analiz' }
+      ]),
+      makeDay('Salı', [
+        { subj: 'TYT Türkçe', topic: 'Paragrafta Anlam & Hızlı Okuma', dur: focusDur, q: qRutin, type: 'Soru' },
+        { subj: 'AYT Kimya', topic: `${aytKimyaTopic} (Soru Bankası)`, dur: focusDur, q: qAlan, type: 'Soru' },
+        { subj: 'Rehberlik', topic: 'Kavram Haritası & Formül Kontrolü', dur: '25 dk', q: 0, type: 'Tekrar' }
+      ]),
+      makeDay('Çarşamba', [
+        { subj: 'TYT Matematik', topic: 'Yaş & İşçi Problemleri (Süreli)', dur: focusDur, q: qRutin, type: 'Soru' },
+        { subj: 'AYT Biyoloji', topic: `${aytBiyoTopic} (Kavram Şeması)`, dur: focusDur, q: qAlan, type: 'Konu' },
+        { subj: 'Rehberlik', topic: 'Zor Soru & Yanlış Defteri Kapanışı', dur: '25 dk', q: 0, type: 'Analiz' }
+      ]),
+      makeDay('Perşembe', [
+        { subj: 'TYT Geometri', topic: `${tytGeoTopic} (Görme Egzersizi)`, dur: focusDur, q: Math.max(20, qRutin - 5), type: 'Soru' },
+        { subj: 'AYT Matematik', topic: `${aytMatTopic} (Derinleşme)`, dur: focusDur, q: qAlan, type: 'Konu' },
+        { subj: 'Rehberlik', topic: 'İşlem Hatası & Dikkat Defteri Kontrolü', dur: '25 dk', q: 0, type: 'Analiz' }
+      ]),
+      makeDay('Cuma', [
+        { subj: 'TYT Matematik', topic: 'Süreli Branş Rutini (2.5 Dk Kuralı)', dur: focusDur, q: qRutin, type: 'Soru' },
+        { subj: 'AYT Fen', topic: 'Haftalık Zayıf Konu Soru Taraması', dur: focusDur, q: qAlan, type: 'Soru' },
+        { subj: 'Rehberlik', topic: 'Deneme Öncesi Turlama Stratejisi Provası', dur: '20 dk', q: 0, type: 'Strateji' }
+      ]),
+      makeDay('Cumartesi', [
+        { subj: 'Deneme Sınavı', topic: '🎯 Genel TYT Denemesi (165 Dk - 2 Tur Turlama)', dur: '165 dk', q: 120, type: 'Deneme' },
+        { subj: 'Rehberlik', topic: 'Deneme Analizi & Yanlış Defterine Kayıt', dur: '45 dk', q: 0, type: 'Analiz' }
+      ], true),
+      makeDay('Pazar', [
+        { subj: 'AYT Deneme', topic: 'AYT Sayısal Branş Taraması (Mat-Fen)', dur: '70 dk', q: 80, type: 'Deneme' },
+        { subj: 'Koçluk', topic: 'Haftalık Koçluk Değerlendirmesi & Kapanış', dur: '30 dk', q: 0, type: 'Koçluk' }
+      ])
     ];
   }
 
-  // 🎯 Kaan Mizaç Profili (CS / ESTJ): Günlük 100-110 Soru (Hacim & Hız Artırma) + 45 Dk Odak Bloğu
+  // 🎯 Kaan Mizaç Profili (CS / ESTJ): Hacim & Hız Rutini + 45 Dk Odak Bloğu
   return [
-    {
-      day: 'Pazartesi',
-      badge: '100 Soru',
-      tasks: [
-        { subj: 'TYT Matematik', topic: 'Sayı & Kesir Problemleri (Rutin)', dur: '45 dk', q: 40, type: 'Soru' },
-        { subj: 'AYT Fizik', topic: `${aytFizikTopic} (Konu & Test)`, dur: '45 dk', q: 35, type: 'Konu' },
-        { subj: 'Rehberlik', topic: 'Yanlış Defteri & Hızlı Çözüm Tekrarı', dur: '30 dk', q: 25, type: 'Soru' }
-      ]
-    },
-    {
-      day: 'Salı',
-      badge: '105 Soru',
-      tasks: [
-        { subj: 'TYT Türkçe', topic: 'Paragrafta Anlam & Hızlı Okuma', dur: '45 dk', q: 35, type: 'Soru' },
-        { subj: 'AYT Kimya', topic: `${aytKimyaTopic} (Soru Bankası)`, dur: '45 dk', q: 35, type: 'Soru' },
-        { subj: 'TYT Matematik', topic: 'Rasyonel Sayılar & Basit Eşitsizlikler', dur: '45 dk', q: 35, type: 'Soru' }
-      ]
-    },
-    {
-      day: 'Çarşamba',
-      badge: '100 Soru',
-      tasks: [
-        { subj: 'TYT Matematik', topic: 'Yaş & İşçi Problemleri (Süreli)', dur: '45 dk', q: 40, type: 'Soru' },
-        { subj: 'AYT Biyoloji', topic: `${aytBiyoTopic} (Kavram Şeması)`, dur: '45 dk', q: 35, type: 'Konu' },
-        { subj: 'Rehberlik', topic: 'Zor Soru Kapanışı & Hız Testi', dur: '30 dk', q: 25, type: 'Soru' }
-      ]
-    },
-    {
-      day: 'Perşembe',
-      badge: '105 Soru',
-      tasks: [
-        { subj: 'TYT Geometri', topic: `${tytGeoTopic} (Görme Egzersizi)`, dur: '45 dk', q: 30, type: 'Soru' },
-        { subj: 'AYT Matematik', topic: `${aytMatTopic} (Derinleşme)`, dur: '45 dk', q: 40, type: 'Konu' },
-        { subj: 'AYT Fen', topic: 'Karma Branş Testi (Fizik-Kimya-Biyoloji)', dur: '45 dk', q: 35, type: 'Soru' }
-      ]
-    },
-    {
-      day: 'Cuma',
-      badge: '85 Soru',
-      tasks: [
-        { subj: 'TYT Matematik', topic: 'Süreli Branş Rutini (2.5 Dk Sınırı)', dur: '45 dk', q: 35, type: 'Soru' },
-        { subj: 'AYT Fen', topic: 'Haftalık Zayıf Konu Soru Taraması', dur: '45 dk', q: 40, type: 'Soru' },
-        { subj: 'Rehberlik', topic: 'Deneme Öncesi Turlama Stratejisi Provası', dur: '20 dk', q: 10, type: 'Strateji' }
-      ]
-    },
-    {
-      day: 'Cumartesi',
-      badge: '🎯 Deneme Günü',
-      isHighlight: true,
-      tasks: [
-        { subj: 'Deneme Sınavı', topic: '🎯 Genel TYT Denemesi (165 Dk - 2 Tur Turlama)', dur: '165 dk', q: 120, type: 'Deneme' },
-        { subj: 'Rehberlik', topic: 'Deneme Analizi & Yanlış Defterine Kayıt', dur: '45 dk', q: 0, type: 'Analiz' }
-      ]
-    },
-    {
-      day: 'Pazar',
-      badge: 'Alan & Kapanış',
-      tasks: [
-        { subj: 'AYT Deneme', topic: 'AYT Sayısal Branş Taraması (Mat-Fen)', dur: '90 dk', q: 80, type: 'Deneme' },
-        { subj: 'Koçluk', topic: 'Haftalık Koçluk Değerlendirmesi & Kapanış', dur: '30 dk', q: 0, type: 'Koçluk' }
-      ]
-    }
+    makeDay('Pazartesi', [
+      { subj: 'TYT Matematik', topic: 'Sayı & Kesir Problemleri (Rutin)', dur: focusDur, q: qRutin + 5, type: 'Soru' },
+      { subj: 'AYT Fizik', topic: `${aytFizikTopic} (Konu & Test)`, dur: focusDur, q: qAlan, type: 'Konu' },
+      { subj: 'Rehberlik', topic: 'Yanlış Defteri & Hızlı Çözüm Tekrarı', dur: '30 dk', q: 25, type: 'Soru' }
+    ]),
+    makeDay('Salı', [
+      { subj: 'TYT Türkçe', topic: 'Paragrafta Anlam & Hızlı Okuma', dur: focusDur, q: qRutin, type: 'Soru' },
+      { subj: 'AYT Kimya', topic: `${aytKimyaTopic} (Soru Bankası)`, dur: focusDur, q: qAlan, type: 'Soru' },
+      { subj: 'TYT Matematik', topic: 'Rasyonel Sayılar & Basit Eşitsizlikler', dur: focusDur, q: qRutin, type: 'Soru' }
+    ]),
+    makeDay('Çarşamba', [
+      { subj: 'TYT Matematik', topic: 'Yaş & İşçi Problemleri (Süreli)', dur: focusDur, q: qRutin + 5, type: 'Soru' },
+      { subj: 'AYT Biyoloji', topic: `${aytBiyoTopic} (Kavram Şeması)`, dur: focusDur, q: qAlan, type: 'Konu' },
+      { subj: 'Rehberlik', topic: 'Zor Soru Kapanışı & Hız Testi', dur: '30 dk', q: 25, type: 'Soru' }
+    ]),
+    makeDay('Perşembe', [
+      { subj: 'TYT Geometri', topic: `${tytGeoTopic} (Görme Egzersizi)`, dur: focusDur, q: Math.max(25, qRutin - 5), type: 'Soru' },
+      { subj: 'AYT Matematik', topic: `${aytMatTopic} (Derinleşme)`, dur: focusDur, q: qAlan + 5, type: 'Konu' },
+      { subj: 'AYT Fen', topic: 'Karma Branş Testi (Fizik-Kimya-Biyoloji)', dur: focusDur, q: qAlan, type: 'Soru' }
+    ]),
+    makeDay('Cuma', [
+      { subj: 'TYT Matematik', topic: 'Süreli Branş Rutini (2.5 Dk Sınırı)', dur: focusDur, q: qRutin, type: 'Soru' },
+      { subj: 'AYT Fen', topic: 'Haftalık Zayıf Konu Soru Taraması', dur: focusDur, q: qAlan + 5, type: 'Soru' },
+      { subj: 'Rehberlik', topic: 'Deneme Öncesi Turlama Stratejisi Provası', dur: '20 dk', q: 10, type: 'Strateji' }
+    ]),
+    makeDay('Cumartesi', [
+      { subj: 'Deneme Sınavı', topic: '🎯 Genel TYT Denemesi (165 Dk - 2 Tur Turlama)', dur: '165 dk', q: 120, type: 'Deneme' },
+      { subj: 'Rehberlik', topic: 'Deneme Analizi & Yanlış Defterine Kayıt', dur: '45 dk', q: 0, type: 'Analiz' }
+    ], true),
+    makeDay('Pazar', [
+      { subj: 'AYT Deneme', topic: 'AYT Sayısal Branş Taraması (Mat-Fen)', dur: '90 dk', q: 80, type: 'Deneme' },
+      { subj: 'Koçluk', topic: 'Haftalık Koçluk Değerlendirmesi & Kapanış', dur: '30 dk', q: 0, type: 'Koçluk' }
+    ])
   ];
 }
 
