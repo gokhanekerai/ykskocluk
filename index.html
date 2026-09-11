@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YKSrota | AkÄ±llÄ± SÄ±nav KoÃ§luÄŸu & Rota Takip</title>
-  <meta name="description" content="KiÅŸiselleÅŸtirilmiÅŸ AkÄ±llÄ± YKS SÄ±nav KoÃ§luÄŸu ve Rota Takip Platformu.">
+  <title>YKSrota | Akıllı Sınav Koçluğu & Rota Takip</title>
+  <meta name="description" content="Kişiselleştirilmiş Akıllı YKS Sınav Koçluğu ve Rota Takip Platformu.">
   <link rel="manifest" href="manifest.json?v=155">
   <meta name="theme-color" content="#0A192F">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,9 +21,9 @@
   <link rel="stylesheet" href="styles.css?v=332">
 
   <script>
-    // Otomatik Ã–nbellek Yenileme ve Temizleme
+    // Otomatik Önbellek Yenileme ve Temizleme
     (function() {
-      const APP_VER = '331';
+      const APP_VER = '332';
       const savedVer = localStorage.getItem('yks_app_version');
       if (savedVer !== APP_VER) {
         localStorage.setItem('yks_app_version', APP_VER);
@@ -74,40 +74,40 @@
   <div class="space-mesh-overlay"></div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• GÄ°RÄ°Å EKRANI â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════════ GİRİŞ EKRANI ═══════════════════ -->
 <div id="login-screen" class="login-overlay hidden" style="display:none;">
   <div class="login-card">
     <div class="login-logo" style="display:flex; justify-content:center; margin-bottom:12px;">
       <img src="app-icon-192-v3.png?v=155" style="width:76px; height:76px; border-radius:18px; box-shadow:0 8px 24px rgba(0,0,0,0.5); border:1px solid rgba(255,107,0,0.3);" alt="YKSrota">
     </div>
     <h1 class="login-title"><span class="title-yks">YKS</span><span class="title-rota">rota</span></h1>
-    <p class="login-subtitle">AkÄ±llÄ± SÄ±nav KoÃ§luÄŸu & Rota Takip Platformu</p>
+    <p class="login-subtitle">Akıllı Sınav Koçluğu & Rota Takip Platformu</p>
 
     <form onsubmit="handleLogin(event)">
       <div class="form-group">
-        <label class="form-label" for="login-username">ğŸ‘¤ KullanÄ±cÄ± AdÄ±</label>
+        <label class="form-label" for="login-username">👤 Kullanıcı Adı</label>
         <input id="login-username" class="form-input" type="text"
-               placeholder="KullanÄ±cÄ± adÄ±nÄ±zÄ± girin" autocomplete="username">
+               placeholder="Kullanıcı adınızı girin" autocomplete="username">
       </div>
       <div class="form-group">
-        <label class="form-label" for="login-password">ğŸ”’ Åifre</label>
+        <label class="form-label" for="login-password">🔒 Şifre</label>
         <div class="pwd-wrapper">
           <input id="login-password" class="form-input" type="password"
-                 placeholder="Åifrenizi girin" autocomplete="current-password">
+                 placeholder="Şifrenizi girin" autocomplete="current-password">
           <button type="button" class="pwd-toggle"
-                  onclick="togglePasswordVisibility('login-password', this)">ğŸ‘ï¸</button>
+                  onclick="togglePasswordVisibility('login-password', this)">👁️</button>
         </div>
       </div>
       <div id="login-error" class="login-error" style="display:none;"></div>
-      <button type="submit" class="btn-login">GiriÅŸ Yap â†’</button>
+      <button type="submit" class="btn-login">Giriş Yap →</button>
     </form>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ANA UYGULAMA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════════ ANA UYGULAMA ═══════════════════ -->
 <div class="app">
 
-  <!-- â”€â”€â”€ SIDEBAR â”€â”€â”€ -->
+  <!-- ─── SIDEBAR ─── -->
   <aside id="sidebar" class="sidebar">
 
     <!-- Marka -->
@@ -116,16 +116,16 @@
         <img src="app-icon-192-v3.png?v=155" style="width:64px; height:64px; border-radius:16px; border:2px solid rgba(255,107,0,0.5); box-shadow:0 6px 20px rgba(255,107,0,0.3), 0 0 14px rgba(139,92,246,0.25); object-fit:cover;" alt="YKSrota">
       </div>
       <div class="brand-name" style="font-size:18px; letter-spacing:0.5px;">YKSrota</div>
-      <div class="brand-tagline" style="font-size:11px; margin-top:2px;">AkÄ±llÄ± SÄ±nav KoÃ§luÄŸu</div>
+      <div class="brand-tagline" style="font-size:11px; margin-top:2px;">Akıllı Sınav Koçluğu</div>
     </div>
 
-    <!-- Geri SayÄ±m -->
-    <div class="countdown-widget" onclick="openCountdownModal()" style="cursor:pointer;" title="SÄ±nav ve Program Tarihini DÃ¼zenle">
-      <div class="countdown-label">â³ YKS'ye Kalan</div>
+    <!-- Geri Sayım -->
+    <div class="countdown-widget" onclick="openCountdownModal()" style="cursor:pointer;" title="Sınav ve Program Tarihini Düzenle">
+      <div class="countdown-label">⏳ YKS'ye Kalan</div>
       <div class="countdown-digits">
         <div class="countdown-block">
           <div id="countdown-days" class="countdown-num">298</div>
-          <div class="countdown-unit">GÃ¼n</div>
+          <div class="countdown-unit">Gün</div>
         </div>
         <div class="countdown-sep">:</div>
         <div class="countdown-block">
@@ -145,10 +145,10 @@
       </div>
     </div>
 
-    <!-- Ã–ÄŸrenci SeÃ§ici (KoÃ§a Ã¶zel) -->
+    <!-- Öğrenci Seçici (Koça özel) -->
     <div id="student-selector" style="display:none;">
       <div style="padding: 12px 12px 0;">
-        <div class="selector-label">ğŸ“š Ã–ÄŸrenci SeÃ§</div>
+        <div class="selector-label">📚 Öğrenci Seç</div>
         <div class="student-btns" id="student-btns"></div>
       </div>
       <div style="height:1px; background:var(--border); margin:12px 0;"></div>
@@ -156,54 +156,54 @@
 
     <!-- Navigasyon -->
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Ana MenÃ¼</div>
+      <div class="nav-section-label">Ana Menü</div>
 
       <div class="menu-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
-        <span class="menu-icon">ğŸ“Š</span> Kontrol Paneli
+        <span class="menu-icon">📊</span> Kontrol Paneli
       </div>
       <div class="menu-item" data-tab="schedule" onclick="switchTab('schedule')">
-        <span class="menu-icon">ğŸ“…</span> <span id="menu-schedule-text">GÃ¶revlendirme</span>
+        <span class="menu-icon">📅</span> <span id="menu-schedule-text">Görevlendirme</span>
         <span id="nav-badge-schedule" class="nav-badge" style="display:none;"></span>
       </div>
       <div class="menu-item" data-tab="daily" onclick="switchTab('daily')">
-        <span class="menu-icon">âœï¸</span> Soru Takibi
+        <span class="menu-icon">✏️</span> Soru Takibi
       </div>
       <div class="menu-item" data-tab="exams" onclick="switchTab('exams')">
-        <span class="menu-icon">ğŸ“</span> Deneme Takibi
+        <span class="menu-icon">📝</span> Deneme Takibi
       </div>
       <div class="menu-item" data-tab="calculator" onclick="switchTab('calculator')">
-        <span class="menu-icon">ğŸ§®</span> Puan Hesaplama
+        <span class="menu-icon">🧮</span> Puan Hesaplama
       </div>
       <div class="menu-item" data-tab="resources" onclick="switchTab('resources')">
-        <span class="menu-icon">ğŸ“š</span> Kaynak Takibi
+        <span class="menu-icon">📚</span> Kaynak Takibi
       </div>
       <div class="menu-item" data-tab="topics" onclick="switchTab('topics')">
-        <span class="menu-icon">ğŸ—ºï¸</span> Konu Takibi
+        <span class="menu-icon">🗺️</span> Konu Takibi
       </div>
       <div class="menu-item" data-tab="wrong" onclick="switchTab('wrong')">
-        <span class="menu-icon">âŒ</span> YanlÄ±ÅŸ Defteri
+        <span class="menu-icon">❌</span> Yanlış Defteri
       </div>
 
       <div class="menu-item" data-tab="pomodoro" onclick="switchTab('pomodoro')">
-        <span class="menu-icon">â±ï¸</span> Odak & Pomodoro
+        <span class="menu-icon">⏱️</span> Odak & Pomodoro
       </div>
 
-      <div class="nav-section-label" style="margin-top:8px;">AI KoÃ§</div>
+      <div class="nav-section-label" style="margin-top:8px;">AI Koç</div>
       <div class="menu-item" data-tab="ai" onclick="switchTab('ai')">
-        <span class="menu-icon">ğŸ¤–</span> AI Analiz
+        <span class="menu-icon">🤖</span> AI Analiz
       </div>
 
       <div class="nav-section-label" style="margin-top:8px;">Raporlama</div>
       <div class="menu-item" onclick="openCoachReportModal()" style="color:#a855f7; font-weight:700;">
-        <span class="menu-icon">ğŸ“„</span> KoÃ§luk Raporu & PDF
+        <span class="menu-icon">📄</span> Koçluk Raporu & PDF
       </div>
 
-      <div class="nav-section-label coach-only" style="margin-top:8px;">KoÃ§ AraÃ§larÄ±</div>
+      <div class="nav-section-label coach-only" style="margin-top:8px;">Koç Araçları</div>
       <div class="menu-item coach-only" onclick="openStudentMgmt()">
-        <span class="menu-icon">ğŸ‘¥</span> Ã–ÄŸrenci YÃ¶netimi
+        <span class="menu-icon">👥</span> Öğrenci Yönetimi
       </div>
       <div class="menu-item supercoach-only" onclick="openCoachMgmt()" style="color:#00F0FF; font-weight:700;">
-        <span class="menu-icon">ğŸ‘‘</span> KoÃ§ YÃ¶netimi
+        <span class="menu-icon">👑</span> Koç Yönetimi
       </div>
     </nav>
 
@@ -212,151 +212,151 @@
       <div class="sidebar-user">
         <div id="sidebar-user-avatar" class="s-avatar">?</div>
         <div>
-          <div id="sidebar-user-name" class="user-name">â€”</div>
-          <div id="sidebar-user-role" class="user-role">â€”</div>
+          <div id="sidebar-user-name" class="user-name">—</div>
+          <div id="sidebar-user-role" class="user-role">—</div>
         </div>
       </div>
       <div class="sidebar-footer-btns">
-        <button class="btn-footer" id="theme-btn" onclick="toggleTheme()" title="Tema">â˜€ï¸</button>
-        <button class="btn-footer" onclick="openModal('pwd-modal')" title="Åifre DeÄŸiÅŸtir">ğŸ”‘</button>
-        <button class="btn-footer" onclick="logout()" title="Ã‡Ä±kÄ±ÅŸ">ğŸšª</button>
+        <button class="btn-footer" id="theme-btn" onclick="toggleTheme()" title="Tema">☀️</button>
+        <button class="btn-footer" onclick="openModal('pwd-modal')" title="Şifre Değiştir">🔑</button>
+        <button class="btn-footer" onclick="logout()" title="Çıkış">🚪</button>
       </div>
     </div>
   </aside>
 
-  <!-- â”€â”€â”€ MAIN â”€â”€â”€ -->
+  <!-- ─── MAIN ─── -->
   <main class="main">
 
     <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" onclick="toggleSidebar()">â˜°</button>
-        <div class="page-title">YKS KoÃ§um</div>
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="page-title">YKS Koçum</div>
         <div id="page-student-chip" class="student-chip">
-          <span id="page-student-name">â€”</span>
+          <span id="page-student-name">—</span>
         </div>
       </div>
       <div class="topbar-right" id="topbar-actions" style="display:flex; align-items:center; gap:8px;">
-        <div id="topbar-pomo-badge" onclick="switchTab('pomodoro')" style="display:none; align-items:center; cursor:pointer; padding:4px 10px; border-radius:8px; background:linear-gradient(135deg, rgba(0,240,255,0.2), rgba(139,92,246,0.2)); border:1px solid rgba(0,240,255,0.4); color:#00F0FF; font-size:12px; font-weight:800; animation:pulse 2s infinite;" title="Aktif Odak SayacÄ±na Git"></div>
+        <div id="topbar-pomo-badge" onclick="switchTab('pomodoro')" style="display:none; align-items:center; cursor:pointer; padding:4px 10px; border-radius:8px; background:linear-gradient(135deg, rgba(0,240,255,0.2), rgba(139,92,246,0.2)); border:1px solid rgba(0,240,255,0.4); color:#00F0FF; font-size:12px; font-weight:800; animation:pulse 2s infinite;" title="Aktif Odak Sayacına Git"></div>
         <button class="btn btn-sm btn-secondary" onclick="switchTab('pomodoro')" style="display:flex; align-items:center; gap:5px; font-weight:700; border-color:rgba(0,240,255,0.3); color:#00F0FF;">
-          <span>â±ï¸</span> Odak SayacÄ±
+          <span>⏱️</span> Odak Sayacı
         </button>
         <button class="btn btn-sm btn-accent" onclick="openCoachReportModal()" style="display:flex; align-items:center; gap:6px; font-weight:700; background:linear-gradient(135deg, rgba(168,85,247,0.2) 0%, rgba(139,92,246,0.3) 100%); border:1px solid rgba(168,85,247,0.4); color:#c084fc;">
-          <span>ğŸ“„</span> KoÃ§luk Raporu & PDF
+          <span>📄</span> Koçluk Raporu & PDF
         </button>
       </div>
     </div>
 
-    <!-- Ä°Ã§erik AlanÄ± -->
+    <!-- İçerik Alanı -->
     <div class="content">
 
-      <!-- â•â• DASHBOARD â•â• -->
+      <!-- ══ DASHBOARD ══ -->
       <section id="tab-dashboard" class="tab-view active">
-        <!-- TÃ¼m Kartlar (10 Adet) AynÄ± Grid Ä°Ã§inde -->
+        <!-- Tüm Kartlar (10 Adet) Aynı Grid İçinde -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
-          <div class="stat-card purple" onclick="openCountdownModal()" style="cursor:pointer;" title="SÄ±nav SayacÄ± ve KaÃ§Ä±ncÄ± GÃ¼n">
-            <div class="stat-icon">ğŸ”¥</div>
+          <div class="stat-card purple" onclick="openCountdownModal()" style="cursor:pointer;" title="Sınav Sayacı ve Kaçıncı Gün">
+            <div class="stat-icon">🔥</div>
             <div id="dash-streak" class="stat-value">3</div>
-            <div class="stat-label" id="dash-streak-label">Program GÃ¼nÃ¼</div>
+            <div class="stat-label" id="dash-streak-label">Program Günü</div>
           </div>
-          <div class="stat-card blue" onclick="switchTab('schedule')" style="cursor:pointer;" title="GÃ¶revlendirme sayfasÄ±na git" style="position:relative;">
-            <div class="stat-icon">ğŸ“…</div>
+          <div class="stat-card blue" onclick="switchTab('schedule')" style="cursor:pointer;" title="Görevlendirme sayfasına git" style="position:relative;">
+            <div class="stat-icon">📅</div>
             <span id="dash-badge-schedule" class="nav-badge" style="position:absolute; top:10px; right:10px; display:none;"></span>
             <div id="dash-schedule-stat" class="stat-value">0/0</div>
-            <div class="stat-label">GÃ¶revlendirme</div>
+            <div class="stat-label">Görevlendirme</div>
           </div>
-          <div class="stat-card cyan" onclick="switchTab('daily')" style="cursor:pointer;" title="Soru Takibi sayfasÄ±na git">
-            <div class="stat-icon">âœï¸</div>
+          <div class="stat-card cyan" onclick="switchTab('daily')" style="cursor:pointer;" title="Soru Takibi sayfasına git">
+            <div class="stat-icon">✏️</div>
             <div id="dash-week-solved" class="stat-value">0</div>
             <div class="stat-label" id="dash-solved-label">Soru Takibi</div>
           </div>
-          <div class="stat-card green" onclick="switchTab('exams')" style="cursor:pointer;" title="Deneme Takibi sayfasÄ±na git">
-            <div class="stat-icon">ğŸ“</div>
+          <div class="stat-card green" onclick="switchTab('exams')" style="cursor:pointer;" title="Deneme Takibi sayfasına git">
+            <div class="stat-icon">📝</div>
             <div id="dash-total-mock" class="stat-value">0</div>
             <div class="stat-label">Deneme Takibi</div>
           </div>
-          <div class="stat-card amber" onclick="switchTab('resources')" style="cursor:pointer;" title="Kaynak Takibi sayfasÄ±na git">
-            <div class="stat-icon">ğŸ“š</div>
+          <div class="stat-card amber" onclick="switchTab('resources')" style="cursor:pointer;" title="Kaynak Takibi sayfasına git">
+            <div class="stat-icon">📚</div>
             <div id="dash-books-done" class="stat-value">0/0</div>
             <div class="stat-label">Kaynak Takibi</div>
           </div>
-          <div class="stat-card purple" onclick="switchTab('topics')" style="cursor:pointer;" title="Konu Takibi sayfasÄ±na git">
-            <div class="stat-icon">ğŸ—ºï¸</div>
+          <div class="stat-card purple" onclick="switchTab('topics')" style="cursor:pointer;" title="Konu Takibi sayfasına git">
+            <div class="stat-icon">🗺️</div>
             <div id="dash-topics-done" class="stat-value">0/0</div>
-            <div class="stat-label">SayÄ±sal Konu Takibi</div>
+            <div class="stat-label">Sayısal Konu Takibi</div>
           </div>
-          <div class="stat-card cyan" onclick="switchTab('calculator')" style="cursor:pointer;" title="Ã–SYM Puan Hesaplama AracÄ±">
-            <div class="stat-icon">ğŸ§®</div>
-            <div class="stat-value" style="font-size:30px; font-weight:900; letter-spacing:0.5px;">Ã–SYM</div>
+          <div class="stat-card cyan" onclick="switchTab('calculator')" style="cursor:pointer;" title="ÖSYM Puan Hesaplama Aracı">
+            <div class="stat-icon">🧮</div>
+            <div class="stat-value" style="font-size:30px; font-weight:900; letter-spacing:0.5px;">ÖSYM</div>
             <div class="stat-label">Puan Hesaplama</div>
           </div>
 
-          <!-- Odak & Pomodoro KartÄ± -->
-          <div class="stat-card cyan" onclick="switchTab('pomodoro')" style="cursor:pointer;" title="Odaklanma SayacÄ± ve Pomodoro">
-            <div class="stat-icon">â±ï¸</div>
+          <!-- Odak & Pomodoro Kartı -->
+          <div class="stat-card cyan" onclick="switchTab('pomodoro')" style="cursor:pointer;" title="Odaklanma Sayacı ve Pomodoro">
+            <div class="stat-icon">⏱️</div>
             <div id="dash-pomo-time" class="stat-value" style="font-size:24px; font-weight:900; color:#00F0FF;">0 dk</div>
-            <div class="stat-label">Odak SayacÄ±</div>
+            <div class="stat-label">Odak Sayacı</div>
           </div>
 
-          <!-- KoÃ§luk Raporu & PDF KartÄ± -->
-          <div class="stat-card purple" onclick="openCoachReportModal()" style="cursor:pointer;" title="HaftalÄ±k KoÃ§luk Raporu ve PDF Ã‡Ä±ktÄ±sÄ±">
-            <div class="stat-icon">ğŸ“„</div>
+          <!-- Koçluk Raporu & PDF Kartı -->
+          <div class="stat-card purple" onclick="openCoachReportModal()" style="cursor:pointer;" title="Haftalık Koçluk Raporu ve PDF Çıktısı">
+            <div class="stat-icon">📄</div>
             <div class="stat-value" style="font-size:22px; font-weight:900; color:#c084fc;">Rapor & PDF</div>
-            <div class="stat-label">KoÃ§luk Raporu</div>
+            <div class="stat-label">Koçluk Raporu</div>
           </div>
 
-          <!-- KiÅŸisel Hedef -->
+          <!-- Kişisel Hedef -->
           <div class="card clickable-card" id="goal-banner" onclick="openPersonalGoalModal()" style="display:flex; flex-direction:column; justify-content:space-between; background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(30,30,36,1) 100%); border: 1px solid rgba(139,92,246,0.15);">
             <div class="flex-between" style="margin-bottom:12px;">
-              <div class="card-title" style="margin-bottom:0; color:var(--text);">ğŸ“ Hedef Ãœniversite</div>
+              <div class="card-title" style="margin-bottom:0; color:var(--text);">🎓 Hedef Üniversite</div>
             </div>
             <div style="margin-bottom:16px;">
               <div class="goal-uni" id="goal-uni" style="font-size:20px; font-weight:800; color:var(--text); margin-bottom:4px; line-height:1.2;">Hedef belirlenmedi</div>
-              <div class="goal-details" style="font-size:13px; color:var(--text-muted);"><span id="goal-prof">â€”</span></div>
+              <div class="goal-details" style="font-size:13px; color:var(--text-muted);"><span id="goal-prof">—</span></div>
             </div>
-            <div style="align-self:flex-start; background: rgba(139,92,246,0.15); color: var(--primary); font-weight:800; padding:4px 10px; border-radius:6px; font-size:15px; border: 1px solid rgba(139,92,246,0.2);" id="goal-rank">â€”</div>
+            <div style="align-self:flex-start; background: rgba(139,92,246,0.15); color: var(--primary); font-weight:800; padding:4px 10px; border-radius:6px; font-size:15px; border: 1px solid rgba(139,92,246,0.2);" id="goal-rank">—</div>
           </div>
 
         </div>
 
-        <!-- ğŸ¯ Hedefe Kalan Netler & Ä°lerleme KartÄ± -->
+        <!-- 🎯 Hedefe Kalan Netler & İlerleme Kartı -->
         <div id="dash-target-gap-container" style="margin-top: 16px;"></div>
 
         <!-- Grafikler -->
         <div class="grid-2" style="margin-top: 16px;">
           <div class="card">
             <div class="flex-between" style="margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-              <div class="card-title" id="dash-weekly-chart-title">ğŸ“ˆ Soru EÄŸilimi</div>
+              <div class="card-title" id="dash-weekly-chart-title">📈 Soru Eğilimi</div>
               <div class="btn-group" id="dash-chart-range-group" style="display:inline-flex; background:rgba(255,255,255,0.06); border-radius:6px; padding:2px; border:1px solid rgba(255,255,255,0.1);">
                 <button type="button" class="btn-xs" id="btn-dash-chart-7" onclick="setDashboardChartRange(7)" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">7G</button>
                 <button type="button" class="btn-xs" id="btn-dash-chart-14" onclick="setDashboardChartRange(14)" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">14G</button>
                 <button type="button" class="btn-xs" id="btn-dash-chart-30" onclick="setDashboardChartRange(30)" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">30G</button>
-                <button type="button" class="btn-xs active" id="btn-dash-chart-all" onclick="setDashboardChartRange('all')" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:var(--primary); color:#000; cursor:pointer; font-weight:800;">TÃ¼mÃ¼</button>
+                <button type="button" class="btn-xs active" id="btn-dash-chart-all" onclick="setDashboardChartRange('all')" style="padding:2px 7px; font-size:11px; border:none; border-radius:4px; background:var(--primary); color:#000; cursor:pointer; font-weight:800;">Tümü</button>
               </div>
             </div>
             <div class="chart-wrapper"><canvas id="chart-weekly"></canvas></div>
           </div>
           <div class="card">
-            <div class="card-title">ğŸ“Š Deneme Net GeliÅŸimi</div>
+            <div class="card-title">📊 Deneme Net Gelişimi</div>
             <div class="chart-wrapper"><canvas id="chart-mocks"></canvas></div>
           </div>
         </div>
       </section>
 
-      <!-- â•â• SORU TAKÄ°BÄ° â•â• -->
+      <!-- ══ SORU TAKİBİ ══ -->
       <section id="tab-daily" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">âœï¸ Soru Takibi</div>
-            <div class="section-subtitle">GÃ¼nlÃ¼k Ã§Ã¶zÃ¼len sorular</div>
+            <div class="section-title">✏️ Soru Takibi</div>
+            <div class="section-subtitle">Günlük çözülen sorular</div>
           </div>
           <button class="btn btn-primary" onclick="openAddDailyModal()">+ Soru Ekle</button>
         </div>
 
-        <!-- GÃ¼nlÃ¼k Hedef -->
+        <!-- Günlük Hedef -->
         <div class="card" style="margin-bottom:16px;">
           <div class="flex-between" style="margin-bottom:10px;">
-            <div class="card-title">ğŸ¯ GÃ¼nlÃ¼k Soru Hedefi</div>
+            <div class="card-title">🎯 Günlük Soru Hedefi</div>
           </div>
           <div class="flex-between" style="margin-bottom:6px;">
             <span class="text-muted"><span id="daily-tab-today-solved">0</span> / <span id="daily-tab-goal">150</span> soru</span>
@@ -367,7 +367,7 @@
           </div>
         </div>
 
-        <!-- GÃ¼nlÃ¼k Ä°statistikler -->
+        <!-- Günlük İstatistikler -->
         <div class="stats-grid" style="margin-bottom:16px;">
           <div class="stat-card purple">
             <div id="daily-today-total" class="stat-value">0</div>
@@ -375,77 +375,77 @@
           </div>
           <div class="stat-card green">
             <div id="daily-today-correct" class="stat-value">0</div>
-            <div class="stat-label">DoÄŸru</div>
+            <div class="stat-label">Doğru</div>
           </div>
           <div class="stat-card red">
             <div id="daily-today-wrong" class="stat-value">0</div>
-            <div class="stat-label">YanlÄ±ÅŸ</div>
+            <div class="stat-label">Yanlış</div>
           </div>
           <div class="stat-card amber">
             <div id="daily-today-blank" class="stat-value">0</div>
-            <div class="stat-label">BoÅŸ</div>
+            <div class="stat-label">Boş</div>
           </div>
         </div>
 
         <!-- Grafikler -->
         <div class="grid-2" style="margin-bottom: 16px;">
           <div class="card">
-            <div class="card-title">ğŸ“Š Genel Soru DaÄŸÄ±lÄ±mÄ±</div>
+            <div class="card-title">📊 Genel Soru Dağılımı</div>
             <div class="chart-wrapper" style="height: 290px; position: relative;"><canvas id="chart-daily-pie"></canvas></div>
           </div>
           <div class="card">
             <div class="flex-between" style="margin-bottom: 8px; flex-wrap:wrap; gap:8px;">
               <div>
-                <div class="card-title" style="margin-bottom:2px;">ğŸ“ˆ Toplam Ã‡Ã¶zÃ¼len Soru EÄŸilimi</div>
-                <div id="chart-trend-range-label" style="font-size:11.5px; color:#00F0FF; font-weight:700;">TÃ¼m Zamanlar</div>
+                <div class="card-title" style="margin-bottom:2px;">📈 Toplam Çözülen Soru Eğilimi</div>
+                <div id="chart-trend-range-label" style="font-size:11.5px; color:#00F0FF; font-weight:700;">Tüm Zamanlar</div>
               </div>
               <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 <div class="btn-group" id="trend-range-btn-group" style="display:inline-flex; background:rgba(255,255,255,0.06); border-radius:6px; padding:2px; border:1px solid rgba(255,255,255,0.1);">
                   <button type="button" class="btn-xs btn-range" id="btn-trend-range-7" onclick="setDailyTrendRange(7)" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">7G</button>
                   <button type="button" class="btn-xs btn-range" id="btn-trend-range-14" onclick="setDailyTrendRange(14)" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">14G</button>
                   <button type="button" class="btn-xs btn-range" id="btn-trend-range-30" onclick="setDailyTrendRange(30)" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:transparent; color:var(--text-muted); cursor:pointer; font-weight:700;">30G</button>
-                  <button type="button" class="btn-xs btn-range active" id="btn-trend-range-all" onclick="setDailyTrendRange('all')" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:var(--primary); color:#000; cursor:pointer; font-weight:800;">TÃ¼mÃ¼</button>
+                  <button type="button" class="btn-xs btn-range active" id="btn-trend-range-all" onclick="setDailyTrendRange('all')" style="padding:3px 8px; font-size:11px; border:none; border-radius:4px; background:var(--primary); color:#000; cursor:pointer; font-weight:800;">Tümü</button>
                 </div>
-                <button id="btn-trend-prev" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(1)" title="Geriye KaydÄ±r" style="padding:4px 8px; font-size:11.5px; font-weight:700;">â—€ Geri</button>
-                <button id="btn-trend-today" type="button" class="btn btn-sm btn-secondary" onclick="resetDailyTrendOffset()" title="BugÃ¼ne DÃ¶n" style="padding:4px 8px; font-size:11px;">BugÃ¼n</button>
-                <button id="btn-trend-next" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(-1)" title="Ä°leriye KaydÄ±r" style="padding:4px 8px; font-size:11.5px; font-weight:700;" disabled>Ä°leri â–¶</button>
+                <button id="btn-trend-prev" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(1)" title="Geriye Kaydır" style="padding:4px 8px; font-size:11.5px; font-weight:700;">◀ Geri</button>
+                <button id="btn-trend-today" type="button" class="btn btn-sm btn-secondary" onclick="resetDailyTrendOffset()" title="Bugüne Dön" style="padding:4px 8px; font-size:11px;">Bugün</button>
+                <button id="btn-trend-next" type="button" class="btn btn-sm btn-secondary" onclick="changeDailyTrendOffset(-1)" title="İleriye Kaydır" style="padding:4px 8px; font-size:11.5px; font-weight:700;" disabled>İleri ▶</button>
               </div>
             </div>
             <div class="chart-wrapper" style="height: 265px; position: relative;"><canvas id="chart-daily-trend"></canvas></div>
           </div>
         </div>
 
-        <!-- Soru KayÄ±t Filtreleri -->
+        <!-- Soru Kayıt Filtreleri -->
         <div class="card daily-filters-card" style="margin-bottom: 16px; padding: 14px 16px; border: 1px solid rgba(139,92,246,0.25); background: linear-gradient(145deg, rgba(22,22,34,0.95) 0%, rgba(14,14,24,0.98) 100%);">
           <div class="daily-filters-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:8px;">
             <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:16px;">ğŸ”</span>
-              <span style="font-weight:700; font-size:14px; color:var(--text);">Soru KayÄ±t Filtreleri</span>
+              <span style="font-size:16px;">🔍</span>
+              <span style="font-weight:700; font-size:14px; color:var(--text);">Soru Kayıt Filtreleri</span>
             </div>
-            <button type="button" class="btn btn-sm btn-secondary" onclick="resetDailyFilters()" title="Filtreleri SÄ±fÄ±rla" style="padding:4px 10px; font-size:12px; font-weight:700;">ğŸ”„ SÄ±fÄ±rla</button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="resetDailyFilters()" title="Filtreleri Sıfırla" style="padding:4px 10px; font-size:12px; font-weight:700;">🔄 Sıfırla</button>
           </div>
 
           <div class="daily-filters-grid">
             <!-- 1. Tarih Filtresi -->
             <div class="daily-filter-item">
-              <label for="daily-filter-range" class="form-label" style="font-size:11.5px; margin-bottom:4px; color:var(--text-muted); font-weight:600;">ğŸ“… Tarih AralÄ±ÄŸÄ±</label>
+              <label for="daily-filter-range" class="form-label" style="font-size:11.5px; margin-bottom:4px; color:var(--text-muted); font-weight:600;">📅 Tarih Aralığı</label>
               <select id="daily-filter-range" class="form-input" style="width:100%; padding:8px 10px; font-size:13px;" onchange="handleDailyDateRangeChange(this.value)">
-                <option value="last2" selected>Son 2 GÃ¼n (VarsayÄ±lan)</option>
-                <option value="today">BugÃ¼n</option>
-                <option value="yesterday">DÃ¼n</option>
-                <option value="last7">Son 7 GÃ¼n</option>
-                <option value="last30">Son 30 GÃ¼n</option>
-                <option value="all">TÃ¼m GeÃ§miÅŸ</option>
-                <option value="custom">ğŸ“… Ã–zel Tarih SeÃ§...</option>
+                <option value="last2" selected>Son 2 Gün (Varsayılan)</option>
+                <option value="today">Bugün</option>
+                <option value="yesterday">Dün</option>
+                <option value="last7">Son 7 Gün</option>
+                <option value="last30">Son 30 Gün</option>
+                <option value="all">Tüm Geçmiş</option>
+                <option value="custom">📅 Özel Tarih Seç...</option>
               </select>
               <input id="daily-filter-date" type="date" class="form-input" style="width:100%; margin-top:6px; padding:6px 10px; font-size:13px; display:none;" onchange="renderDailyLog()">
             </div>
 
             <!-- 2. TYT / AYT Filtresi -->
             <div class="daily-filter-item">
-              <label for="daily-filter-type" class="form-label" style="font-size:11.5px; margin-bottom:4px; color:var(--text-muted); font-weight:600;">ğŸ¯ SÄ±nav AlanÄ±</label>
+              <label for="daily-filter-type" class="form-label" style="font-size:11.5px; margin-bottom:4px; color:var(--text-muted); font-weight:600;">🎯 Sınav Alanı</label>
               <select id="daily-filter-type" class="form-input" style="width:100%; padding:8px 10px; font-size:13px;" onchange="handleDailyTypeChange(this.value)">
-                <option value="all">TÃ¼mÃ¼ (TYT / AYT)</option>
+                <option value="all">Tümü (TYT / AYT)</option>
                 <option value="TYT">TYT</option>
                 <option value="AYT">AYT</option>
               </select>
@@ -453,9 +453,9 @@
 
             <!-- 3. Ders Filtresi -->
             <div class="daily-filter-item">
-              <label for="daily-filter-subject" class="form-label" style="font-size:11.5px; margin-bottom:4px; color:var(--text-muted); font-weight:600;">ğŸ“– Ders</label>
+              <label for="daily-filter-subject" class="form-label" style="font-size:11.5px; margin-bottom:4px; color:var(--text-muted); font-weight:600;">📖 Ders</label>
               <select id="daily-filter-subject" class="form-input" style="width:100%; padding:8px 10px; font-size:13px;" onchange="renderDailyLog()">
-                <option value="all">TÃ¼m Dersler</option>
+                <option value="all">Tüm Dersler</option>
               </select>
             </div>
           </div>
@@ -468,26 +468,26 @@
                 <th style="width:120px;">Tarih</th>
                 <th style="width:90px; text-align:center;">TYT/AYT</th>
                 <th>Ders</th>
-                <th style="width:90px; text-align:center;">Ã‡Ã¶zÃ¼len</th>
-                <th style="width:90px; text-align:center; color:var(--success);">DoÄŸru</th>
-                <th style="width:90px; text-align:center; color:var(--danger);">YanlÄ±ÅŸ</th>
-                <th style="width:90px; text-align:center;">BoÅŸ</th>
+                <th style="width:90px; text-align:center;">Çözülen</th>
+                <th style="width:90px; text-align:center; color:var(--success);">Doğru</th>
+                <th style="width:90px; text-align:center; color:var(--danger);">Yanlış</th>
+                <th style="width:90px; text-align:center;">Boş</th>
                 <th style="width:60px; text-align:center;"></th>
               </tr>
             </thead>
             <tbody id="daily-table-body">
-              <tr><td colspan="8" class="empty-cell">YÃ¼kleniyorâ€¦</td></tr>
+              <tr><td colspan="8" class="empty-cell">Yükleniyor…</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- â•â• DENEME TAKÄ°BÄ° â•â• -->
+      <!-- ══ DENEME TAKİBİ ══ -->
       <section id="tab-exams" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">ğŸ“ Deneme Takibi</div>
-            <div class="section-subtitle">TYT / AYT deneme sonuÃ§larÄ± ve puan tahmini</div>
+            <div class="section-title">📝 Deneme Takibi</div>
+            <div class="section-subtitle">TYT / AYT deneme sonuçları ve puan tahmini</div>
           </div>
           <button class="btn btn-primary" onclick="openModal('add-exam-modal')">+ Deneme Ekle</button>
         </div>
@@ -495,8 +495,8 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; margin-bottom: 12px;">
           <h3 style="font-size: 16px; font-weight: 600; color: #f1f5f9; margin: 0;">TYT Analizi</h3>
           <select id="tyt-subject-select" class="form-input" style="width: auto; padding: 4px 10px; font-size: 13px;" onchange="renderExams()">
-            <option value="ALL">TÃ¼m Dersler</option>
-            <option value="TÃ¼rkÃ§e">TÃ¼rkÃ§e (40 Soru)</option>
+            <option value="ALL">Tüm Dersler</option>
+            <option value="Türkçe">Türkçe (40 Soru)</option>
             <option value="Matematik">Matematik (40 Soru)</option>
             <option value="Fen">Fen Bilimleri (20 Soru)</option>
             <option value="Sosyal">Sosyal Bilgiler (20 Soru)</option>
@@ -504,7 +504,7 @@
         </div>
         <div class="exams-charts-grid" style="margin-bottom: 20px;">
           <div class="card">
-            <div class="card-title" id="tyt-latest-title" style="margin-bottom:10px;">TYT Son Deneme (Net DaÄŸÄ±lÄ±mÄ±)</div>
+            <div class="card-title" id="tyt-latest-title" style="margin-bottom:10px;">TYT Son Deneme (Net Dağılımı)</div>
             <div style="position:relative; height:240px; width:100%;">
               <canvas id="examLatestChartTYT"></canvas>
             </div>
@@ -520,21 +520,21 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; margin-bottom: 12px;">
           <h3 style="font-size: 16px; font-weight: 600; color: #f1f5f9; margin: 0;">AYT Analizi</h3>
           <select id="ayt-subject-select" class="form-input" style="width: auto; padding: 4px 10px; font-size: 13px;" onchange="renderExams()">
-            <option value="ALL">TÃ¼m Dersler</option>
+            <option value="ALL">Tüm Dersler</option>
             <option value="Matematik">Matematik (40 Soru)</option>
             <option value="Fizik">Fizik (14 Soru)</option>
             <option value="Kimya">Kimya (13 Soru)</option>
             <option value="Biyoloji">Biyoloji (13 Soru)</option>
             <option value="Edebiyat">Edebiyat (24 Soru)</option>
             <option value="Tarih">Tarih-1 (10 Soru)</option>
-            <option value="CoÄŸrafya">CoÄŸrafya-1 (6 Soru)</option>
+            <option value="Coğrafya">Coğrafya-1 (6 Soru)</option>
             <option value="Felsefe">Felsefe (12 Soru)</option>
-            <option value="Din">Din KÃ¼l. (6 Soru)</option>
+            <option value="Din">Din Kül. (6 Soru)</option>
           </select>
         </div>
         <div class="exams-charts-grid" style="margin-bottom: 20px;">
           <div class="card">
-            <div class="card-title" id="ayt-latest-title" style="margin-bottom:10px;">AYT Son Deneme (Net DaÄŸÄ±lÄ±mÄ±)</div>
+            <div class="card-title" id="ayt-latest-title" style="margin-bottom:10px;">AYT Son Deneme (Net Dağılımı)</div>
             <div style="position:relative; height:240px; width:100%;">
               <canvas id="examLatestChartAYT"></canvas>
             </div>
@@ -547,27 +547,27 @@
           </div>
         </div>
 
-        <!-- â•â•â• DETAYLI DENEME & KONU BAZLI GELÄ°ÅÄ°M RAPORU â•â•â• -->
+        <!-- ═══ DETAYLI DENEME & KONU BAZLI GELİŞİM RAPORU ═══ -->
         <div class="card" id="exam-analysis-section" style="margin-top: 24px; margin-bottom: 24px; border: 1px solid rgba(139,92,246,0.25); background: linear-gradient(180deg, rgba(26,26,36,0.95) 0%, rgba(19,19,26,1) 100%);">
           <div class="flex-between" style="flex-wrap: wrap; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
             <div>
-              <div class="card-title" style="font-size: 17px; margin-bottom: 3px; color: var(--text);">ğŸ¯ Deneme Analizi & Eksik / GÃ¼Ã§lÃ¼ Konu Raporu</div>
-              <div class="text-muted" style="font-size: 12px;">SeÃ§ilen denemenin ders ders net analizi, tespit edilen konu aÃ§Ä±klarÄ± ve Ã¶ncelikli Ã§alÄ±ÅŸma tavsiyeleri</div>
+              <div class="card-title" style="font-size: 17px; margin-bottom: 3px; color: var(--text);">🎯 Deneme Analizi & Eksik / Güçlü Konu Raporu</div>
+              <div class="text-muted" style="font-size: 12px;">Seçilen denemenin ders ders net analizi, tespit edilen konu açıkları ve öncelikli çalışma tavsiyeleri</div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 13px; color: var(--text-dim); font-weight: 600;">Ä°ncelenen Deneme:</span>
+              <span style="font-size: 13px; color: var(--text-dim); font-weight: 600;">İncelenen Deneme:</span>
               <select id="exam-analysis-select" class="form-input" style="width: auto; min-width: 240px; padding: 6px 12px; font-size: 13px; border-color: var(--primary); background: var(--bg-elevated);" onchange="renderExamDetailedAnalysis(this.value)">
                 <!-- Dinamik doldurulur -->
               </select>
             </div>
           </div>
 
-          <!-- Deneme Ã–zet Ä°statistikleri -->
+          <!-- Deneme Özet İstatistikleri -->
           <div id="exam-analysis-summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px;">
             <!-- Dinamik doldurulur -->
           </div>
 
-          <!-- Ders Ders DetaylÄ± Analiz KartlarÄ± (Eksik / GÃ¼Ã§lÃ¼ / Ã‡alÄ±ÅŸmasÄ± Gereken Konular) -->
+          <!-- Ders Ders Detaylı Analiz Kartları (Eksik / Güçlü / Çalışması Gereken Konular) -->
           <div id="exam-analysis-subjects-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
             <!-- Dinamik doldurulur -->
           </div>
@@ -577,63 +577,63 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Tarih</th><th>TÃ¼r</th><th>Deneme AdÄ±</th>
-                <th>Toplam Net</th><th>TYT PuanÄ±</th><th>SAY/EA</th><th>SÃ–Z</th><th></th>
+                <th>Tarih</th><th>Tür</th><th>Deneme Adı</th>
+                <th>Toplam Net</th><th>TYT Puanı</th><th>SAY/EA</th><th>SÖZ</th><th></th>
               </tr>
             </thead>
             <tbody id="exam-table-body">
-              <tr><td colspan="8" class="empty-cell">YÃ¼kleniyorâ€¦</td></tr>
+              <tr><td colspan="8" class="empty-cell">Yükleniyor…</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- â•â• PUAN HESAPLAMA â•â• -->
+      <!-- ══ PUAN HESAPLAMA ══ -->
       <section id="tab-calculator" class="tab-view">
         <div class="section-header">
           <div>
-            <h2 class="section-title">ğŸ§® TYT & AYT Puan Hesaplama AracÄ±</h2>
-            <div class="section-subtitle">Ã–SYM katsayÄ±larÄ± ve OBP ile canlÄ± puan & sÄ±ralama tahmini</div>
+            <h2 class="section-title">🧮 TYT & AYT Puan Hesaplama Aracı</h2>
+            <div class="section-subtitle">ÖSYM katsayıları ve OBP ile canlı puan & sıralama tahmini</div>
           </div>
         </div>
 
-        <!-- OBP & Diploma Notu KartÄ± -->
+        <!-- OBP & Diploma Notu Kartı -->
         <div class="card" style="margin-bottom: 20px;">
-          <div class="card-title" style="margin-bottom: 12px;">ğŸ“ Diploma Notu / OBP KatkÄ±sÄ±</div>
+          <div class="card-title" style="margin-bottom: 12px;">🎓 Diploma Notu / OBP Katkısı</div>
           <div class="form-row">
             <div class="form-group" style="max-width: 250px;">
               <label class="form-label">Diploma Notu (50 - 100)</label>
               <input id="calc-obp" type="number" class="form-input" min="50" max="100" value="80" step="0.1" oninput="calculateAllScores()">
             </div>
             <div style="display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 10px 16px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-              <span class="text-muted" style="font-size: 13px;">YerleÅŸtirme PuanÄ± KatkÄ±sÄ± (0.6 ile Ã‡arpÄ±m):</span>
+              <span class="text-muted" style="font-size: 13px;">Yerleştirme Puanı Katkısı (0.6 ile Çarpım):</span>
               <span id="calc-obp-val-display" style="font-size: 18px; font-weight: 700; color: var(--accent);">48.00</span>
               <span style="font-size: 13px; color: var(--text-muted);">Puan</span>
             </div>
           </div>
         </div>
 
-        <!-- Hesaplama IzgarasÄ± (TYT & AYT) -->
+        <!-- Hesaplama Izgarası (TYT & AYT) -->
         <div class="grid-2" style="margin-bottom: 20px;">
           
-          <!-- TYT Net GiriÅŸi -->
+          <!-- TYT Net Girişi -->
           <div class="card">
-            <div class="card-title" style="margin-bottom: 12px;">ğŸ“ TYT Net GiriÅŸleri (120 Soru)</div>
+            <div class="card-title" style="margin-bottom: 12px;">📝 TYT Net Girişleri (120 Soru)</div>
 
-            <!-- Tablo BaÅŸlÄ±k SatÄ±rÄ± -->
+            <!-- Tablo Başlık Satırı -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 6px 8px; background: rgba(0,0,0,0.25); border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
               <div>Ders</div>
-              <div style="text-align: center;">KatsayÄ±</div>
-              <div style="text-align: center;">DoÄŸru</div>
-              <div style="text-align: center;">YanlÄ±ÅŸ</div>
-              <div style="text-align: center;">BoÅŸ</div>
+              <div style="text-align: center;">Katsayı</div>
+              <div style="text-align: center;">Doğru</div>
+              <div style="text-align: center;">Yanlış</div>
+              <div style="text-align: center;">Boş</div>
               <div style="text-align: right;">Net</div>
             </div>
             
-            <!-- TÃ¼rkÃ§e -->
+            <!-- Türkçe -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
-              <div style="font-weight: 700; font-size: 13px; color: var(--text);">TÃ¼rkÃ§e <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(40)</span></div>
-              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F0FF; background: rgba(0,240,255,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.25); white-space: nowrap;">Ã—3.30 Puan</span></div>
+              <div style="font-weight: 700; font-size: 13px; color: var(--text);">Türkçe <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(40)</span></div>
+              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F0FF; background: rgba(0,240,255,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.25); white-space: nowrap;">×3.30 Puan</span></div>
               <div><input id="calc-tyt-tur-c" type="number" class="form-input" min="0" max="40" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-tur-w" type="number" class="form-input" min="0" max="40" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-tur-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="40"></div>
@@ -643,7 +643,7 @@
             <!-- Matematik -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);">Matematik <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(40)</span></div>
-              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F0FF; background: rgba(0,240,255,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.25); white-space: nowrap;">Ã—3.30 Puan</span></div>
+              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F0FF; background: rgba(0,240,255,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.25); white-space: nowrap;">×3.30 Puan</span></div>
               <div><input id="calc-tyt-mat-c" type="number" class="form-input" min="0" max="40" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-mat-w" type="number" class="form-input" min="0" max="40" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-mat-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="40"></div>
@@ -653,7 +653,7 @@
             <!-- Fen -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);">Fen Bilimleri <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(20)</span></div>
-              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F5A0; background: rgba(0,245,160,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,245,160,0.25); white-space: nowrap;">Ã—3.40 Puan</span></div>
+              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F5A0; background: rgba(0,245,160,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,245,160,0.25); white-space: nowrap;">×3.40 Puan</span></div>
               <div><input id="calc-tyt-fen-c" type="number" class="form-input" min="0" max="20" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-fen-w" type="number" class="form-input" min="0" max="20" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-fen-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="20"></div>
@@ -663,7 +663,7 @@
             <!-- Sosyal -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px;">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);">Sosyal Bilimler <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(20)</span></div>
-              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #FFE600; background: rgba(255,230,0,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,230,0,0.25); white-space: nowrap;">Ã—3.40 Puan</span></div>
+              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #FFE600; background: rgba(255,230,0,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,230,0,0.25); white-space: nowrap;">×3.40 Puan</span></div>
               <div><input id="calc-tyt-sos-c" type="number" class="form-input" min="0" max="20" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-sos-w" type="number" class="form-input" min="0" max="20" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-tyt-sos-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="20"></div>
@@ -675,30 +675,30 @@
             </div>
           </div>
 
-          <!-- AYT Net GiriÅŸi -->
+          <!-- AYT Net Girişi -->
           <div class="card">
             <div class="flex-between" style="margin-bottom: 12px;">
-              <div class="card-title">ğŸ“ AYT Net GiriÅŸleri</div>
+              <div class="card-title">📐 AYT Net Girişleri</div>
               <select id="calc-ayt-branch-select" class="form-input" style="width: auto; padding: 3px 8px; font-size: 12px;" onchange="calculateAllScores()" oninput="calculateAllScores()">
-                <option value="SAY">SayÄ±sal Dersleri</option>
-                <option value="EA">EÅŸit AÄŸÄ±rlÄ±k Dersleri</option>
+                <option value="SAY">Sayısal Dersleri</option>
+                <option value="EA">Eşit Ağırlık Dersleri</option>
               </select>
             </div>
 
-            <!-- Tablo BaÅŸlÄ±k SatÄ±rÄ± -->
+            <!-- Tablo Başlık Satırı -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 6px 8px; background: rgba(0,0,0,0.25); border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
               <div>Ders</div>
-              <div style="text-align: center;">KatsayÄ±</div>
-              <div style="text-align: center;">DoÄŸru</div>
-              <div style="text-align: center;">YanlÄ±ÅŸ</div>
-              <div style="text-align: center;">BoÅŸ</div>
+              <div style="text-align: center;">Katsayı</div>
+              <div style="text-align: center;">Doğru</div>
+              <div style="text-align: center;">Yanlış</div>
+              <div style="text-align: center;">Boş</div>
               <div style="text-align: right;">Net</div>
             </div>
 
             <!-- AYT Matematik -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);">Matematik <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(40)</span></div>
-              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F0FF; background: rgba(0,240,255,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.25); white-space: nowrap;">Ã—3.00 Puan</span></div>
+              <div style="text-align: center;"><span style="font-size: 11px; font-weight: 700; color: #00F0FF; background: rgba(0,240,255,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(0,240,255,0.25); white-space: nowrap;">×3.00 Puan</span></div>
               <div><input id="calc-ayt-mat-c" type="number" class="form-input" min="0" max="40" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-mat-w" type="number" class="form-input" min="0" max="40" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-mat-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="40"></div>
@@ -708,7 +708,7 @@
             <!-- AYT Ders 1 (Fizik / Edebiyat) -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);"><span id="label-ayt-1-name">Fizik</span> <span id="label-ayt-1-qcount" style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(14)</span></div>
-              <div style="text-align: center;"><span id="label-ayt-1-coeff" style="font-size: 11px; font-weight: 700; color: #a855f7; background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(168,85,247,0.25); white-space: nowrap;">Ã—2.85 Puan</span></div>
+              <div style="text-align: center;"><span id="label-ayt-1-coeff" style="font-size: 11px; font-weight: 700; color: #a855f7; background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(168,85,247,0.25); white-space: nowrap;">×2.85 Puan</span></div>
               <div><input id="calc-ayt-1-c" type="number" class="form-input" min="0" max="14" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-1-w" type="number" class="form-input" min="0" max="14" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-1-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="14"></div>
@@ -718,17 +718,17 @@
             <!-- AYT Ders 2 (Kimya / Tarih) -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);"><span id="label-ayt-2-name">Kimya</span> <span id="label-ayt-2-qcount" style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(13)</span></div>
-              <div style="text-align: center;"><span id="label-ayt-2-coeff" style="font-size: 11px; font-weight: 700; color: #a855f7; background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(168,85,247,0.25); white-space: nowrap;">Ã—3.08 Puan</span></div>
+              <div style="text-align: center;"><span id="label-ayt-2-coeff" style="font-size: 11px; font-weight: 700; color: #a855f7; background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(168,85,247,0.25); white-space: nowrap;">×3.08 Puan</span></div>
               <div><input id="calc-ayt-2-c" type="number" class="form-input" min="0" max="13" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-2-w" type="number" class="form-input" min="0" max="13" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-2-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="13"></div>
               <div style="text-align: right; font-weight: 800; font-size: 13px; color: var(--primary);"><span id="calc-ayt-2-net">0.00</span></div>
             </div>
 
-            <!-- AYT Ders 3 (Biyoloji / CoÄŸrafya) -->
+            <!-- AYT Ders 3 (Biyoloji / Coğrafya) -->
             <div style="display: grid; grid-template-columns: minmax(105px, 1.4fr) 92px 55px 55px 55px 60px; gap: 6px; align-items: center; padding: 5px 8px;">
               <div style="font-weight: 700; font-size: 13px; color: var(--text);"><span id="label-ayt-3-name">Biyoloji</span> <span id="label-ayt-3-qcount" style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(13)</span></div>
-              <div style="text-align: center;"><span id="label-ayt-3-coeff" style="font-size: 11px; font-weight: 700; color: #a855f7; background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(168,85,247,0.25); white-space: nowrap;">Ã—3.08 Puan</span></div>
+              <div style="text-align: center;"><span id="label-ayt-3-coeff" style="font-size: 11px; font-weight: 700; color: #a855f7; background: rgba(168,85,247,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(168,85,247,0.25); white-space: nowrap;">×3.08 Puan</span></div>
               <div><input id="calc-ayt-3-c" type="number" class="form-input" min="0" max="13" placeholder="0" style="padding: 4px; text-align: center; font-weight: 700; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-3-w" type="number" class="form-input" min="0" max="13" placeholder="0" style="padding: 4px; text-align: center; font-size: 13px; height: 32px;"></div>
               <div><input id="calc-ayt-3-b" type="number" class="form-input" readonly style="padding: 4px; background: var(--bg-elevated); color: var(--text-muted); text-align: center; font-size: 13px; height: 32px;" placeholder="13"></div>
@@ -741,122 +741,122 @@
           </div>
         </div>
 
-        <!-- CanlÄ± SonuÃ§ Ã–zeti KartlarÄ± -->
+        <!-- Canlı Sonuç Özeti Kartları -->
         <div class="grid-3" style="gap: 16px;">
-          <!-- TYT SonuÃ§ -->
+          <!-- TYT Sonuç -->
           <div class="card" style="border-top: 4px solid var(--primary);">
-            <div style="font-weight: 700; font-size: 16px; color: var(--primary); margin-bottom: 10px;">ğŸ“Š TYT PuanÄ±</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--primary); margin-bottom: 10px;">📊 TYT Puanı</div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
               <span class="text-muted">Ham Puan:</span>
               <span style="font-weight: 700;" id="calc-res-tyt-raw">100.000</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <span class="text-muted">YerleÅŸtirme (OBP):</span>
+              <span class="text-muted">Yerleştirme (OBP):</span>
               <span style="font-weight: 700; color: var(--accent); font-size: 16px;" id="calc-res-tyt-yer">148.000</span>
             </div>
             <div style="padding-top: 8px; border-top: 1px solid var(--border); font-size: 13px;">
-              <span class="text-muted">Tahmini SÄ±ralama:</span>
+              <span class="text-muted">Tahmini Sıralama:</span>
               <span style="font-weight: 700; float: right; color: var(--primary);" id="calc-res-tyt-rank">450.000+</span>
             </div>
           </div>
 
-          <!-- AYT SAY SonuÃ§ -->
+          <!-- AYT SAY Sonuç -->
           <div class="card" style="border-top: 4px solid #22d3ee;">
-            <div style="font-weight: 700; font-size: 16px; color: #22d3ee; margin-bottom: 10px;">ğŸ§ª AYT SayÄ±sal</div>
+            <div style="font-weight: 700; font-size: 16px; color: #22d3ee; margin-bottom: 10px;">🧪 AYT Sayısal</div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
               <span class="text-muted">Ham Puan:</span>
               <span style="font-weight: 700;" id="calc-res-say-raw">100.000</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <span class="text-muted">YerleÅŸtirme (OBP):</span>
+              <span class="text-muted">Yerleştirme (OBP):</span>
               <span style="font-weight: 700; color: #22d3ee; font-size: 16px;" id="calc-res-say-yer">148.000</span>
             </div>
             <div style="padding-top: 8px; border-top: 1px solid var(--border); font-size: 13px;">
-              <span class="text-muted">Tahmini SÄ±ralama:</span>
+              <span class="text-muted">Tahmini Sıralama:</span>
               <span style="font-weight: 700; float: right; color: #22d3ee;" id="calc-res-say-rank">450.000+</span>
             </div>
           </div>
 
-          <!-- AYT EA SonuÃ§ -->
+          <!-- AYT EA Sonuç -->
           <div class="card" style="border-top: 4px solid #f59e0b;">
-            <div style="font-weight: 700; font-size: 16px; color: #f59e0b; margin-bottom: 10px;">âš–ï¸ AYT EÅŸit AÄŸÄ±rlÄ±k</div>
+            <div style="font-weight: 700; font-size: 16px; color: #f59e0b; margin-bottom: 10px;">⚖️ AYT Eşit Ağırlık</div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
               <span class="text-muted">Ham Puan:</span>
               <span style="font-weight: 700;" id="calc-res-ea-raw">100.000</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <span class="text-muted">YerleÅŸtirme (OBP):</span>
+              <span class="text-muted">Yerleştirme (OBP):</span>
               <span style="font-weight: 700; color: #f59e0b; font-size: 16px;" id="calc-res-ea-yer">148.000</span>
             </div>
             <div style="padding-top: 8px; border-top: 1px solid var(--border); font-size: 13px;">
-              <span class="text-muted">Tahmini SÄ±ralama:</span>
+              <span class="text-muted">Tahmini Sıralama:</span>
               <span style="font-weight: 700; float: right; color: #f59e0b;" id="calc-res-ea-rank">450.000+</span>
             </div>
           </div>
         </div>
 
-        <!-- â•â•â• HEDEF SIRALAMA ROBOTU & GEREKEN NET Ã–NERÄ°SÄ° â•â•â• -->
+        <!-- ═══ HEDEF SIRALAMA ROBOTU & GEREKEN NET ÖNERİSİ ═══ -->
         <div class="card" id="target-rank-recommendation-card" style="margin-top: 24px; border: 1px solid rgba(0, 240, 255, 0.3); background: linear-gradient(180deg, rgba(22,26,38,0.98) 0%, rgba(15,18,28,1) 100%);">
           <div class="flex-between" style="flex-wrap: wrap; gap: 12px; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 14px;">
             <div>
               <div class="card-title" style="font-size: 18px; margin-bottom: 3px; color: var(--text);">
-                ğŸ¯ Hedef SÄ±ralama Robotu & Net Ã–neri ModÃ¼lÃ¼
+                🎯 Hedef Sıralama Robotu & Net Öneri Modülü
               </div>
               <div class="text-muted" style="font-size: 13px;">
-                UlaÅŸmak istediÄŸiniz baÅŸarÄ± sÄ±ralamasÄ±nÄ± girin; Ã–SYM yÄ±ÄŸÄ±lma verilerine gÃ¶re yapÄ±lmasÄ± gereken optimum TYT & AYT net daÄŸÄ±lÄ±mÄ±nÄ± hesaplasÄ±n!
+                Ulaşmak istediğiniz başarı sıralamasını girin; ÖSYM yığılma verilerine göre yapılması gereken optimum TYT & AYT net dağılımını hesaplasın!
               </div>
             </div>
-            <button class="btn btn-sm btn-primary" onclick="loadStudentGoalRank()" title="Ã–ÄŸrencinin kayÄ±tlÄ± Ã¼niversite hedef sÄ±ralamasÄ±nÄ± otomatik yÃ¼kle">
-              ğŸ“ Ã–ÄŸrenci Hedefini Getir
+            <button class="btn btn-sm btn-primary" onclick="loadStudentGoalRank()" title="Öğrencinin kayıtlı üniversite hedef sıralamasını otomatik yükle">
+              🎓 Öğrenci Hedefini Getir
             </button>
           </div>
 
-          <!-- Filtre ve GiriÅŸ AlanlarÄ± -->
+          <!-- Filtre ve Giriş Alanları -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border);">
             <div class="form-group" style="margin: 0;">
-              <label class="form-label" style="font-size: 12px; font-weight: 700; color: #00F0FF;">ğŸ¯ Hedef SÄ±ralama</label>
-              <input id="target-rank-input" type="number" class="form-input" placeholder="Ã–rn: 35000" value="38000" min="1" oninput="renderTargetNetRecommendations()">
+              <label class="form-label" style="font-size: 12px; font-weight: 700; color: #00F0FF;">🎯 Hedef Sıralama</label>
+              <input id="target-rank-input" type="number" class="form-input" placeholder="Örn: 35000" value="38000" min="1" oninput="renderTargetNetRecommendations()">
             </div>
 
             <div class="form-group" style="margin: 0;">
-              <label class="form-label" style="font-size: 12px; font-weight: 700;">Alan SeÃ§imi</label>
+              <label class="form-label" style="font-size: 12px; font-weight: 700;">Alan Seçimi</label>
               <select id="target-branch-select" class="form-input" onchange="renderTargetNetRecommendations()">
-                <option value="SAY">SayÄ±sal (SAY)</option>
-                <option value="EA">EÅŸit AÄŸÄ±rlÄ±k (EA)</option>
-                <option value="SOZ">SÃ¶zel (SÃ–Z)</option>
-                <option value="TYT">YalnÄ±zca TYT</option>
+                <option value="SAY">Sayısal (SAY)</option>
+                <option value="EA">Eşit Ağırlık (EA)</option>
+                <option value="SOZ">Sözel (SÖZ)</option>
+                <option value="TYT">Yalnızca TYT</option>
               </select>
             </div>
 
             <div class="form-group" style="margin: 0;">
-              <label class="form-label" style="font-size: 12px; font-weight: 700;">Strateji & DaÄŸÄ±lÄ±m</label>
+              <label class="form-label" style="font-size: 12px; font-weight: 700;">Strateji & Dağılım</label>
               <select id="target-strategy-select" class="form-input" onchange="renderTargetNetRecommendations()" style="border-color: rgba(0, 245, 160, 0.4); background: rgba(0, 245, 160, 0.05); color: #00F5A0; font-weight: 700;">
-                <option value="personalized">ğŸŒŸ Ã–ÄŸrenciye Ã–zel (Deneme GÃ¼cÃ¼)</option>
-                <option value="balanced">âš–ï¸ Dengeli (YÃ–K Atlas OrtalamasÄ±)</option>
-                <option value="math_heavy">ğŸ“ Matematik AÄŸÄ±rlÄ±klÄ±</option>
-                <option value="science_verbal">ğŸ”¬ Fen / Sosyal AÄŸÄ±rlÄ±klÄ±</option>
+                <option value="personalized">🌟 Öğrenciye Özel (Deneme Gücü)</option>
+                <option value="balanced">⚖️ Dengeli (YÖK Atlas Ortalaması)</option>
+                <option value="math_heavy">📐 Matematik Ağırlıklı</option>
+                <option value="science_verbal">🔬 Fen / Sosyal Ağırlıklı</option>
               </select>
             </div>
 
             <div class="form-group" style="margin: 0;">
-              <label class="form-label" style="font-size: 12px; font-weight: 700;">KullanÄ±lacak OBP</label>
+              <label class="form-label" style="font-size: 12px; font-weight: 700;">Kullanılacak OBP</label>
               <input id="target-obp-input" type="number" class="form-input" placeholder="85" value="85" min="50" max="100" step="0.1" oninput="renderTargetNetRecommendations()">
             </div>
           </div>
 
-          <!-- SonuÃ§ & Hedef Netler Konteyneri -->
+          <!-- Sonuç & Hedef Netler Konteyneri -->
           <div id="target-recommendations-result">
             <!-- Dinamik doldurulur -->
           </div>
         </div>
       </section>
 
-      <!-- â•â• KAYNAK TAKÄ°BÄ° â•â• -->
+      <!-- ══ KAYNAK TAKİBİ ══ -->
       <section id="tab-resources" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">ğŸ“š Kaynak Takibi</div>
-            <div class="section-subtitle">Kitap ve kaynaklarÄ±n sayfa ilerlemesi</div>
+            <div class="section-title">📚 Kaynak Takibi</div>
+            <div class="section-subtitle">Kitap ve kaynakların sayfa ilerlemesi</div>
           </div>
           <button class="btn btn-primary" onclick="openAddBookModal()">+ Kaynak Ekle</button>
         </div>
@@ -864,48 +864,48 @@
         <div class="stats-grid" style="margin-bottom:16px;">
           <div class="stat-card purple"><div id="res-stat-total" class="stat-value">0</div><div class="stat-label">Toplam</div></div>
           <div class="stat-card green" ><div id="res-stat-done"  class="stat-value">0</div><div class="stat-label">Tamamlanan</div></div>
-          <div class="stat-card cyan"  ><div id="res-stat-pages" class="stat-value">0</div><div class="stat-label">Ã‡Ã¶zÃ¼len Sayfa</div></div>
+          <div class="stat-card cyan"  ><div id="res-stat-pages" class="stat-value">0</div><div class="stat-label">Çözülen Sayfa</div></div>
           <div class="stat-card amber" ><div id="res-stat-totalp" class="stat-value">0</div><div class="stat-label">Toplam Sayfa</div></div>
         </div>
 
         <div class="toolbar">
           <select id="res-filter-subject" class="form-input" style="width:160px;" onchange="renderResources()">
-            <option value="all">TÃ¼m Dersler</option>
+            <option value="all">Tüm Dersler</option>
           </select>
         </div>
 
         <div id="resources-list">
-          <div class="empty-state"><span>ğŸ“š</span><p>YÃ¼kleniyorâ€¦</p></div>
+          <div class="empty-state"><span>📚</span><p>Yükleniyor…</p></div>
         </div>
       </section>
 
-      <!-- â•â• KONU TAKÄ°BÄ° â•â• -->
+      <!-- ══ KONU TAKİBİ ══ -->
       <section id="tab-topics" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">ğŸ—ºï¸ Konu Takibi</div>
-            <div class="section-subtitle">TYT ve AYT konu durumlarÄ±</div>
+            <div class="section-title">🗺️ Konu Takibi</div>
+            <div class="section-subtitle">TYT ve AYT konu durumları</div>
           </div>
         </div>
 
         <div class="stats-grid" style="margin-bottom:16px;">
-          <div class="stat-card green" ><div id="topic-stat-done"   class="stat-value">0</div><div class="stat-label">TamamlandÄ±</div></div>
-          <div class="stat-card amber" ><div id="topic-stat-study"  class="stat-value">0</div><div class="stat-label">Ã‡alÄ±ÅŸÄ±lÄ±yor</div></div>
+          <div class="stat-card green" ><div id="topic-stat-done"   class="stat-value">0</div><div class="stat-label">Tamamlandı</div></div>
+          <div class="stat-card amber" ><div id="topic-stat-study"  class="stat-value">0</div><div class="stat-label">Çalışılıyor</div></div>
           <div class="stat-card cyan"  ><div id="topic-stat-review" class="stat-value">0</div><div class="stat-label">Tekrar</div></div>
-          <div class="stat-card purple"><div id="topic-stat-total"  class="stat-value">169</div><div class="stat-label">Toplam SayÄ±sal</div></div>
+          <div class="stat-card purple"><div id="topic-stat-total"  class="stat-value">169</div><div class="stat-label">Toplam Sayısal</div></div>
         </div>
 
-        <!-- 2 SatÄ±rlÄ± Yatay Ä°lerleme Bar GrafiÄŸi (TYT & AYT) -->
+        <!-- 2 Satırlı Yatay İlerleme Bar Grafiği (TYT & AYT) -->
         <div class="card" style="margin-bottom:16px; padding:18px 20px;">
           <div style="font-size:15px; font-weight:800; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px;">
-            <span>ğŸ“Š</span> SayÄ±sal Konu Ä°lerleme Durumu (TYT & AYT)
+            <span>📊</span> Sayısal Konu İlerleme Durumu (TYT & AYT)
           </div>
 
-          <!-- TYT SatÄ±rÄ± -->
+          <!-- TYT Satırı -->
           <div style="margin-bottom:14px;">
             <div class="flex-between" style="margin-bottom:6px;">
               <span style="font-size:13px; font-weight:700; color:#00F0FF; display:flex; align-items:center; gap:6px;">
-                <span>ğŸ“˜</span> TYT SayÄ±sal KonularÄ±
+                <span>📘</span> TYT Sayısal Konuları
               </span>
               <span id="topic-tyt-pct" style="font-size:13px; font-weight:800; color:#00F0FF;">0/85 Konu (%0)</span>
             </div>
@@ -914,11 +914,11 @@
             </div>
           </div>
 
-          <!-- AYT SatÄ±rÄ± -->
+          <!-- AYT Satırı -->
           <div>
             <div class="flex-between" style="margin-bottom:6px;">
               <span style="font-size:13px; font-weight:700; color:#c084fc; display:flex; align-items:center; gap:6px;">
-                <span>ğŸ“™</span> AYT SayÄ±sal KonularÄ±
+                <span>📙</span> AYT Sayısal Konuları
               </span>
               <span id="topic-ayt-pct" style="font-size:13px; font-weight:800; color:#c084fc;">0/84 Konu (%0)</span>
             </div>
@@ -934,92 +934,92 @@
             <button class="topic-type-btn" data-type="ayt" onclick="switchTopicType('ayt')">AYT</button>
           </div>
           <select id="topic-field-filter" class="form-input" style="width:140px; margin-left:8px;" onchange="filterTopicField(this.value)">
-            <option value="all">TÃ¼m Alanlar</option>
-            <option value="SAY">SayÄ±sal</option>
-            <option value="EA">EÅŸit AÄŸÄ±rlÄ±k</option>
-            <option value="SOZ">SÃ¶zel</option>
+            <option value="all">Tüm Alanlar</option>
+            <option value="SAY">Sayısal</option>
+            <option value="EA">Eşit Ağırlık</option>
+            <option value="SOZ">Sözel</option>
           </select>
           <select id="topic-subject-filter" class="form-input" style="width:160px; margin-left:8px;" onchange="filterTopicSubject(this.value)">
-            <option value="all">TÃ¼m Dersler</option>
+            <option value="all">Tüm Dersler</option>
           </select>
-          <input class="search-input" type="search" placeholder="ğŸ” Konu araâ€¦"
+          <input class="search-input" type="search" placeholder="🔍 Konu ara…"
                  oninput="searchTopics(this.value)">
           <div style="margin-left:auto; display:flex; gap:6px;">
-            <button class="btn btn-sm btn-primary coach-only" onclick="markAllTopics('completed')">TÃ¼mÃ¼nÃ¼ Tamam</button>
-            <button class="btn btn-sm coach-only" onclick="markAllTopics('not_started')">SÄ±fÄ±rla</button>
+            <button class="btn btn-sm btn-primary coach-only" onclick="markAllTopics('completed')">Tümünü Tamam</button>
+            <button class="btn btn-sm coach-only" onclick="markAllTopics('not_started')">Sıfırla</button>
             <button class="btn btn-sm btn-danger coach-only" onclick="clearAllTopicsData()">Verileri Temizle</button>
           </div>
         </div>
 
         <div id="topic-list" class="student-readonly">
-          <div class="empty-state"><span>ğŸ—ºï¸</span><p>YÃ¼kleniyorâ€¦</p></div>
+          <div class="empty-state"><span>🗺️</span><p>Yükleniyor…</p></div>
         </div>
       </section>
 
-      <!-- â•â• Ã‡ALIÅMA PROGRAMI & GÃ–REVLENDÄ°RME â•â• -->
+      <!-- ══ ÇALIŞMA PROGRAMI & GÖREVLENDİRME ══ -->
       <section id="tab-schedule" class="tab-view">
         <div class="section-header schedule-header-responsive">
           <div>
-            <div class="section-title" id="tab-schedule-title">ğŸ“… GÃ¶revlendirme & Ã‡alÄ±ÅŸma Takvimi</div>
-            <div class="section-subtitle">TÃ¼m cihazlarla uyumlu haftalÄ±k, aylÄ±k ve gÃ¼nlÃ¼k gÃ¶rev planlama ve takip modÃ¼lÃ¼</div>
+            <div class="section-title" id="tab-schedule-title">📅 Görevlendirme & Çalışma Takvimi</div>
+            <div class="section-subtitle">Tüm cihazlarla uyumlu haftalık, aylık ve günlük görev planlama ve takip modülü</div>
           </div>
           
           <div class="schedule-top-controls">
-            <!-- GÃ¶rÃ¼nÃ¼m SeÃ§ici (AylÄ±k / HaftalÄ±k / GÃ¼nlÃ¼k) -->
+            <!-- Görünüm Seçici (Aylık / Haftalık / Günlük) -->
             <div class="schedule-view-switcher">
-              <button class="view-btn active" id="sched-view-month" onclick="setScheduleViewMode('month')">ğŸ“… AylÄ±k</button>
-              <button class="view-btn" id="sched-view-week" onclick="setScheduleViewMode('week')">ğŸ—“ï¸ HaftalÄ±k</button>
-              <button class="view-btn" id="sched-view-day" onclick="setScheduleViewMode('day')">ğŸ“‹ GÃ¼nlÃ¼k</button>
+              <button class="view-btn active" id="sched-view-month" onclick="setScheduleViewMode('month')">📅 Aylık</button>
+              <button class="view-btn" id="sched-view-week" onclick="setScheduleViewMode('week')">🗓️ Haftalık</button>
+              <button class="view-btn" id="sched-view-day" onclick="setScheduleViewMode('day')">📋 Günlük</button>
             </div>
 
             <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-              <button class="btn btn-primary btn-sm" onclick="openAddScheduleItem()">+ GÃ¶rev Ekle</button>
+              <button class="btn btn-primary btn-sm" onclick="openAddScheduleItem()">+ Görev Ekle</button>
               <div id="schedule-coach-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button class="btn btn-accent btn-sm" onclick="openAIPromptModal()">ğŸ¤– AI ile OluÅŸtur</button>
+                <button class="btn btn-accent btn-sm" onclick="openAIPromptModal()">🤖 AI ile Oluştur</button>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="renderSchedule(); showToast('Program gÃ¼ncellendi.', 'success');" title="ProgramÄ± GÃ¼ncelle">ğŸ”„ GÃ¼ncelle</button>
+              <button class="btn btn-secondary btn-sm" onclick="renderSchedule(); showToast('Program güncellendi.', 'success');" title="Programı Güncelle">🔄 Güncelle</button>
             </div>
           </div>
         </div>
 
-        <!-- Takvim Gezinme Ã‡ubuÄŸu -->
+        <!-- Takvim Gezinme Çubuğu -->
         <div class="card schedule-nav-bar" style="margin-bottom:16px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div style="display:flex; align-items:center; gap:8px;">
-            <button class="btn btn-sm" onclick="changePeriodOffset(-1)">â—€ Ã–nceki</button>
-            <button class="btn btn-sm btn-secondary" onclick="resetPeriodOffset()">BugÃ¼n</button>
-            <button class="btn btn-sm" onclick="changePeriodOffset(1)">Sonraki â–¶</button>
+            <button class="btn btn-sm" onclick="changePeriodOffset(-1)">◀ Önceki</button>
+            <button class="btn btn-sm btn-secondary" onclick="resetPeriodOffset()">Bugün</button>
+            <button class="btn btn-sm" onclick="changePeriodOffset(1)">Sonraki ▶</button>
           </div>
-          <div id="schedule-week-label" style="font-weight:800; font-size:15px; color:var(--text-primary); text-align:center; letter-spacing:0.02em;">ğŸ“… YÃ¼kleniyor...</div>
+          <div id="schedule-week-label" style="font-weight:800; font-size:15px; color:var(--text-primary); text-align:center; letter-spacing:0.02em;">📅 Yükleniyor...</div>
           <div class="schedule-period-sublabel" id="schedule-period-sub" style="font-size:12px; color:var(--text-muted);"></div>
         </div>
 
         <div class="stats-grid" style="margin-bottom:16px;">
-          <div class="stat-card purple"><div id="sched-total" class="stat-value">0</div><div class="stat-label">Toplam GÃ¶rev</div></div>
+          <div class="stat-card purple"><div id="sched-total" class="stat-value">0</div><div class="stat-label">Toplam Görev</div></div>
           <div class="stat-card green" ><div id="sched-done"  class="stat-value">0</div><div class="stat-label">Tamamlanan</div></div>
-          <div class="stat-card cyan"  ><div id="sched-mins"  class="stat-value">0 dk</div><div class="stat-label">Ã‡alÄ±ÅŸma SÃ¼resi</div></div>
+          <div class="stat-card cyan"  ><div id="sched-mins"  class="stat-value">0 dk</div><div class="stat-label">Çalışma Süresi</div></div>
           <div class="stat-card amber" ><div id="sched-pct"   class="stat-value">0%</div><div class="stat-label">Tamamlanma</div></div>
         </div>
 
-        <!-- YanlÄ±ÅŸ Defteri Entegrasyon Havuzu -->
+        <!-- Yanlış Defteri Entegrasyon Havuzu -->
         <div id="schedule-wrong-pool-bar" style="margin-bottom:16px;"></div>
 
-        <!-- Dinamik Takvim / HaftalÄ±k / GÃ¼nlÃ¼k GÃ¶rÃ¼nÃ¼m AlanÄ± -->
+        <!-- Dinamik Takvim / Haftalık / Günlük Görünüm Alanı -->
         <div id="schedule-week" style="margin-top: 16px;">
-          <div class="empty-state"><span>ğŸ“…</span><p>YÃ¼kleniyorâ€¦</p></div>
+          <div class="empty-state"><span>📅</span><p>Yükleniyor…</p></div>
         </div>
       </section>
 
-      <!-- â•â• YANLIÅ DEFTERÄ° â•â• -->
+      <!-- ══ YANLIŞ DEFTERİ ══ -->
       <section id="tab-wrong" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">âŒ YanlÄ±ÅŸ Defteri</div>
-            <div class="section-subtitle">YanlÄ±ÅŸ yapÄ±lan sorular ve tekrar takibi</div>
+            <div class="section-title">❌ Yanlış Defteri</div>
+            <div class="section-subtitle">Yanlış yapılan sorular ve tekrar takibi</div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-sm btn-accent" onclick="autoAssignWrongReviewsToSchedule()" title="YanlÄ±ÅŸ yapÄ±lan konularÄ± haftalÄ±k programa otomatik daÄŸÄ±t">ğŸ” YanlÄ±ÅŸlarÄ± Programa DaÄŸÄ±t</button>
-            <button class="btn btn-sm" onclick="markAllReviewed()">âœ… TÃ¼mÃ¼nÃ¼ Tekrar Et</button>
-            <button class="btn btn-primary" onclick="openModal('add-wrong-modal')">+ YanlÄ±ÅŸ Ekle</button>
+            <button class="btn btn-sm btn-accent" onclick="autoAssignWrongReviewsToSchedule()" title="Yanlış yapılan konuları haftalık programa otomatik dağıt">🔁 Yanlışları Programa Dağıt</button>
+            <button class="btn btn-sm" onclick="markAllReviewed()">✅ Tümünü Tekrar Et</button>
+            <button class="btn btn-primary" onclick="openModal('add-wrong-modal')">+ Yanlış Ekle</button>
           </div>
         </div>
 
@@ -1027,45 +1027,45 @@
           <div class="stat-card purple"><div id="wrong-stat-total"    class="stat-value">0</div><div class="stat-label">Toplam</div></div>
           <div class="stat-card amber" ><div id="wrong-stat-pending"  class="stat-value">0</div><div class="stat-label">Bekleyen</div></div>
           <div class="stat-card green" ><div id="wrong-stat-reviewed" class="stat-value">0</div><div class="stat-label">Tekrar Edildi</div></div>
-          <div class="stat-card cyan"  ><div id="wrong-top-subject"   class="stat-value">â€”</div><div class="stat-label">En Ã‡ok Hata</div></div>
+          <div class="stat-card cyan"  ><div id="wrong-top-subject"   class="stat-value">—</div><div class="stat-label">En Çok Hata</div></div>
         </div>
 
         <div class="toolbar">
           <select id="wrong-filter" class="form-input" style="width:160px;" onchange="renderWrongNotes()">
-            <option value="all">TÃ¼mÃ¼</option>
+            <option value="all">Tümü</option>
             <option value="pending">Bekleyenler</option>
             <option value="reviewed">Tekrar Edilenler</option>
           </select>
           <select id="wrong-subject-filter" class="form-input" style="width:160px;" onchange="renderWrongNotes()">
-            <option value="all">TÃ¼m Dersler</option>
+            <option value="all">Tüm Dersler</option>
           </select>
         </div>
 
         <div id="wrong-list">
-          <div class="empty-state"><span>âŒ</span><p>YÃ¼kleniyorâ€¦</p></div>
+          <div class="empty-state"><span>❌</span><p>Yükleniyor…</p></div>
         </div>
       </section>
 
-      <!-- â•â• AI ANALÄ°Z â•â• -->
+      <!-- ══ AI ANALİZ ══ -->
       <section id="tab-ai" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">ğŸ¤– AI Analiz</div>
-            <div class="section-subtitle">Deneme sonuÃ§larÄ±nÄ±zÄ± Gemini veya ChatGPT ile analiz edin</div>
+            <div class="section-title">🤖 AI Analiz</div>
+            <div class="section-subtitle">Deneme sonuçlarınızı Gemini veya ChatGPT ile analiz edin</div>
           </div>
         </div>
 
-        <!-- NasÄ±l Ã§alÄ±ÅŸÄ±r -->
+        <!-- Nasıl çalışır -->
         <div class="ai-flow">
           <div class="ai-step">
             <div class="ai-step-num">1</div>
             <div>
-              <div class="ai-step-title">Prompt OluÅŸtur</div>
+              <div class="ai-step-title">Prompt Oluştur</div>
               <div class="ai-step-desc">
-                Uygulama Ã¶ÄŸrencinin deneme sonuÃ§larÄ±, zayÄ±f konular ve kaynak ilerlemesini otomatik olarak bir prompt haline getirir.
+                Uygulama öğrencinin deneme sonuçları, zayıf konular ve kaynak ilerlemesini otomatik olarak bir prompt haline getirir.
               </div>
               <button class="btn btn-primary" style="margin-top:10px;" onclick="openAIPromptModal()">
-                ğŸ¤– Prompt OluÅŸtur ve Kopyala
+                🤖 Prompt Oluştur ve Kopyala
               </button>
             </div>
           </div>
@@ -1073,10 +1073,10 @@
           <div class="ai-step">
             <div class="ai-step-num">2</div>
             <div>
-              <div class="ai-step-title">AI'ya YapÄ±ÅŸtÄ±r</div>
+              <div class="ai-step-title">AI'ya Yapıştır</div>
               <div class="ai-step-desc">
-                KopyaladÄ±ÄŸÄ±nÄ±z promptu <strong>ChatGPT</strong> veya <strong>Gemini</strong>'ye yapÄ±ÅŸtÄ±rÄ±n.
-                AI size JSON formatÄ±nda haftalÄ±k Ã§alÄ±ÅŸma programÄ± ve analiz sonucu dÃ¶ndÃ¼recektir.
+                Kopyaladığınız promptu <strong>ChatGPT</strong> veya <strong>Gemini</strong>'ye yapıştırın.
+                AI size JSON formatında haftalık çalışma programı ve analiz sonucu döndürecektir.
               </div>
             </div>
           </div>
@@ -1084,77 +1084,77 @@
           <div class="ai-step">
             <div class="ai-step-num">3</div>
             <div>
-              <div class="ai-step-title">YanÄ±tÄ± Geri Getir â†’ Program Otomatik OluÅŸur</div>
+              <div class="ai-step-title">Yanıtı Geri Getir → Program Otomatik Oluşur</div>
               <div class="ai-step-desc">
-                AI'Ä±n yanÄ±tÄ±nÄ± bu uygulamaya yapÄ±ÅŸtÄ±rÄ±n. Sistem otomatik olarak haftalÄ±k Ã§alÄ±ÅŸma programÄ±nÄ± oluÅŸturur.
+                AI'ın yanıtını bu uygulamaya yapıştırın. Sistem otomatik olarak haftalık çalışma programını oluşturur.
               </div>
               <button class="btn btn-accent" style="margin-top:10px;" onclick="openModal('ai-response-modal')">
-                ğŸ“‹ AI YanÄ±tÄ±nÄ± YapÄ±ÅŸtÄ±r
+                📋 AI Yanıtını Yapıştır
               </button>
             </div>
           </div>
         </div>
 
-        <!-- GeÃ§miÅŸ Analizler -->
+        <!-- Geçmiş Analizler -->
         <div class="card">
-          <div class="card-title">ğŸ“‚ GeÃ§miÅŸ Analizler</div>
+          <div class="card-title">📂 Geçmiş Analizler</div>
           <div id="ai-analyses-list">
-            <div class="empty-state"><span>ğŸ¤–</span><p>HenÃ¼z analiz yok.</p></div>
+            <div class="empty-state"><span>🤖</span><p>Henüz analiz yok.</p></div>
           </div>
         </div>
       </section>
 
-      <!-- â•â• ODAK & POMODORO SAYACI â•â• -->
+      <!-- ══ ODAK & POMODORO SAYACI ══ -->
       <section id="tab-pomodoro" class="tab-view">
         <div class="section-header">
           <div>
-            <div class="section-title">â±ï¸ AkÄ±llÄ± Odaklanma & Pomodoro</div>
-            <div class="section-subtitle">ZamanÄ±nÄ± yÃ¶net, derin odaklan ve sÃ¼re bitiminde sorularÄ±nÄ± doÄŸrudan soru takibine iÅŸle</div>
+            <div class="section-title">⏱️ Akıllı Odaklanma & Pomodoro</div>
+            <div class="section-subtitle">Zamanını yönet, derin odaklan ve süre bitiminde sorularını doğrudan soru takibine işle</div>
           </div>
         </div>
 
-        <!-- 3 Ã–zet Ä°statistik KartÄ± -->
+        <!-- 3 Özet İstatistik Kartı -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
           <div class="stat-card blue">
-            <div class="stat-icon">â±ï¸</div>
+            <div class="stat-icon">⏱️</div>
             <div id="pomo-stat-today-time" class="stat-value">0 dk</div>
-            <div class="stat-label">BugÃ¼nkÃ¼ Ã‡alÄ±ÅŸma SÃ¼resi</div>
+            <div class="stat-label">Bugünkü Çalışma Süresi</div>
           </div>
           <div class="stat-card purple">
-            <div class="stat-icon">ğŸ¯</div>
+            <div class="stat-icon">🎯</div>
             <div id="pomo-stat-today-sessions" class="stat-value">0</div>
             <div class="stat-label">Tamamlanan Seans</div>
           </div>
           <div class="stat-card cyan">
-            <div class="stat-icon">ğŸ“</div>
+            <div class="stat-icon">📝</div>
             <div id="pomo-stat-today-questions" class="stat-value">0</div>
-            <div class="stat-label">Seanslarda Ã‡Ã¶zÃ¼len Soru</div>
+            <div class="stat-label">Seanslarda Çözülen Soru</div>
           </div>
         </div>
 
-        <!-- Ana SayaÃ§ KartÄ± -->
+        <!-- Ana Sayaç Kartı -->
         <div class="card" style="margin-bottom: 20px; padding: 26px; text-align: center; border: 1px solid rgba(0, 240, 255, 0.25); background: linear-gradient(180deg, rgba(20,24,38,0.96) 0%, rgba(14,16,26,0.98) 100%);">
-          <!-- Mod SeÃ§iciler -->
+          <!-- Mod Seçiciler -->
           <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;">
-            <button type="button" class="btn btn-sm pomo-mode-btn active" data-mode="pomodoro" onclick="setPomodoroMode('pomodoro')">ğŸ… 25 dk Pomodoro</button>
-            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="deep" onclick="setPomodoroMode('deep')">ğŸ¯ 45 dk Derin Odak</button>
-            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="shortBreak" onclick="setPomodoroMode('shortBreak')">â˜• 5 dk Mola</button>
-            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="longBreak" onclick="setPomodoroMode('longBreak')">ğŸ–ï¸ 15 dk Mola</button>
-            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="stopwatch" onclick="setPomodoroMode('stopwatch')">â³ Serbest Kronometre</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn active" data-mode="pomodoro" onclick="setPomodoroMode('pomodoro')">🍅 25 dk Pomodoro</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="deep" onclick="setPomodoroMode('deep')">🎯 45 dk Derin Odak</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="shortBreak" onclick="setPomodoroMode('shortBreak')">☕ 5 dk Mola</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="longBreak" onclick="setPomodoroMode('longBreak')">🏖️ 15 dk Mola</button>
+            <button type="button" class="btn btn-sm pomo-mode-btn" data-mode="stopwatch" onclick="setPomodoroMode('stopwatch')">⏳ Serbest Kronometre</button>
           </div>
 
-          <!-- Ders ve Alan SeÃ§imi -->
+          <!-- Ders ve Alan Seçimi -->
           <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;">
             <select id="pomo-type-select" class="form-input" style="width: 110px;" onchange="populatePomodoroSubjects()">
               <option value="TYT">TYT</option>
               <option value="AYT">AYT</option>
             </select>
             <select id="pomo-subject-select" class="form-input" style="flex: 1; min-width: 180px;">
-              <option value="">Ders SeÃ§iniz (Ä°steÄŸe BaÄŸlÄ±)...</option>
+              <option value="">Ders Seçiniz (İsteğe Bağlı)...</option>
             </select>
           </div>
 
-          <!-- Dairesel SayaÃ§ GrafiÄŸi -->
+          <!-- Dairesel Sayaç Grafiği -->
           <div style="position: relative; width: 220px; height: 220px; margin: 0 auto 24px;">
             <svg style="width: 100%; height: 100%; transform: rotate(-90deg);" viewBox="0 0 200 200">
               <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"></circle>
@@ -1162,22 +1162,22 @@
             </svg>
             <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
               <div id="pomo-time-display" style="font-size: 44px; font-weight: 900; font-family: monospace; letter-spacing: 1px; color: #ffffff; text-shadow: 0 0 20px rgba(0,240,255,0.4);">25:00</div>
-              <div id="pomo-current-mode-label" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px;">Odak SeansÄ±</div>
+              <div id="pomo-current-mode-label" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px;">Odak Seansı</div>
             </div>
           </div>
 
-          <!-- Kontrol ButonlarÄ± -->
+          <!-- Kontrol Butonları -->
           <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <button id="pomo-btn-start" type="button" class="btn btn-primary" style="padding: 10px 24px; font-size: 15px; font-weight: 800;" onclick="startPomodoro()">âš¡ BaÅŸlat</button>
-            <button id="pomo-btn-pause" type="button" class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px; font-weight: 700; display: none;" onclick="pausePomodoro()">â¸ï¸ Duraklat</button>
-            <button id="pomo-btn-finish" type="button" class="btn btn-accent" style="padding: 10px 20px; font-size: 14px; font-weight: 700; display: none;" onclick="finishPomodoroEarly()">âœ… SeansÄ± Bitir</button>
-            <button id="pomo-btn-reset" type="button" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px; display: none;" onclick="resetPomodoro()">ğŸ”„ SÄ±fÄ±rla</button>
+            <button id="pomo-btn-start" type="button" class="btn btn-primary" style="padding: 10px 24px; font-size: 15px; font-weight: 800;" onclick="startPomodoro()">⚡ Başlat</button>
+            <button id="pomo-btn-pause" type="button" class="btn btn-secondary" style="padding: 10px 20px; font-size: 14px; font-weight: 700; display: none;" onclick="pausePomodoro()">⏸️ Duraklat</button>
+            <button id="pomo-btn-finish" type="button" class="btn btn-accent" style="padding: 10px 20px; font-size: 14px; font-weight: 700; display: none;" onclick="finishPomodoroEarly()">✅ Seansı Bitir</button>
+            <button id="pomo-btn-reset" type="button" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px; display: none;" onclick="resetPomodoro()">🔄 Sıfırla</button>
           </div>
         </div>
 
-        <!-- Seans GeÃ§miÅŸi -->
+        <!-- Seans Geçmişi -->
         <div class="card">
-          <div class="card-title">ğŸ“œ BugÃ¼nkÃ¼ Odaklanma SeanslarÄ±</div>
+          <div class="card-title">📜 Bugünkü Odaklanma Seansları</div>
           <div id="pomo-sessions-list">
             <!-- Dinamik doldurulacak -->
           </div>
@@ -1188,14 +1188,14 @@
   </main>
 </div><!-- /app -->
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MODALLER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ════════════════════ MODALLER ════════════════════ -->
 
-<!-- GÃ¼nlÃ¼k Soru Ekle / DÃ¼zenle -->
+<!-- Günlük Soru Ekle / Düzenle -->
 <div id="add-daily-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title" id="daily-modal-title">âœï¸ Soru KaydÄ± Ekle</div>
-      <button class="modal-close" onclick="closeModal('add-daily-modal')">Ã—</button>
+      <div class="modal-title" id="daily-modal-title">✏️ Soru Kaydı Ekle</div>
+      <button class="modal-close" onclick="closeModal('add-daily-modal')">×</button>
     </div>
     <form onsubmit="handleAddDaily(event)">
       <div class="form-row">
@@ -1214,25 +1214,25 @@
       <div class="form-group">
         <label class="form-label">Ders</label>
         <select id="daily-subject" class="form-input">
-          <option value="">Ã–nce TYT/AYT seÃ§in</option>
+          <option value="">Önce TYT/AYT seçin</option>
         </select>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Ã‡Ã¶zÃ¼len</label>
+          <label class="form-label">Çözülen</label>
           <input id="daily-solved" type="number" class="form-input" min="0" placeholder="0">
         </div>
         <div class="form-group">
-          <label class="form-label">DoÄŸru</label>
+          <label class="form-label">Doğru</label>
           <input id="daily-correct" type="number" class="form-input" min="0" placeholder="0">
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">YanlÄ±ÅŸ</label>
+        <label class="form-label">Yanlış</label>
         <input id="daily-wrong" type="number" class="form-input" min="0" placeholder="0">
       </div>
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('add-daily-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('add-daily-modal')">İptal</button>
         <button type="submit" class="btn btn-primary" id="daily-submit-btn">Kaydet</button>
       </div>
     </form>
@@ -1243,13 +1243,13 @@
 <div id="add-exam-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title" id="exam-modal-title">ğŸ“ Deneme Ekle</div>
-      <button class="modal-close" onclick="closeModal('add-exam-modal')">Ã—</button>
+      <div class="modal-title" id="exam-modal-title">📝 Deneme Ekle</div>
+      <button class="modal-close" onclick="closeModal('add-exam-modal')">×</button>
     </div>
     <form onsubmit="handleAddExam(event)">
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">TÃ¼r</label>
+          <label class="form-label">Tür</label>
           <select id="exam-type" class="form-input" onchange="updateMockFormFields()">
             <option value="TYT">TYT</option>
             <option value="AYT">AYT</option>
@@ -1261,17 +1261,17 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Deneme AdÄ±</label>
+        <label class="form-label">Deneme Adı</label>
         <input id="exam-name" type="text" class="form-input" placeholder="YKS Deneme 1">
       </div>
 
-      <!-- TYT AlanlarÄ± -->
+      <!-- TYT Alanları -->
       <div id="tyt-fields">
-        <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:.05em;">TYT Netler (DoÄŸru / YanlÄ±ÅŸ)</div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:.05em;">TYT Netler (Doğru / Yanlış)</div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">TÃ¼rkÃ§e DoÄŸru</label><input id="tyt-turkce-c" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">TÃ¼rkÃ§e YanlÄ±ÅŸ</label><input id="tyt-turkce-w" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">TÃ¼rkÃ§e BoÅŸ</label><input id="tyt-turkce-b" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Türkçe Doğru</label><input id="tyt-turkce-c" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Türkçe Yanlış</label><input id="tyt-turkce-w" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Türkçe Boş</label><input id="tyt-turkce-b" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Matematik D</label><input id="tyt-mat-c" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
@@ -1279,25 +1279,25 @@
           <div class="form-group"><label class="form-label">Matematik B</label><input id="tyt-mat-b" type="number" class="form-input" min="0" max="40" placeholder="0"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Fen DoÄŸru</label><input id="tyt-fen-c" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">Fen YanlÄ±ÅŸ</label><input id="tyt-fen-w" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">Fen BoÅŸ</label><input id="tyt-fen-b" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Fen Doğru</label><input id="tyt-fen-c" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Fen Yanlış</label><input id="tyt-fen-w" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Fen Boş</label><input id="tyt-fen-b" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Sosyal DoÄŸru</label><input id="tyt-sosyal-c" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">Sosyal YanlÄ±ÅŸ</label><input id="tyt-sosyal-w" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">Sosyal BoÅŸ</label><input id="tyt-sosyal-b" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Sosyal Doğru</label><input id="tyt-sosyal-c" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Sosyal Yanlış</label><input id="tyt-sosyal-w" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Sosyal Boş</label><input id="tyt-sosyal-b" type="number" class="form-input" min="0" max="20" placeholder="0"></div>
         </div>
       </div>
 
-      <!-- AYT AlanlarÄ± -->
+      <!-- AYT Alanları -->
       <div id="ayt-fields" style="display:none;">
         <div class="form-group" style="margin-bottom:14px;">
           <label class="form-label">Alan</label>
           <select id="exam-branch" class="form-input" onchange="if(window.updateAYTLabels) window.updateAYTLabels()">
-            <option value="SAY">SayÄ±sal</option>
+            <option value="SAY">Sayısal</option>
             <option value="EA">EA</option>
-            <option value="SOZ">SÃ¶zel</option>
+            <option value="SOZ">Sözel</option>
           </select>
         </div>
         <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:.05em;">AYT Netler</div>
@@ -1324,33 +1324,33 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('add-exam-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('add-exam-modal')">İptal</button>
         <button type="submit" class="btn btn-primary">Kaydet</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- GÃ¶rselden Deneme Okuma Modali (No-API) -->
+<!-- Görselden Deneme Okuma Modali (No-API) -->
 <div id="ai-vision-modal" class="modal">
   <div class="modal-box" style="max-width:600px;">
     <div class="modal-header">
-      <div class="modal-title">ğŸ“¸ GÃ¶rselden SÄ±nav Okuma (Ãœcretsiz)</div>
-      <button class="modal-close" onclick="closeModal('ai-vision-modal')">Ã—</button>
+      <div class="modal-title">📸 Görselden Sınav Okuma (Ücretsiz)</div>
+      <button class="modal-close" onclick="closeModal('ai-vision-modal')">×</button>
     </div>
     <div id="ai-vision-content" style="padding-top: 10px;">
       <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
-        API anahtarÄ± kullanmadan deneme sonucunuzu otomatik girmek iÃ§in aÅŸaÄŸÄ±daki adÄ±mlarÄ± izleyin:
+        API anahtarı kullanmadan deneme sonucunuzu otomatik girmek için aşağıdaki adımları izleyin:
       </p>
 
       <div class="ai-flow">
         <div class="ai-step">
           <div class="ai-step-num">1</div>
           <div>
-            <div class="ai-step-title">Promptu KopyalayÄ±n</div>
-            <div class="ai-step-desc">AÅŸaÄŸÄ±daki butona basarak Ã¶zel komutu kopyalayÄ±n.</div>
+            <div class="ai-step-title">Promptu Kopyalayın</div>
+            <div class="ai-step-desc">Aşağıdaki butona basarak özel komutu kopyalayın.</div>
             <button class="btn btn-primary" style="margin-top:10px;" onclick="window.copyVisionPrompt()">
-              ğŸ“‹ Promptu Kopyala
+              📋 Promptu Kopyala
             </button>
           </div>
         </div>
@@ -1360,7 +1360,7 @@
           <div>
             <div class="ai-step-title">ChatGPT veya Gemini'ye Sorun</div>
             <div class="ai-step-desc">
-              ChatGPT'yi aÃ§Ä±n. KopyaladÄ±ÄŸÄ±nÄ±z komutu yapÄ±ÅŸtÄ±rÄ±n ve <strong>deneme sonuÃ§ belgenizin fotoÄŸrafÄ±nÄ± yÃ¼kleyip</strong> gÃ¶nderin.
+              ChatGPT'yi açın. Kopyaladığınız komutu yapıştırın ve <strong>deneme sonuç belgenizin fotoğrafını yükleyip</strong> gönderin.
             </div>
           </div>
         </div>
@@ -1368,36 +1368,36 @@
         <div class="ai-step">
           <div class="ai-step-num">3</div>
           <div>
-            <div class="ai-step-title">Gelen YanÄ±tÄ± Buraya YapÄ±ÅŸtÄ±rÄ±n</div>
-            <div class="ai-step-desc">Yapay zekanÄ±n size verdiÄŸi JSON kodunu aÅŸaÄŸÄ±daki kutuya yapÄ±ÅŸtÄ±rÄ±n:</div>
+            <div class="ai-step-title">Gelen Yanıtı Buraya Yapıştırın</div>
+            <div class="ai-step-desc">Yapay zekanın size verdiği JSON kodunu aşağıdaki kutuya yapıştırın:</div>
             <textarea id="vision-ai-response" class="form-input" rows="5" style="margin-top:10px; font-family:monospace; font-size:12px;" placeholder="{ &quot;type&quot;: &quot;TYT&quot;, ... }"></textarea>
           </div>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('ai-vision-modal')">Ä°ptal</button>
-        <button type="button" class="btn btn-accent" onclick="window.processVisionResponse()">ğŸš€ Otomatik Doldur</button>
+        <button type="button" class="btn" onclick="closeModal('ai-vision-modal')">İptal</button>
+        <button type="button" class="btn btn-accent" onclick="window.processVisionResponse()">🚀 Otomatik Doldur</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Kaynak Ekle / DÃ¼zenle -->
+<!-- Kaynak Ekle / Düzenle -->
 <div id="add-book-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title" id="book-modal-title">ğŸ“š Kaynak Ekle</div>
-      <button class="modal-close" onclick="closeModal('add-book-modal')">Ã—</button>
+      <div class="modal-title" id="book-modal-title">📚 Kaynak Ekle</div>
+      <button class="modal-close" onclick="closeModal('add-book-modal')">×</button>
     </div>
     <form onsubmit="handleAddBook(event)">
       <div class="form-group">
-        <label class="form-label">Kaynak / Kitap AdÄ±</label>
+        <label class="form-label">Kaynak / Kitap Adı</label>
         <input id="book-name" type="text" class="form-input" placeholder="Palme Matematik" required>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">SÄ±nav / Alan</label>
+          <label class="form-label">Sınav / Alan</label>
           <select id="book-exam-type" class="form-input" onchange="updateBookSubjects()">
             <option value="tyt">TYT</option>
             <option value="ayt">AYT</option>
@@ -1411,12 +1411,12 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">TÃ¼r</label>
+        <label class="form-label">Tür</label>
         <select id="book-type" class="form-input">
           <option value="Kitap">Kitap</option>
-          <option value="Soru BankasÄ±">Soru BankasÄ±</option>
+          <option value="Soru Bankası">Soru Bankası</option>
           <option value="Deneme">Deneme</option>
-          <option value="Konu AnlatÄ±m">Konu AnlatÄ±m</option>
+          <option value="Konu Anlatım">Konu Anlatım</option>
           <option value="Dijital">Dijital</option>
         </select>
       </div>
@@ -1426,28 +1426,28 @@
           <input id="book-total-pages" type="number" class="form-input" min="1" placeholder="250" required>
         </div>
         <div class="form-group" id="book-solved-pages-group">
-          <label class="form-label">Ã‡Ã¶zÃ¼len Sayfa</label>
+          <label class="form-label">Çözülen Sayfa</label>
           <input id="book-solved-pages" type="number" class="form-input" min="0" placeholder="0">
         </div>
       </div>
       <div class="form-group" id="book-add-all-group" style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
         <input type="checkbox" id="book-add-all-students" style="width: 16px; height: 16px;">
-        <label for="book-add-all-students" style="margin: 0; color: var(--text-color); cursor: pointer;">TÃ¼m Ã¶ÄŸrencilere ekle</label>
+        <label for="book-add-all-students" style="margin: 0; color: var(--text-color); cursor: pointer;">Tüm öğrencilere ekle</label>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('add-book-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('add-book-modal')">İptal</button>
         <button type="submit" class="btn btn-primary" id="book-submit-btn">Ekle</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- YanlÄ±ÅŸ Ekle -->
+<!-- Yanlış Ekle -->
 <div id="add-wrong-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">âŒ YanlÄ±ÅŸ Ekle</div>
-      <button class="modal-close" onclick="closeModal('add-wrong-modal')">Ã—</button>
+      <div class="modal-title">❌ Yanlış Ekle</div>
+      <button class="modal-close" onclick="closeModal('add-wrong-modal')">×</button>
     </div>
     <form onsubmit="handleAddWrong(event)">
       <div class="form-row">
@@ -1467,13 +1467,13 @@
         <div class="form-group">
           <label class="form-label">Ders *</label>
           <select id="wrong-subject-in" class="form-input" required onchange="updateWrongTopics()">
-            <option value="">Ã–nce TYT/AYT SeÃ§iniz</option>
+            <option value="">Önce TYT/AYT Seçiniz</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Konu *</label>
           <select id="wrong-topic-in" class="form-input" required>
-            <option value="">Ã–nce Ders SeÃ§iniz</option>
+            <option value="">Önce Ders Seçiniz</option>
           </select>
         </div>
       </div>
@@ -1483,46 +1483,46 @@
       </div>
       <div class="form-group">
         <label class="form-label">Hata Sebebi</label>
-        <input id="wrong-reason" type="text" class="form-input" placeholder="Kural karÄ±ÅŸtÄ±rma, dikkatsizlikâ€¦">
+        <input id="wrong-reason" type="text" class="form-input" placeholder="Kural karıştırma, dikkatsizlik…">
       </div>
       <div class="form-group">
-        <label class="form-label">ğŸ“· Soru FotoÄŸrafÄ± (Opsiyonel)</label>
+        <label class="form-label">📷 Soru Fotoğrafı (Opsiyonel)</label>
         <div style="display:flex; align-items:center; gap:10px;">
           <input type="file" id="wrong-photo-input" accept="image/*" style="display:none;" onchange="handleWrongImageSelect(event)">
           <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('wrong-photo-input').click()" style="display:flex; align-items:center; gap:6px;">
-            <span>ğŸ“¸</span> FotoÄŸraf Ã‡ek / Galeriden SeÃ§
+            <span>📸</span> Fotoğraf Çek / Galeriden Seç
           </button>
-          <span id="wrong-photo-status" style="font-size:12px; color:var(--text-muted);">HenÃ¼z fotoÄŸraf seÃ§ilmedi</span>
+          <span id="wrong-photo-status" style="font-size:12px; color:var(--text-muted);">Henüz fotoğraf seçilmedi</span>
         </div>
         <div id="wrong-photo-preview-wrap" style="display:none; margin-top:10px; position:relative; width:fit-content;">
-          <img id="wrong-photo-preview" src="" style="max-height:140px; border-radius:8px; border:1px solid rgba(255,107,0,0.4);" alt="Ã–nizleme">
-          <button type="button" onclick="clearWrongPhoto()" style="position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:22px; height:22px; font-size:12px; cursor:pointer; font-weight:bold;">Ã—</button>
+          <img id="wrong-photo-preview" src="" style="max-height:140px; border-radius:8px; border:1px solid rgba(255,107,0,0.4);" alt="Önizleme">
+          <button type="button" onclick="clearWrongPhoto()" style="position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:22px; height:22px; font-size:12px; cursor:pointer; font-weight:bold;">×</button>
         </div>
         <input type="hidden" id="wrong-photo-data">
       </div>
       <div class="form-group">
         <label class="form-label">Not</label>
-        <textarea id="wrong-note-in" class="form-input" rows="2" placeholder="Eklemek istediÄŸin not veya Ã§Ã¶zÃ¼m ipucu"></textarea>
+        <textarea id="wrong-note-in" class="form-input" rows="2" placeholder="Eklemek istediğin not veya çözüm ipucu"></textarea>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('add-wrong-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('add-wrong-modal')">İptal</button>
         <button type="submit" class="btn btn-primary">Kaydet</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- GÃ¼nlÃ¼k GÃ¶rev YÃ¶netimi ModalÄ± (GÃ¼ne TÄ±klayÄ±nca AÃ§Ä±lan DetaylÄ± Pencere) -->
+<!-- Günlük Görev Yönetimi Modalı (Güne Tıklayınca Açılan Detaylı Pencere) -->
 <div id="schedule-day-modal" class="modal">
   <div class="modal-box wide" style="max-width: 680px;">
     <div class="modal-header">
-      <div class="modal-title" id="schedule-day-modal-title">ğŸ“… GÃ¼nlÃ¼k GÃ¶rev YÃ¶netimi</div>
-      <button class="modal-close" onclick="closeModal('schedule-day-modal')">Ã—</button>
+      <div class="modal-title" id="schedule-day-modal-title">📅 Günlük Görev Yönetimi</div>
+      <button class="modal-close" onclick="closeModal('schedule-day-modal')">×</button>
     </div>
     
-    <!-- GÃ¼nlÃ¼k GÃ¶rev Listesi -->
+    <!-- Günlük Görev Listesi -->
     <div id="schedule-day-modal-body" style="max-height: 60vh; overflow-y: auto; padding: 4px 0;">
-      <!-- Dinamik GÃ¶rev KartlarÄ± -->
+      <!-- Dinamik Görev Kartları -->
     </div>
 
     <!-- Alt Butonlar -->
@@ -1530,69 +1530,69 @@
       <button type="button" class="btn" onclick="closeModal('schedule-day-modal')">Kapat</button>
       <div style="display: flex; gap: 8px;">
         <button type="button" class="btn btn-sm btn-accent" id="btn-day-add-wrong" onclick="openWrongPoolForCurrentDay()">
-          ğŸ“‹ YanlÄ±ÅŸ Havuzundan Ata
+          📋 Yanlış Havuzundan Ata
         </button>
         <button type="button" class="btn btn-primary" id="btn-day-add-task" onclick="openAddTaskForCurrentDay()">
-          + Yeni GÃ¶rev Ekle
+          + Yeni Görev Ekle
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Ã‡alÄ±ÅŸma ProgramÄ± â€” Ã–ÄŸe Ekle -->
-<!-- GÃ¶rev Ekle / DÃ¼zenle -->
+<!-- Çalışma Programı — Öğe Ekle -->
+<!-- Görev Ekle / Düzenle -->
 <div id="add-schedule-item-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title" id="schedule-modal-title">ğŸ“… GÃ¶rev Ekle</div>
-      <button class="modal-close" onclick="closeModal('add-schedule-item-modal')">Ã—</button>
+      <div class="modal-title" id="schedule-modal-title">📅 Görev Ekle</div>
+      <button class="modal-close" onclick="closeModal('add-schedule-item-modal')">×</button>
     </div>
     <form onsubmit="handleAddScheduleItem(event)">
-      <!-- Ã–ÄŸrenci SeÃ§imi (Toplu GÃ¶rev Atama) -->
+      <!-- Öğrenci Seçimi (Toplu Görev Atama) -->
       <div id="sched-students-assignment-group" class="form-group" style="margin-bottom: 14px; background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 10px 12px;">
         <div class="flex-between" style="margin-bottom: 8px; align-items: center;">
           <label class="form-label" style="margin-bottom:0; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px; font-size: 13px;">
-            ğŸ‘¥ GÃ¶rev Atanacak Ã–ÄŸrenciler
+            👥 Görev Atanacak Öğrenciler
           </label>
           <div style="display: flex; gap: 6px;">
-            <button type="button" class="btn-xs btn-secondary" onclick="toggleAllSchedStudents(true)" style="font-size: 11px; padding: 3px 8px; cursor: pointer;">TÃ¼mÃ¼nÃ¼ SeÃ§</button>
+            <button type="button" class="btn-xs btn-secondary" onclick="toggleAllSchedStudents(true)" style="font-size: 11px; padding: 3px 8px; cursor: pointer;">Tümünü Seç</button>
             <button type="button" class="btn-xs btn-secondary" onclick="selectOnlyActiveSchedStudent()" style="font-size: 11px; padding: 3px 8px; cursor: pointer;">Sadece Aktif</button>
           </div>
         </div>
         <div id="sched-students-list" class="sched-students-list">
-          <!-- Dinamik Ã–ÄŸrenci Checkbox'larÄ± -->
+          <!-- Dinamik Öğrenci Checkbox'ları -->
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group" style="flex: 1.2;">
-          <label class="form-label">ğŸ“… Tarih</label>
+          <label class="form-label">📅 Tarih</label>
           <input id="sched-item-date" type="date" class="form-input" required>
         </div>
         <div class="form-group" style="flex: 0.8;">
-          <label class="form-label">â±ï¸ SÃ¼re (dk)</label>
+          <label class="form-label">⏱️ Süre (dk)</label>
           <input id="sched-duration" type="number" class="form-input" min="5" value="60">
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Ders</label>
         <select id="sched-subject" class="form-input" required onchange="updateSchedTopics()">
-          <option value="">Ders SeÃ§in...</option>
+          <option value="">Ders Seçin...</option>
         </select>
       </div>
       <div class="form-group">
         <div class="flex-between" style="margin-bottom:6px;">
           <label class="form-label" style="margin-bottom:0;">Konu</label>
-          <span style="font-size:12px; color:#00F0FF; cursor:pointer; font-weight:700;" onclick="toggleCustomTopicInput(true)">âœï¸ Manuel Konu Yaz</span>
+          <span style="font-size:12px; color:#00F0FF; cursor:pointer; font-weight:700;" onclick="toggleCustomTopicInput(true)">✏️ Manuel Konu Yaz</span>
         </div>
         <select id="sched-topic" class="form-input" required onchange="handleTopicSelectChange(this.value)">
-          <option value="">Ã–nce ders seÃ§in...</option>
+          <option value="">Önce ders seçin...</option>
         </select>
         <div id="sched-custom-topic-wrapper" style="display:none; margin-top:8px;">
           <div style="display:flex; gap:6px;">
-            <input id="sched-custom-topic" type="text" class="form-input" placeholder="Ã–zel gÃ¶rev veya konu adÄ±nÄ± yazÄ±n...">
-            <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCustomTopicInput(false)" title="HazÄ±r Konu Listesine DÃ¶n">ğŸ“‹ Liste</button>
+            <input id="sched-custom-topic" type="text" class="form-input" placeholder="Özel görev veya konu adını yazın...">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCustomTopicInput(false)" title="Hazır Konu Listesine Dön">📋 Liste</button>
           </div>
         </div>
       </div>
@@ -1600,64 +1600,64 @@
         <div class="form-group">
           <label class="form-label">Tip</label>
           <select id="sched-type" class="form-input">
-            <option value="konu Ã§alÄ±ÅŸma">ğŸ“– Konu Ã‡alÄ±ÅŸma</option>
-            <option value="soru Ã§Ã¶zme">âœï¸ Soru Ã‡Ã¶zme</option>
-            <option value="tekrar">ğŸ” Tekrar</option>
-            <option value="deneme">ğŸ“ Deneme</option>
-            <option value="video">ğŸ¬ Video</option>
+            <option value="konu çalışma">📖 Konu Çalışma</option>
+            <option value="soru çözme">✏️ Soru Çözme</option>
+            <option value="tekrar">🔁 Tekrar</option>
+            <option value="deneme">📝 Deneme</option>
+            <option value="video">🎬 Video</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Hedef Soru (Opsiyonel)</label>
-          <input id="sched-questions" type="number" class="form-input" placeholder="Ã–rn: 50" min="0">
+          <input id="sched-questions" type="number" class="form-input" placeholder="Örn: 50" min="0">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Hedef Sayfa (Opsiyonel)</label>
-          <input id="sched-pages" type="number" class="form-input" placeholder="Ã–rn: 20" min="0">
+          <input id="sched-pages" type="number" class="form-input" placeholder="Örn: 20" min="0">
         </div>
       </div>
       <div class="form-group" style="margin-top:4px;">
         <div class="flex-between" style="margin-bottom:6px;">
-          <label class="form-label" style="margin-bottom:0;">ğŸ“š Kaynaklar (Birden Fazla SeÃ§ilebilir)</label>
-          <span style="font-size:12px; color:#00F0FF; cursor:pointer; font-weight:700;" onclick="toggleCustomBookInput(true)">+ Ã–zel Kaynak Ekle</span>
+          <label class="form-label" style="margin-bottom:0;">📚 Kaynaklar (Birden Fazla Seçilebilir)</label>
+          <span style="font-size:12px; color:#00F0FF; cursor:pointer; font-weight:700;" onclick="toggleCustomBookInput(true)">+ Özel Kaynak Ekle</span>
         </div>
         
-        <!-- SeÃ§ili Kaynak Rozetleri -->
+        <!-- Seçili Kaynak Rozetleri -->
         <div id="sched-selected-books-container" class="sched-selected-books" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; min-height:24px;"></div>
 
-        <!-- KayÄ±tlÄ± Kaynaklar Listesi -->
+        <!-- Kayıtlı Kaynaklar Listesi -->
         <div id="sched-books-picker" class="sched-books-picker" style="max-height:130px; overflow-y:auto; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:6px 10px; display:flex; flex-direction:column; gap:4px;">
-          <div style="color:var(--text-muted); font-size:12px;">Ã–nce ders seÃ§in...</div>
+          <div style="color:var(--text-muted); font-size:12px;">Önce ders seçin...</div>
         </div>
 
-        <!-- Ã–zel Kaynak Ekleme AlanÄ± -->
+        <!-- Özel Kaynak Ekleme Alanı -->
         <div id="sched-custom-book-wrapper" style="display:none; margin-top:8px;">
           <div style="display:flex; gap:6px;">
-            <input id="sched-custom-book-input" type="text" class="form-input" placeholder="Ã–rn: MEB KazanÄ±m Testleri, Deneme Deposu" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSchedBook();}">
+            <input id="sched-custom-book-input" type="text" class="form-input" placeholder="Örn: MEB Kazanım Testleri, Deneme Deposu" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSchedBook();}">
             <button type="button" class="btn btn-sm btn-primary" onclick="addCustomSchedBook()">Ekle</button>
             <button type="button" class="btn btn-sm btn-secondary" onclick="toggleCustomBookInput(false)">Kapat</button>
           </div>
         </div>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('add-schedule-item-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('add-schedule-item-modal')">İptal</button>
         <button type="submit" class="btn btn-primary" id="schedule-submit-btn">Ekle</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- GÃ¶rev DetayÄ± -->
+<!-- Görev Detayı -->
 <div id="view-schedule-item-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">ğŸ“Œ GÃ¶rev DetayÄ±</div>
-      <button class="modal-close" onclick="closeModal('view-schedule-item-modal')">Ã—</button>
+      <div class="modal-title">📌 Görev Detayı</div>
+      <button class="modal-close" onclick="closeModal('view-schedule-item-modal')">×</button>
     </div>
     <div id="view-schedule-content" style="padding:10px 0; font-size:14px; line-height:1.6; color:var(--text-primary);">
-      <!-- Ä°Ã§erik -->
+      <!-- İçerik -->
     </div>
     <div class="form-actions" style="margin-top:20px;">
       <button class="btn" onclick="closeModal('view-schedule-item-modal')">Kapat</button>
@@ -1665,57 +1665,57 @@
   </div>
 </div>
 
-<!-- GÃ¶rev Tamamlama & Soru GiriÅŸi ModalÄ± -->
+<!-- Görev Tamamlama & Soru Girişi Modalı -->
 <div id="task-completion-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">ğŸ‰ GÃ¶revi Tamamla & Soru GiriÅŸi</div>
-      <button class="modal-close" onclick="cancelTaskCompletion()">Ã—</button>
+      <div class="modal-title">🎉 Görevi Tamamla & Soru Girişi</div>
+      <button class="modal-close" onclick="cancelTaskCompletion()">×</button>
     </div>
     <form onsubmit="handleTaskCompletionSubmit(event)">
       <div id="comp-task-summary" style="background:var(--bg-elevated); padding:10px 14px; border-radius:8px; border:1px solid var(--border); margin-bottom:14px;">
-        <div id="comp-task-title" style="font-weight:700; font-size:14px; color:var(--text);">Matematik â€” Fonksiyonlar</div>
+        <div id="comp-task-title" style="font-weight:700; font-size:14px; color:var(--text);">Matematik — Fonksiyonlar</div>
         <div id="comp-task-meta" style="font-size:12px; color:var(--text-muted); margin-top:3px;">Hedef: 40 Soru</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Ã‡Ã¶zÃ¼len Soru SayÄ±sÄ±</label>
-        <input id="comp-solved" type="number" class="form-input" min="0" placeholder="Ã–rn: 40" oninput="calcCompBlank()">
+        <label class="form-label">Çözülen Soru Sayısı</label>
+        <input id="comp-solved" type="number" class="form-input" min="0" placeholder="Örn: 40" oninput="calcCompBlank()">
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" style="color:var(--success); font-weight:700;">âœ… DoÄŸru SayÄ±sÄ±</label>
+          <label class="form-label" style="color:var(--success); font-weight:700;">✅ Doğru Sayısı</label>
           <input id="comp-correct" type="number" class="form-input" min="0" placeholder="0" oninput="calcCompBlank()">
         </div>
         <div class="form-group">
-          <label class="form-label" style="color:var(--danger); font-weight:700;">âŒ YanlÄ±ÅŸ SayÄ±sÄ±</label>
+          <label class="form-label" style="color:var(--danger); font-weight:700;">❌ Yanlış Sayısı</label>
           <input id="comp-wrong" type="number" class="form-input" min="0" placeholder="0" oninput="calcCompBlank()">
         </div>
       </div>
 
       <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin-bottom:16px;">
-        <span style="font-size:12.5px; color:var(--text-muted); font-weight:600;">Otomatik Hesaplanan BoÅŸ:</span>
-        <span id="comp-blank-display" style="font-size:14px; font-weight:800; color:#FFE600;">0 BoÅŸ</span>
+        <span style="font-size:12.5px; color:var(--text-muted); font-weight:600;">Otomatik Hesaplanan Boş:</span>
+        <span id="comp-blank-display" style="font-size:14px; font-weight:800; color:#FFE600;">0 Boş</span>
       </div>
 
       <div class="form-actions" style="display:flex; flex-direction:column; gap:8px;">
-        <button type="submit" class="btn btn-primary" style="width:100%;">âœ… Kaydet & Soru Takibine Ä°ÅŸle</button>
+        <button type="submit" class="btn btn-primary" style="width:100%;">✅ Kaydet & Soru Takibine İşle</button>
         <div style="display:flex; gap:8px; width:100%;">
-          <button type="button" class="btn btn-secondary" onclick="completeTaskWithoutQuestions()" style="flex:1; font-size:12px;" title="Soru kaydÄ± eklemeden sadece gÃ¶revi tamamlandÄ± iÅŸaretle">Sadece GÃ¶revi Tamamla</button>
-          <button type="button" class="btn" onclick="cancelTaskCompletion()" style="flex:1;">Ä°ptal</button>
+          <button type="button" class="btn btn-secondary" onclick="completeTaskWithoutQuestions()" style="flex:1; font-size:12px;" title="Soru kaydı eklemeden sadece görevi tamamlandı işaretle">Sadece Görevi Tamamla</button>
+          <button type="button" class="btn" onclick="cancelTaskCompletion()" style="flex:1;">İptal</button>
         </div>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Programdan YanlÄ±ÅŸ Defteri HÄ±zlÄ± BakÄ±ÅŸ ModalÄ± -->
+<!-- Programdan Yanlış Defteri Hızlı Bakış Modalı -->
 <div id="schedule-wrong-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title" id="schedule-wrong-modal-title">âŒ Konuya Ait YanlÄ±ÅŸ Sorular & Notlar</div>
-      <button class="modal-close" onclick="closeModal('schedule-wrong-modal')">Ã—</button>
+      <div class="modal-title" id="schedule-wrong-modal-title">❌ Konuya Ait Yanlış Sorular & Notlar</div>
+      <button class="modal-close" onclick="closeModal('schedule-wrong-modal')">×</button>
     </div>
     <div id="schedule-wrong-modal-body" style="padding: 10px 0; max-height: 60vh; overflow-y: auto;">
       <!-- Dinamik Kartlar -->
@@ -1726,199 +1726,199 @@
   </div>
 </div>
 
-<!-- YanlÄ±ÅŸ Tekrar Havuzu ModalÄ± -->
+<!-- Yanlış Tekrar Havuzu Modalı -->
 <div id="schedule-wrong-pool-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title">ğŸ“‹ Tekrar Bekleyen YanlÄ±ÅŸlar Havuzu</div>
-      <button class="modal-close" onclick="closeModal('schedule-wrong-pool-modal')">Ã—</button>
+      <div class="modal-title">📋 Tekrar Bekleyen Yanlışlar Havuzu</div>
+      <button class="modal-close" onclick="closeModal('schedule-wrong-pool-modal')">×</button>
     </div>
     <p class="text-muted" style="margin-bottom: 12px; font-size: 13px;">
-      AÅŸaÄŸÄ±da henÃ¼z tekrar edilmemiÅŸ yanlÄ±ÅŸ kayÄ±tlarÄ± gÃ¶rÃ¼yorsunuz. Ä°stediÄŸiniz konuyu tek tÄ±kla haftalÄ±k programa tekrar gÃ¶revi olarak aktarabilirsiniz.
+      Aşağıda henüz tekrar edilmemiş yanlış kayıtları görüyorsunuz. İstediğiniz konuyu tek tıkla haftalık programa tekrar görevi olarak aktarabilirsiniz.
     </p>
     <div id="schedule-wrong-pool-body" style="padding: 10px 0; max-height: 60vh; overflow-y: auto;">
       <!-- Dinamik Liste -->
     </div>
     <div class="form-actions" style="margin-top: 16px;">
       <button class="btn" onclick="closeModal('schedule-wrong-pool-modal')">Kapat</button>
-      <button class="btn btn-primary" onclick="autoAssignWrongReviewsToSchedule()">âœ¨ TÃ¼mÃ¼nÃ¼ Otomatik DaÄŸÄ±t</button>
+      <button class="btn btn-primary" onclick="autoAssignWrongReviewsToSchedule()">✨ Tümünü Otomatik Dağıt</button>
     </div>
   </div>
 </div>
 
-<!-- YanlÄ±ÅŸ Soru GÃ¶rsel BÃ¼yÃ¼tme ModalÄ± (Lightbox) -->
+<!-- Yanlış Soru Görsel Büyütme Modalı (Lightbox) -->
 <div id="image-lightbox-modal" class="modal" onclick="closeModal('image-lightbox-modal')">
   <div class="modal-box" style="max-width: 90vw; max-height: 90vh; background: rgba(10, 15, 30, 0.95); border: 1px solid rgba(255, 107, 0, 0.4); padding: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="event.stopPropagation()">
     <div style="width: 100%; display: flex; justify-content: flex-end; margin-bottom: 8px;">
-      <button class="modal-close" onclick="closeModal('image-lightbox-modal')">Ã—</button>
+      <button class="modal-close" onclick="closeModal('image-lightbox-modal')">×</button>
     </div>
     <div style="max-height: 75vh; overflow: auto; width: 100%;">
-      <img id="lightbox-img" src="" style="max-width: 100%; max-height: 75vh; border-radius: 8px; object-fit: contain;" alt="Soru FotoÄŸrafÄ±">
+      <img id="lightbox-img" src="" style="max-width: 100%; max-height: 75vh; border-radius: 8px; object-fit: contain;" alt="Soru Fotoğrafı">
     </div>
   </div>
 </div>
 
-<!-- KoÃ§ Ã–zel: AI Soru Ã‡Ã¶zÃ¼m & Ä°pucu AsistanÄ± ModalÄ± -->
+<!-- Koç Özel: AI Soru Çözüm & İpucu Asistanı Modalı -->
 <div id="coach-ai-solver-modal" class="modal">
   <div class="modal-box wide" style="max-width: 780px;">
     <div class="modal-header">
       <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
-        <span>ğŸ§ </span> KoÃ§ Ã–zel: AI Soru Ã‡Ã¶zÃ¼m & Rehberlik AsistanÄ±
+        <span>🧠</span> Koç Özel: AI Soru Çözüm & Rehberlik Asistanı
       </div>
-      <button class="modal-close" onclick="closeModal('coach-ai-solver-modal')">Ã—</button>
+      <button class="modal-close" onclick="closeModal('coach-ai-solver-modal')">×</button>
     </div>
     <div id="coach-ai-solver-body" style="max-height: 65vh; overflow-y: auto; padding: 10px 0;">
-      <!-- Dinamik Ä°Ã§erik -->
+      <!-- Dinamik İçerik -->
     </div>
     <div class="form-actions" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
       <button type="button" class="btn" onclick="closeModal('coach-ai-solver-modal')">Kapat</button>
       <div style="display:flex; gap:8px;">
-        <button type="button" class="btn btn-secondary" onclick="copyCoachAISolverPrompt()">ğŸ“‹ Promptu Kopyala</button>
-        <button type="button" class="btn btn-primary" id="btn-run-ai-solver" onclick="runCoachAISolver()">âš¡ Yapay Zeka ile Ã‡Ã¶z</button>
+        <button type="button" class="btn btn-secondary" onclick="copyCoachAISolverPrompt()">📋 Promptu Kopyala</button>
+        <button type="button" class="btn btn-primary" id="btn-run-ai-solver" onclick="runCoachAISolver()">⚡ Yapay Zeka ile Çöz</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- KoÃ§luk Raporu & CanlÄ± PDF ModalÄ± -->
+<!-- Koçluk Raporu & Canlı PDF Modalı -->
 <div id="coach-report-modal" class="modal">
   <div class="modal-box wide" style="max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 20px 24px; background: var(--bg-card); border: 1px solid rgba(168,85,247,0.3); border-radius: 16px;">
     
     <div class="modal-header no-print" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
       <div class="modal-title" style="color:#c084fc; font-weight:800; font-size:16px;">
-        ğŸ“„ HaftalÄ±k KoÃ§luk Raporu & GÃ¶rÃ¼ÅŸme TutanaÄŸÄ±
+        📄 Haftalık Koçluk Raporu & Görüşme Tutanağı
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button type="button" class="btn btn-sm btn-accent" style="font-weight:700; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff; border:none; box-shadow:0 0 12px rgba(168,85,247,0.4);" onclick="copyDeepCoachingPrompt(window.activeStudent)" title="TÃ¼m veriler + DISC profilini iÃ§eren uzman promptunu kopyalar">
-          ğŸ§  AI KoÃ§luk Promptunu Kopyala
+        <button type="button" class="btn btn-sm btn-accent" style="font-weight:700; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff; border:none; box-shadow:0 0 12px rgba(168,85,247,0.4);" onclick="copyDeepCoachingPrompt(window.activeStudent)" title="Tüm veriler + DISC profilini içeren uzman promptunu kopyalar">
+          🧠 AI Koçluk Promptunu Kopyala
         </button>
         <button type="button" class="btn btn-sm" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.4); font-weight:700;" onclick="openPasteAIResponseModal(window.activeStudent)">
-          âš¡ AI YanÄ±tÄ±nÄ± Aktar
+          ⚡ AI Yanıtını Aktar
         </button>
-        <button class="modal-close" onclick="closeModal('coach-report-modal')" style="font-size:22px; margin-left:6px;">Ã—</button>
+        <button class="modal-close" onclick="closeModal('coach-report-modal')" style="font-size:22px; margin-left:6px;">×</button>
       </div>
     </div>
     
     <div id="coach-report-content">
-      <!-- Dinamik Rapor Ã‡Ä±ktÄ±sÄ± -->
+      <!-- Dinamik Rapor Çıktısı -->
     </div>
 
     <div class="form-actions no-print" style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
       <button type="button" class="btn" onclick="closeModal('coach-report-modal')">Kapat</button>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button type="button" class="btn btn-accent" style="font-weight:700; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff;" onclick="copyDeepCoachingPrompt(window.activeStudent)">
-          ğŸ§  AI Prompt Kopyala
+          🧠 AI Prompt Kopyala
         </button>
         <button type="button" class="btn" style="background:#25D366; color:#fff; border:none; font-weight:700;" onclick="copyWhatsAppReportSummary()">
-          ğŸ’¬ WhatsApp Ã–zeti Kopyala
+          💬 WhatsApp Özeti Kopyala
         </button>
         <button type="button" class="btn btn-primary" onclick="printCoachReport()">
-          ğŸ–¨ï¸ PDF Ä°ndir / YazdÄ±r
+          🖨️ PDF İndir / Yazdır
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- â•â• AI YANITINI YAPIÅTIRMA MODALI â•â• -->
+<!-- ══ AI YANITINI YAPIŞTIRMA MODALI ══ -->
 <div id="paste-ai-report-modal" class="modal" style="z-index: 10000;">
   <div class="modal-box wide" style="max-width: 650px; background: var(--bg-card); border: 1px solid rgba(168,85,247,0.4); border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
     <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(168,85,247,0.1); display:flex; justify-content:space-between; align-items:center;">
       <div class="modal-title" style="color: #c084fc; font-weight: 800; font-size: 16px; display:flex; align-items:center; gap:8px;">
-        <span>âš¡</span> Gemini / ChatGPT YanÄ±tÄ±nÄ± Rapora Aktar
+        <span>⚡</span> Gemini / ChatGPT Yanıtını Rapora Aktar
       </div>
-      <button class="modal-close" onclick="closeModal('paste-ai-report-modal')" style="font-size:22px;">Ã—</button>
+      <button class="modal-close" onclick="closeModal('paste-ai-report-modal')" style="font-size:22px;">×</button>
     </div>
     <div style="padding: 20px;">
       <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
-        Gemini veya ChatGPT'nin verdiÄŸi koÃ§luk deÄŸerlendirmesini aÅŸaÄŸÄ±ya yapÄ±ÅŸtÄ±rÄ±n. Sistem bunu doÄŸrudan Ã¶ÄŸrencinin haftalÄ±k raporuna ve koÃ§luk notuna iÅŸleyecektir:
+        Gemini veya ChatGPT'nin verdiği koçluk değerlendirmesini aşağıya yapıştırın. Sistem bunu doğrudan öğrencinin haftalık raporuna ve koçluk notuna işleyecektir:
       </p>
       
       <div style="margin-bottom: 14px;">
         <button type="button" class="btn btn-sm btn-secondary" onclick="pasteFromClipboardToAIInput()" style="margin-bottom: 8px; display:inline-flex; align-items:center; gap:6px; font-weight:700;">
-          ğŸ“‹ Panodan Otomatik YapÄ±ÅŸtÄ±r
+          📋 Panodan Otomatik Yapıştır
         </button>
-        <textarea id="paste-ai-input-text" class="form-input" rows="8" placeholder="Gemini veya ChatGPT'den kopyaladÄ±ÄŸÄ±nÄ±z metni buraya yapÄ±ÅŸtÄ±rÄ±n (Ctrl + V)..." style="width:100%; font-size:13px; line-height:1.6; resize:vertical; background:rgba(0,0,0,0.3); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px; color:#fff;"></textarea>
+        <textarea id="paste-ai-input-text" class="form-input" rows="8" placeholder="Gemini veya ChatGPT'den kopyaladığınız metni buraya yapıştırın (Ctrl + V)..." style="width:100%; font-size:13px; line-height:1.6; resize:vertical; background:rgba(0,0,0,0.3); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px; color:#fff;"></textarea>
       </div>
 
       <div class="form-actions" style="display:flex; justify-content:flex-end; gap:10px;">
-        <button type="button" class="btn" onclick="closeModal('paste-ai-report-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('paste-ai-report-modal')">İptal</button>
         <button type="button" class="btn btn-accent" onclick="savePastedAIResponse()" style="font-weight:800; background:linear-gradient(135deg, #a855f7, #ec4899); color:#fff; padding:8px 18px;">
-          âœ¨ Rapora Aktar ve Kaydet
+          ✨ Rapora Aktar ve Kaydet
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- â•â• GÃ–RÃœÅME HEDEFLERÄ° (EYLEM PLANI) DÃœZENLEME MODALI â•â• -->
+<!-- ══ GÖRÜŞME HEDEFLERİ (EYLEM PLANI) DÜZENLEME MODALI ══ -->
 <div id="edit-action-items-modal" class="modal" style="z-index: 10000;">
   <div class="modal-box" style="max-width: 550px; background: var(--bg-card); border: 1px solid rgba(0,240,255,0.4); border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.8);">
     <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(0,240,255,0.08); display:flex; justify-content:space-between; align-items:center;">
       <div class="modal-title" style="color: #00F0FF; font-weight: 800; font-size: 15px; display:flex; align-items:center; gap:8px;">
-        <span>ğŸ¯</span> HaftalÄ±k GÃ¶rÃ¼ÅŸme Hedeflerini Belirle (3 Ana GÃ¶rev)
+        <span>🎯</span> Haftalık Görüşme Hedeflerini Belirle (3 Ana Görev)
       </div>
-      <button class="modal-close" onclick="closeModal('edit-action-items-modal')" style="font-size:22px;">Ã—</button>
+      <button class="modal-close" onclick="closeModal('edit-action-items-modal')" style="font-size:22px;">×</button>
     </div>
     <div style="padding: 20px;">
       <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px;">
-        Ã–ÄŸrenciyle bu gÃ¶rÃ¼ÅŸmede kararlaÅŸtÄ±rdÄ±ÄŸÄ±nÄ±z Ã¶ncelikli 3 Ã¶devi/hedefi girin:
+        Öğrenciyle bu görüşmede kararlaştırdığınız öncelikli 3 ödevi/hedefi girin:
       </p>
       
       <div class="form-group" style="margin-bottom: 12px;">
-        <label class="form-label" style="color:#00F0FF; font-weight:700;">1. Ana Hedef / Ã–dev</label>
-        <input type="text" id="action-target-1" class="form-input" placeholder="Ã–rn: TYT Matematik gÃ¼nlÃ¼k 25 soru paragraf/problem rutini">
+        <label class="form-label" style="color:#00F0FF; font-weight:700;">1. Ana Hedef / Ödev</label>
+        <input type="text" id="action-target-1" class="form-input" placeholder="Örn: TYT Matematik günlük 25 soru paragraf/problem rutini">
       </div>
       <div class="form-group" style="margin-bottom: 12px;">
-        <label class="form-label" style="color:#00F0FF; font-weight:700;">2. Ana Hedef / Ã–dev</label>
-        <input type="text" id="action-target-2" class="form-input" placeholder="Ã–rn: AYT Fizik Ä°tme-Momentum fasikÃ¼l taramasÄ± tamamlanacak">
+        <label class="form-label" style="color:#00F0FF; font-weight:700;">2. Ana Hedef / Ödev</label>
+        <input type="text" id="action-target-2" class="form-input" placeholder="Örn: AYT Fizik İtme-Momentum fasikül taraması tamamlanacak">
       </div>
       <div class="form-group" style="margin-bottom: 16px;">
-        <label class="form-label" style="color:#00F0FF; font-weight:700;">3. Ana Hedef / Ã–dev</label>
-        <input type="text" id="action-target-3" class="form-input" placeholder="Ã–rn: Denemede turlama taktiÄŸi uygulanacak, inatlaÅŸÄ±lmayacak">
+        <label class="form-label" style="color:#00F0FF; font-weight:700;">3. Ana Hedef / Ödev</label>
+        <input type="text" id="action-target-3" class="form-input" placeholder="Örn: Denemede turlama taktiği uygulanacak, inatlaşılmayacak">
       </div>
 
       <div class="form-actions" style="display:flex; justify-content:flex-end; gap:10px;">
-        <button type="button" class="btn" onclick="closeModal('edit-action-items-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('edit-action-items-modal')">İptal</button>
         <button type="button" class="btn btn-primary" onclick="saveCustomActionItems()" style="font-weight:800; padding:8px 18px;">
-          ğŸ’¾ Hedefleri Kaydet
+          💾 Hedefleri Kaydet
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- GÃ¼n Serisi ve SÄ±nav SayacÄ± ModalÄ± -->
+<!-- Gün Serisi ve Sınav Sayacı Modalı -->
 <div id="countdown-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">â³ SÄ±nav SayacÄ± & Seri</div>
-      <button class="modal-close" onclick="closeModal('countdown-modal')">Ã—</button>
+      <div class="modal-title">⏳ Sınav Sayacı & Seri</div>
+      <button class="modal-close" onclick="closeModal('countdown-modal')">×</button>
     </div>
     <form onsubmit="handleSaveCountdown(event)">
       <div class="form-group" style="margin-bottom:12px;">
-        <label class="form-label">Ã‡alÄ±ÅŸmaya BaÅŸlama Tarihi</label>
+        <label class="form-label">Çalışmaya Başlama Tarihi</label>
         <input id="cd-start-date" type="date" class="form-input student-readonly" onchange="calcCountdown()">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">SÄ±nav Tarihi</label>
+          <label class="form-label">Sınav Tarihi</label>
           <input id="cd-exam-date" type="date" class="form-input student-readonly" onchange="calcCountdown()">
         </div>
         <div class="form-group">
-          <label class="form-label">SÄ±nav Saati</label>
+          <label class="form-label">Sınav Saati</label>
           <input id="cd-exam-time" type="time" class="form-input student-readonly" value="10:30" onchange="calcCountdown()">
         </div>
       </div>
       
       <div style="display:flex; gap:16px; margin:20px 0;">
         <div style="flex:1; background:rgba(255,255,255,0.05); padding:16px; border-radius:8px; text-align:center;">
-          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">KaÃ§Ä±ncÄ± GÃ¼n?</div>
-          <div id="cd-passed-days" style="font-size:24px; font-weight:700; color:var(--primary); margin-top:8px;">1. GÃ¼n</div>
+          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Kaçıncı Gün?</div>
+          <div id="cd-passed-days" style="font-size:24px; font-weight:700; color:var(--primary); margin-top:8px;">1. Gün</div>
         </div>
         <div style="flex:1; background:rgba(255,255,255,0.05); padding:16px; border-radius:8px; text-align:center;">
-          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Kalan GÃ¼n</div>
-          <div id="cd-remaining-days" style="font-size:24px; font-weight:700; color:var(--accent); margin-top:8px;">0 GÃ¼n</div>
+          <div style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Kalan Gün</div>
+          <div id="cd-remaining-days" style="font-size:24px; font-weight:700; color:var(--accent); margin-top:8px;">0 Gün</div>
         </div>
       </div>
 
@@ -1934,37 +1934,37 @@
 <div id="ai-prompt-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title">ğŸ¤– AI Prompt â€” Kopyala ve YapÄ±ÅŸtÄ±r</div>
-      <button class="modal-close" onclick="closeModal('ai-prompt-modal')">Ã—</button>
+      <div class="modal-title">🤖 AI Prompt — Kopyala ve Yapıştır</div>
+      <button class="modal-close" onclick="closeModal('ai-prompt-modal')">×</button>
     </div>
     <p class="text-muted" style="margin-bottom:12px;">
-      AÅŸaÄŸÄ±daki promptu kopyalayÄ±n. <strong>ChatGPT</strong> veya <strong>Gemini</strong>'ye yapÄ±ÅŸtÄ±rÄ±n ve yanÄ±tÄ± alÄ±n.
+      Aşağıdaki promptu kopyalayın. <strong>ChatGPT</strong> veya <strong>Gemini</strong>'ye yapıştırın ve yanıtı alın.
     </p>
     <textarea id="ai-prompt-text" class="form-input large" readonly
-              placeholder="Prompt oluÅŸturuluyorâ€¦"></textarea>
+              placeholder="Prompt oluşturuluyor…"></textarea>
     <div class="form-actions">
       <button type="button" class="btn" onclick="closeModal('ai-prompt-modal')">Kapat</button>
-      <button type="button" class="btn btn-primary" onclick="copyPrompt()">ğŸ“‹ Kopyala</button>
-      <button type="button" class="btn btn-accent" onclick="openAIResponseModal()">â†’ YanÄ±t Gir</button>
+      <button type="button" class="btn btn-primary" onclick="copyPrompt()">📋 Kopyala</button>
+      <button type="button" class="btn btn-accent" onclick="openAIResponseModal()">→ Yanıt Gir</button>
     </div>
   </div>
 </div>
 
-<!-- AI YanÄ±t Modal -->
+<!-- AI Yanıt Modal -->
 <div id="ai-response-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title">ğŸ“‹ AI YanÄ±tÄ±nÄ± YapÄ±ÅŸtÄ±r</div>
-      <button class="modal-close" onclick="closeModal('ai-response-modal')">Ã—</button>
+      <div class="modal-title">📋 AI Yanıtını Yapıştır</div>
+      <button class="modal-close" onclick="closeModal('ai-response-modal')">×</button>
     </div>
     <p class="text-muted" style="margin-bottom:12px;">
-      ChatGPT / Gemini'nin JSON yanÄ±tÄ±nÄ± aÅŸaÄŸÄ±ya yapÄ±ÅŸtÄ±rÄ±n. Program otomatik oluÅŸturulacak.
+      ChatGPT / Gemini'nin JSON yanıtını aşağıya yapıştırın. Program otomatik oluşturulacak.
     </p>
     <textarea id="ai-response-text" class="form-input large"
               placeholder='{"ozetAnaliz": "...", "haftaProgram": {...}}'></textarea>
     <div class="form-actions">
-      <button type="button" class="btn" onclick="closeModal('ai-response-modal')">Ä°ptal</button>
-      <button type="button" class="btn btn-accent" onclick="processAIResponse()">âœ¨ ProgramÄ± OluÅŸtur</button>
+      <button type="button" class="btn" onclick="closeModal('ai-response-modal')">İptal</button>
+      <button type="button" class="btn btn-accent" onclick="processAIResponse()">✨ Programı Oluştur</button>
     </div>
   </div>
 </div>
@@ -1973,8 +1973,8 @@
 <div id="analysis-detail-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title">ğŸ“Š Analiz DetayÄ±</div>
-      <button class="modal-close" onclick="closeModal('analysis-detail-modal')">Ã—</button>
+      <div class="modal-title">📊 Analiz Detayı</div>
+      <button class="modal-close" onclick="closeModal('analysis-detail-modal')">×</button>
     </div>
     <div id="analysis-detail-body"></div>
     <div class="form-actions">
@@ -1983,28 +1983,28 @@
   </div>
 </div>
 
-<!-- KiÅŸisel Hedef Modal -->
+<!-- Kişisel Hedef Modal -->
 <div id="personal-goal-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">ğŸ¯ KiÅŸisel Hedef</div>
-      <button class="modal-close" onclick="closeModal('personal-goal-modal')">Ã—</button>
+      <div class="modal-title">🎯 Kişisel Hedef</div>
+      <button class="modal-close" onclick="closeModal('personal-goal-modal')">×</button>
     </div>
     <form onsubmit="savePersonalGoal(event)">
       <div class="form-group">
-        <label class="form-label">Hedef Ãœniversite</label>
-        <input id="goal-university" type="text" class="form-input" placeholder="Ä°TÃœ, ODTÃœ, BoÄŸaziÃ§iâ€¦">
+        <label class="form-label">Hedef Üniversite</label>
+        <input id="goal-university" type="text" class="form-input" placeholder="İTÜ, ODTÜ, Boğaziçi…">
       </div>
       <div class="form-group">
-        <label class="form-label">BÃ¶lÃ¼m</label>
-        <input id="goal-profession" type="text" class="form-input" placeholder="Bilgisayar MÃ¼hendisliÄŸiâ€¦">
+        <label class="form-label">Bölüm</label>
+        <input id="goal-profession" type="text" class="form-input" placeholder="Bilgisayar Mühendisliği…">
       </div>
       <div class="form-group">
-        <label class="form-label">Hedef SÄ±ralama</label>
+        <label class="form-label">Hedef Sıralama</label>
         <input id="goal-ranking" type="text" class="form-input" placeholder="5000">
       </div>
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('personal-goal-modal')">Ä°ptal</button>
+        <button type="button" class="btn" onclick="closeModal('personal-goal-modal')">İptal</button>
         <button type="submit" class="btn btn-primary">Kaydet</button>
       </div>
     </form>
@@ -2012,137 +2012,137 @@
 </div>
 
 
-<!-- Åifre DeÄŸiÅŸtir Modal -->
+<!-- Şifre Değiştir Modal -->
 <div id="pwd-modal" class="modal">
   <div class="modal-box">
     <div class="modal-header">
-      <div class="modal-title">ğŸ”‘ Åifre DeÄŸiÅŸtir</div>
-      <button class="modal-close" onclick="closeModal('pwd-modal')">Ã—</button>
+      <div class="modal-title">🔑 Şifre Değiştir</div>
+      <button class="modal-close" onclick="closeModal('pwd-modal')">×</button>
     </div>
     <form onsubmit="handlePasswordChange(event)">
       <div class="form-group">
-        <label class="form-label">Mevcut Åifre</label>
+        <label class="form-label">Mevcut Şifre</label>
         <input id="pwd-current" type="password" class="form-input">
       </div>
       <div class="form-group">
-        <label class="form-label">Yeni Åifre</label>
+        <label class="form-label">Yeni Şifre</label>
         <input id="pwd-new" type="password" class="form-input">
       </div>
       <div class="form-group">
-        <label class="form-label">Yeni Åifre (Tekrar)</label>
+        <label class="form-label">Yeni Şifre (Tekrar)</label>
         <input id="pwd-confirm" type="password" class="form-input">
       </div>
       <div id="pwd-error" class="login-error" style="display:none;"></div>
       <div class="form-actions">
-        <button type="button" class="btn" onclick="closeModal('pwd-modal')">Ä°ptal</button>
-        <button type="submit" class="btn btn-primary">GÃ¼ncelle</button>
+        <button type="button" class="btn" onclick="closeModal('pwd-modal')">İptal</button>
+        <button type="submit" class="btn btn-primary">Güncelle</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Ã–ÄŸrenci YÃ¶netimi Modal -->
+<!-- Öğrenci Yönetimi Modal -->
 <div id="student-mgmt-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title">ğŸ‘¥ Ã–ÄŸrenci YÃ¶netimi</div>
-      <button class="modal-close" onclick="closeModal('student-mgmt-modal')">Ã—</button>
+      <div class="modal-title">👥 Öğrenci Yönetimi</div>
+      <button class="modal-close" onclick="closeModal('student-mgmt-modal')">×</button>
     </div>
 
     <div id="student-mgmt-list" style="margin-bottom:20px;"></div>
 
     <div class="divider"></div>
-    <div style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:12px;">+ Yeni Ã–ÄŸrenci</div>
+    <div style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:12px;">+ Yeni Öğrenci</div>
     <form onsubmit="handleAddStudent(event)">
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Ad Soyad</label>
-          <input id="new-student-name" type="text" class="form-input" placeholder="Ali YÄ±lmaz" required>
+          <input id="new-student-name" type="text" class="form-input" placeholder="Ali Yılmaz" required>
         </div>
         <div class="form-group">
-          <label class="form-label">KullanÄ±cÄ± AdÄ±</label>
+          <label class="form-label">Kullanıcı Adı</label>
           <input id="new-student-username" type="text" class="form-input" placeholder="ali" required>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Åifre</label>
+          <label class="form-label">Şifre</label>
           <input id="new-student-password" type="text" class="form-input" placeholder="ali123" required>
         </div>
         <div class="form-group">
           <label class="form-label">Alan</label>
           <select id="new-student-branch" class="form-input">
-            <option value="SayÄ±sal">SayÄ±sal</option>
+            <option value="Sayısal">Sayısal</option>
             <option value="EA">EA</option>
-            <option value="SÃ¶zel">SÃ¶zel</option>
+            <option value="Sözel">Sözel</option>
             <option value="Dil">Dil</option>
           </select>
         </div>
       </div>
       <div class="form-group" id="new-student-coach-group" style="display:none;">
-        <label class="form-label">Sorumlu KoÃ§</label>
+        <label class="form-label">Sorumlu Koç</label>
         <select id="new-student-coach" class="form-input"></select>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">+ Ã–ÄŸrenci Ekle</button>
+        <button type="submit" class="btn btn-primary">+ Öğrenci Ekle</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- KoÃ§ YÃ¶netimi Modal (SÃ¼per KoÃ§ Ã–zel) -->
+<!-- Koç Yönetimi Modal (Süper Koç Özel) -->
 <div id="coach-mgmt-modal" class="modal">
   <div class="modal-box wide">
     <div class="modal-header">
-      <div class="modal-title">ğŸ‘‘ KoÃ§ YÃ¶netimi (SÃ¼per KoÃ§)</div>
-      <button class="modal-close" onclick="closeModal('coach-mgmt-modal')">Ã—</button>
+      <div class="modal-title">👑 Koç Yönetimi (Süper Koç)</div>
+      <button class="modal-close" onclick="closeModal('coach-mgmt-modal')">×</button>
     </div>
 
     <div id="coach-mgmt-list" style="margin-bottom:20px;"></div>
 
     <div class="divider"></div>
-    <div style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:12px;">+ Yeni BaÄŸÄ±msÄ±z KoÃ§ TanÄ±mla</div>
+    <div style="font-size:14px; font-weight:700; color:var(--text); margin-bottom:12px;">+ Yeni Bağımsız Koç Tanımla</div>
     <form onsubmit="handleAddCoach(event)">
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">KoÃ§ Ad Soyad</label>
-          <input id="new-coach-name" type="text" class="form-input" placeholder="Ali YÄ±lmaz" required>
+          <label class="form-label">Koç Ad Soyad</label>
+          <input id="new-coach-name" type="text" class="form-input" placeholder="Ali Yılmaz" required>
         </div>
         <div class="form-group">
-          <label class="form-label">KullanÄ±cÄ± AdÄ±</label>
+          <label class="form-label">Kullanıcı Adı</label>
           <input id="new-coach-username" type="text" class="form-input" placeholder="ali" required>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Åifre</label>
+        <label class="form-label">Şifre</label>
         <input id="new-coach-password" type="text" class="form-input" placeholder="ali123" required>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#00F0FF,#0080FF); color:#000; font-weight:800;">+ KoÃ§ HesabÄ± OluÅŸtur</button>
+        <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg,#00F0FF,#0080FF); color:#000; font-weight:800;">+ Koç Hesabı Oluştur</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- â•â• POMODORO SEANS TAMAMLAMA & SORU GÄ°RÄ°ÅÄ° MODALI â•â• -->
+<!-- ══ POMODORO SEANS TAMAMLAMA & SORU GİRİŞİ MODALI ══ -->
 <div id="pomodoro-completion-modal" class="modal">
   <div class="modal-box" style="max-width: 500px;">
     <div class="modal-header">
-      <div class="modal-title">ğŸ‰ Odak SeansÄ± TamamlandÄ±!</div>
-      <button class="modal-close" onclick="closeModal('pomodoro-completion-modal')">Ã—</button>
+      <div class="modal-title">🎉 Odak Seansı Tamamlandı!</div>
+      <button class="modal-close" onclick="closeModal('pomodoro-completion-modal')">×</button>
     </div>
 
     <div style="padding: 16px 20px 20px;">
       <div style="background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(139,92,246,0.12)); border: 1px solid rgba(0,240,255,0.3); border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 16px;">
-        <div style="font-size: 28px; margin-bottom: 4px;">ğŸ†</div>
-        <div style="font-size: 15px; font-weight: 800; color: #f8fafc;">Harika OdaklandÄ±n!</div>
+        <div style="font-size: 28px; margin-bottom: 4px;">🏆</div>
+        <div style="font-size: 15px; font-weight: 800; color: #f8fafc;">Harika Odaklandın!</div>
         <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
-          Tamamlanan SÃ¼re: <strong id="pomo-comp-duration" style="color: #00F0FF;">25 Dakika</strong>
+          Tamamlanan Süre: <strong id="pomo-comp-duration" style="color: #00F0FF;">25 Dakika</strong>
         </div>
       </div>
 
       <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 12px;">
-        ğŸ“ Bu seansta soru Ã§Ã¶zdÃ¼ysen sayÄ±larÄ± gir, otomatik soru takibine kaydedelim:
+        📝 Bu seansta soru çözdüysen sayıları gir, otomatik soru takibine kaydedelim:
       </div>
 
       <div class="form-row" style="margin-bottom: 12px;">
@@ -2156,44 +2156,44 @@
         <div class="form-group" style="flex: 2;">
           <label class="form-label">Ders</label>
           <select id="pomo-comp-subject" class="form-input">
-            <option value="">Ders SeÃ§iniz...</option>
+            <option value="">Ders Seçiniz...</option>
           </select>
         </div>
       </div>
 
       <div class="form-row" style="margin-bottom: 12px;">
         <div class="form-group">
-          <label class="form-label">Ã‡Ã¶zÃ¼len Soru</label>
+          <label class="form-label">Çözülen Soru</label>
           <input id="pomo-comp-solved" type="number" class="form-input" placeholder="0" min="0" oninput="calcPomoCompBlank()">
         </div>
         <div class="form-group">
-          <label class="form-label">DoÄŸru</label>
+          <label class="form-label">Doğru</label>
           <input id="pomo-comp-correct" type="number" class="form-input" placeholder="0" min="0" oninput="calcPomoCompBlank()">
         </div>
         <div class="form-group">
-          <label class="form-label">YanlÄ±ÅŸ</label>
+          <label class="form-label">Yanlış</label>
           <input id="pomo-comp-wrong" type="number" class="form-input" placeholder="0" min="0" oninput="calcPomoCompBlank()">
         </div>
         <div class="form-group">
-          <label class="form-label">BoÅŸ (Oto)</label>
+          <label class="form-label">Boş (Oto)</label>
           <input id="pomo-comp-blank" type="number" class="form-input" placeholder="0" readonly style="background: rgba(255,255,255,0.05); color: #94a3b8;">
         </div>
       </div>
 
       <div class="form-group" style="margin-bottom: 18px;">
-        <label class="form-label">Ã‡alÄ±ÅŸÄ±lan Konu / Not (Ä°steÄŸe BaÄŸlÄ±)</label>
-        <input id="pomo-comp-notes" type="text" class="form-input" placeholder="Ã–rn: Paragraf Taktikleri veya Logaritma Test 3">
+        <label class="form-label">Çalışılan Konu / Not (İsteğe Bağlı)</label>
+        <input id="pomo-comp-notes" type="text" class="form-input" placeholder="Örn: Paragraf Taktikleri veya Logaritma Test 3">
       </div>
 
       <div style="display: flex; gap: 10px; flex-direction: column;">
         <button type="button" class="btn btn-primary" style="padding: 10px; font-weight: 800; font-size: 14px;" onclick="handlePomoSaveWithQuestions()">
-          ğŸ’¾ Soru Takibine Ekle & SeansÄ± Kaydet
+          💾 Soru Takibine Ekle & Seansı Kaydet
         </button>
         <button type="button" class="btn btn-secondary" style="padding: 9px; font-size: 12.5px;" onclick="handlePomoSaveDurationOnly()">
-          â±ï¸ Soru Ã‡Ã¶zmedim, Sadece Ã‡alÄ±ÅŸma SÃ¼resini Kaydet
+          ⏱️ Soru Çözmedim, Sadece Çalışma Süresini Kaydet
         </button>
         <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:4px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06);">
-          <span style="font-size:11.5px; color:var(--text-muted);">HenÃ¼z bitmedi mi?</span>
+          <span style="font-size:11.5px; color:var(--text-muted);">Henüz bitmedi mi?</span>
           <button type="button" class="btn btn-sm btn-secondary" style="padding:3px 9px; font-size:11.5px; color:#00F0FF;" onclick="extendPomodoroTime(15)">+15 dk Ekle</button>
           <button type="button" class="btn btn-sm btn-secondary" style="padding:3px 9px; font-size:11.5px; color:#00F0FF;" onclick="extendPomodoroTime(30)">+30 dk Ekle</button>
         </div>
@@ -2202,23 +2202,23 @@
   </div>
 </div>
 
-<!-- â•â• KOÃ‡LUK RAPORU MODALI â•â• -->
+<!-- ══ KOÇLUK RAPORU MODALI ══ -->
 <div id="coach-report-modal" class="modal">
   <div class="modal-box modal-xl" style="max-width: 960px; width: 95vw; max-height: 92vh; display: flex; flex-direction: column; padding: 0; background: #0c1322; border: 1px solid rgba(168,85,247,0.3); border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
     <div class="modal-header" style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(168,85,247,0.08);">
       <div class="modal-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: #c084fc;">
-        <span>ğŸ“</span>
-        <span>HaftalÄ±k Ã–ÄŸrenci GeliÅŸim & DISC KoÃ§luk Raporu</span>
+        <span>🎓</span>
+        <span>Haftalık Öğrenci Gelişim & DISC Koçluk Raporu</span>
       </div>
-      <button class="modal-close" onclick="closeModal('coach-report-modal')">Ã—</button>
+      <button class="modal-close" onclick="closeModal('coach-report-modal')">×</button>
     </div>
     <div id="coach-report-content" style="overflow-y: auto; flex: 1; padding: 16px 20px 24px;">
-      <!-- Dinamik Rapor Ä°Ã§eriÄŸi report.js tarafÄ±ndan render edilir -->
+      <!-- Dinamik Rapor İçeriği report.js tarafından render edilir -->
     </div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• JS MODÃœLLER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ════════════════════ JS MODÜLLER ════════════════════ -->
 <div id="toast-container"></div>
 
 <script src="js/firebase.js?v=332"></script>
@@ -2242,7 +2242,7 @@
 
 
 <script>
-  // BugÃ¼nÃ¼n tarihini date input'larÄ±na ayarla
+  // Bugünün tarihini date input'larına ayarla
   document.addEventListener('DOMContentLoaded', () => {
     const today = getTodayStr();
     ['daily-date','wrong-date','exam-date'].forEach(id => {
