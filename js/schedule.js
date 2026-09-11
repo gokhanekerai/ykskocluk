@@ -214,10 +214,8 @@ function _renderMonthView(container, schedule, wrongLog) {
       if (items.length > 3) {
         chipsHtml += `<div class="month-task-more">+${items.length - 3} görev daha</div>`;
       }
-    } else if (_isCoachUser()) {
-      chipsHtml = `<div class="month-task-empty desktop-only" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')">+ Görev Ekle</div>`;
     } else {
-      chipsHtml = '';
+      chipsHtml = `<div class="month-task-empty desktop-only" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')">+ Görev Ekle</div>`;
     }
 
     let badgeHtml = '';
@@ -344,25 +342,18 @@ function _renderWeekView(container, schedule, wrongLog) {
             ${items.length > 0 ? `
               <span class="week-day-badge ${isAllDone ? 'done' : ''}">${doneCount}/${items.length}</span>
             ` : ''}
-            ${isCoach ? `<button class="btn-icon-sm" style="color:var(--primary); font-size:14px;" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')" title="Bu güne görev ekle">➕</button>` : ''}
+            <button class="btn-icon-sm" style="color:var(--primary); font-size:14px;" onclick="event.stopPropagation(); openAddScheduleItem('${dStr}')" title="Bu güne görev ekle">➕</button>
           </div>
         </div>
 
         <!-- Görev Listesi -->
         <div class="week-day-tasks-list">
-          ${items.length === 0 ? (
-            isCoach ? `
-              <div class="week-empty-day" onclick="openAddScheduleItem('${dStr}')">
-                <span>+</span>
-                <p>Görev Ata</p>
-              </div>
-            ` : `
-              <div class="week-empty-day student-empty" style="cursor:default; border-style:dashed; opacity:0.5; padding:18px 8px;">
-                <span style="font-size:16px;">📌</span>
-                <p style="margin-top:4px; font-size:11px; color:var(--text-muted);">Görev yok</p>
-              </div>
-            `
-          ) : items.map(item => {
+          ${items.length === 0 ? `
+            <div class="week-empty-day" onclick="openAddScheduleItem('${dStr}')">
+              <span>+</span>
+              <p>${isCoach ? 'Görev Ata' : 'Görev Ekle'}</p>
+            </div>
+          ` : items.map(item => {
             const icon = {
               'konu çalışma': '📖', 'soru çözme': '✏️', 'deneme': '📝', 'tekrar': '🔁', 'video': '🎬'
             }[item.type] || '📌';
@@ -381,12 +372,10 @@ function _renderWeekView(container, schedule, wrongLog) {
                       ${_renderTaskBooksSpan(item)}
                     </div>
                   </div>
-                  ${isCoach ? `
-                    <div class="week-task-actions">
-                      <button class="btn-icon-xs" onclick="openEditScheduleItem('${dStr}','${item.id}')" title="Görevi Düzenle">✏️</button>
-                      <button class="btn-icon-xs text-danger" onclick="deleteScheduleItem('${dStr}','${item.id}')" title="Görevi Sil">🗑️</button>
-                    </div>
-                  ` : ''}
+                  <div class="week-task-actions">
+                    <button class="btn-icon-xs" onclick="openEditScheduleItem('${dStr}','${item.id}')" title="Görevi Düzenle">✏️</button>
+                    <button class="btn-icon-xs text-danger" onclick="deleteScheduleItem('${dStr}','${item.id}')" title="Görevi Sil">🗑️</button>
+                  </div>
                 </div>
               </div>
             `;
@@ -394,13 +383,11 @@ function _renderWeekView(container, schedule, wrongLog) {
         </div>
 
         <!-- Kolon Altı Buton -->
-        ${isCoach ? `
-          <div class="week-day-footer">
-            <button class="btn btn-sm btn-secondary week-add-btn" onclick="openAddScheduleItem('${dStr}')">
-              + Görev Ekle
-            </button>
-          </div>
-        ` : ''}
+        <div class="week-day-footer">
+          <button class="btn btn-sm btn-secondary week-add-btn" onclick="openAddScheduleItem('${dStr}')">
+            + Görev Ekle
+          </button>
+        </div>
       </div>
     `;
   });
@@ -513,10 +500,10 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
             <button class="btn btn-sm btn-accent" onclick="openWrongPoolForCurrentDay()" title="Yanlış havuzundan görev ekle">
               📋 Yanlış Havuzu
             </button>
-            <button class="btn btn-sm btn-primary" onclick="openAddScheduleItem('${dateStr}')">
-              + Görev Ekle
-            </button>
           ` : ''}
+          <button class="btn btn-sm btn-primary" onclick="openAddScheduleItem('${dateStr}')">
+            + Görev Ekle
+          </button>
         </div>
       </div>
 
@@ -529,12 +516,10 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
       <div class="selected-day-empty-box">
         <div style="font-size:32px; margin-bottom:8px;">🎯</div>
         <div style="font-weight:700; font-size:15px; color:var(--text); margin-bottom:4px;">Bu gün için henüz bir görev eklenmemiş</div>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">${isCoach ? 'Öğrenciye bu gün çalışacağı konuları veya soru hedeflerini atayabilirsiniz.' : 'Bugün için planlanmış bir çalışma göreviniz bulunmuyor.'}</div>
-        ${isCoach ? `
-          <button class="btn btn-primary" onclick="openAddScheduleItem('${dateStr}')">
-            + Bu Güne Görev Ata
-          </button>
-        ` : ''}
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">${isCoach ? 'Öğrenciye bu gün çalışacağı konuları veya soru hedeflerini atayabilirsiniz.' : 'Bugün için planlanmış bir çalışma göreviniz bulunmuyor. Yeni bir görev ekleyerek başlayabilirsiniz.'}</div>
+        <button class="btn btn-primary" onclick="openAddScheduleItem('${dateStr}')">
+          + Bu Güne Görev Ekle
+        </button>
       </div>
     `;
   } else {
@@ -602,16 +587,14 @@ function _renderSelectedDayCardHtml(schedule, wrongLog, dateStr, isFullDayView =
             ${wrongBtnHtml}
           </div>
 
-          ${isCoach ? `
-            <div class="selected-day-task-actions">
-              <button class="btn btn-xs btn-edit-task" onclick="openEditScheduleItem('${dateStr}','${item.id}')" title="Görevi Düzenle">
-                <span>✏️</span> Düzenle
-              </button>
-              <button class="btn btn-xs btn-delete-task" onclick="deleteScheduleItem('${dateStr}','${item.id}')" title="Görevi Sil">
-                <span>🗑️</span>
-              </button>
-            </div>
-          ` : ''}
+          <div class="selected-day-task-actions">
+            <button class="btn btn-xs btn-edit-task" onclick="openEditScheduleItem('${dateStr}','${item.id}')" title="Görevi Düzenle">
+              <span>✏️</span> Düzenle
+            </button>
+            <button class="btn btn-xs btn-delete-task" onclick="deleteScheduleItem('${dateStr}','${item.id}')" title="Görevi Sil">
+              <span>🗑️</span>
+            </button>
+          </div>
         </div>
       `;
     }).join('');
@@ -918,11 +901,6 @@ function cancelTaskCompletion() {
 }
 
 function deleteScheduleItem(dateStr, itemId) {
-  if (!_isCoachUser()) {
-    showToast('Görev silme yetkisi yalnızca koçlara aittir.', 'warning');
-    return;
-  }
-
   if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
   const data = getStudentData(window.activeStudent);
   const day  = (data.schedule || []).find(s => s.date === dateStr);
@@ -1174,6 +1152,11 @@ function _populateSchedStudentsPicker() {
   const group = document.getElementById('sched-students-assignment-group');
   if (!container || !group) return;
 
+  if (!_isCoachUser()) {
+    group.style.display = 'none';
+    return;
+  }
+
   const visibleStudents = typeof getVisibleStudents === 'function' ? getVisibleStudents() : [];
   if (visibleStudents.length === 0) {
     group.style.display = 'none';
@@ -1237,11 +1220,6 @@ function selectOnlyActiveSchedStudent() {
 }
 
 function openAddScheduleItem(dateStr) {
-  if (!_isCoachUser()) {
-    showToast('Görev ekleme yetkisi yalnızca koçlara aittir.', 'warning');
-    return;
-  }
-
   editingScheduleContext = null;
   if (!dateStr) dateStr = window.currentSelectedDayDate || new Date().toISOString().split('T')[0];
   document.getElementById('sched-item-date').value = dateStr;
@@ -1251,8 +1229,13 @@ function openAddScheduleItem(dateStr) {
   const btn = document.getElementById('schedule-submit-btn');
   if (btn) btn.textContent = 'Ekle';
 
-  // Öğrenci listesi seçicisini hazırla ve göster
-  _populateSchedStudentsPicker();
+  // Öğrenci listesi seçicisini hazırla veya gizle
+  const studentGroup = document.getElementById('sched-students-assignment-group');
+  if (_isCoachUser()) {
+    _populateSchedStudentsPicker();
+  } else if (studentGroup) {
+    studentGroup.style.display = 'none';
+  }
 
   _populateSchedSubjectSelect();
   
@@ -1272,11 +1255,6 @@ function openAddScheduleItem(dateStr) {
 }
 
 function openEditScheduleItem(dateStr, itemId) {
-  if (!_isCoachUser()) {
-    showToast('Görev düzenleme yetkisi yalnızca koçlara aittir.', 'warning');
-    return;
-  }
-
   const data = getStudentData(window.activeStudent);
   const day = (data.schedule || []).find(s => s.date === dateStr);
   if (!day) return;
@@ -1403,11 +1381,6 @@ function updateSchedTopics() {
 function handleAddScheduleItem(e) {
   if (e) e.preventDefault();
 
-  if (!_isCoachUser()) {
-    showToast('Görev ekleme ve düzenleme yetkisi yalnızca koçlara aittir.', 'warning');
-    return;
-  }
-
   const dateStr = document.getElementById('sched-item-date')?.value || window.currentSelectedDayDate;
   const subject = document.getElementById('sched-subject')?.value.trim() || '';
 
@@ -1485,13 +1458,18 @@ function handleAddScheduleItem(e) {
     saveStudentData(window.activeStudent, data);
     showToast('Görev başarıyla güncellendi!', 'success');
   } else {
-    // Hedef Öğrencileri Belirle (Çoklu Seçim)
-    const checkedBoxes = document.querySelectorAll('input[name="sched_target_student"]:checked');
+    // Hedef Öğrencileri Belirle (Koç için Çoklu Seçim, Öğrenci için Kendi Hesabı)
     let targetStudentKeys = [];
-    if (checkedBoxes.length > 0) {
-      targetStudentKeys = Array.from(checkedBoxes).map(cb => cb.value);
+    if (_isCoachUser()) {
+      const checkedBoxes = document.querySelectorAll('input[name="sched_target_student"]:checked');
+      if (checkedBoxes.length > 0) {
+        targetStudentKeys = Array.from(checkedBoxes).map(cb => cb.value);
+      } else {
+        targetStudentKeys = [window.activeStudent];
+      }
     } else {
-      targetStudentKeys = [window.activeStudent];
+      const activeKey = window.activeStudent || (window.currentUser ? (window.currentUser.id || window.currentUser.username) : null);
+      targetStudentKeys = activeKey ? [activeKey] : [];
     }
 
     if (targetStudentKeys.length === 0) {
@@ -1794,11 +1772,6 @@ function openAddTaskForCurrentDay() {
 }
 
 function addTopicToScheduleAsReview(subject, topic, targetDate = null) {
-  if (!_isCoachUser()) {
-    showToast('Görev ekleme yetkisi yalnızca koçlara aittir.', 'warning');
-    return;
-  }
-
   const data = getStudentData(window.activeStudent);
   if (!Array.isArray(data.schedule)) data.schedule = [];
 
@@ -1912,6 +1885,10 @@ function openDayDetailModal(dateStr) {
     const dateObj = new Date(dateStr + 'T00:00:00');
     const formattedDate = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
     titleEl.textContent = `📅 Günlük Görev Yönetimi (${formattedDate})`;
+  }
+  const btnWrong = document.getElementById('btn-day-add-wrong');
+  if (btnWrong) {
+    btnWrong.style.display = _isCoachUser() ? '' : 'none';
   }
   openModal('schedule-day-modal');
 }

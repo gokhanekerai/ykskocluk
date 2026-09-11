@@ -88,8 +88,8 @@ function _applySession(user) {
   _el('sidebar-user-role',   el => el.textContent = user.roleTitle || (isSuperCoachRole ? 'YKS Süper Koçu' : (isCoachRole ? 'YKS Koçu' : 'Öğrenci')));
 
   // Dinamik menü ve başlık isimlendirmesi
-  _el('menu-schedule-text', el => el.textContent = isCoachRole ? 'Görevlendirme' : 'Verilen Görevler');
-  _el('tab-schedule-title', el => el.textContent = isCoachRole ? '📅 Görevlendirme' : '📅 Verilen Görevler');
+  _el('menu-schedule-text', el => el.textContent = isCoachRole ? 'Görevlendirme' : 'Çalışma Programım');
+  _el('tab-schedule-title', el => el.textContent = isCoachRole ? '📅 Görevlendirme & Çalışma Takvimi' : '📅 Çalışma Programım & Görevler');
 
   // Koç-only menü öğeleri
   document.querySelectorAll('.coach-only').forEach(el => {
